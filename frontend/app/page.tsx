@@ -1,65 +1,141 @@
-import Image from "next/image";
+'use client'
 
-export default function Home() {
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useLogin } from '@/hooks/useLogin'
+import { LoginForm } from '@/components/login/LoginForm'
+
+const BG_IMAGES = [
+  'https://www.rfc.com.tn/assets/images/automatisez.png',
+  'https://www.rfc.com.tn/assets/images/home-bg-3.jpg',
+  'https://www.rfc.com.tn/assets/images/home-bg-4.jpg',
+]
+
+export default function LoginPage() {
+  const router = useRouter()
+  const { login, loading, error } = useLogin()
+
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [activeImg, setActiveImg] = useState(0)
+  const [ready, setReady] = useState(false)
+  const [emailFocused, setEmailFocused] = useState(false)
+  const [passFocused, setPassFocused] = useState(false)
+
+  useEffect(() => {
+    requestAnimationFrame(() => setReady(true))
+  }, [])
+
+  useEffect(() => {
+    const t = setInterval(
+      () => setActiveImg((p) => (p + 1) % BG_IMAGES.length),
+      6000,
+    )
+    return () => clearInterval(t)
+  }, [])
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault()
+    login(email, password)
+  }
+
+  const handleForgotPassword = () => {
+    router.push('/forgot-password')
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      {BG_IMAGES.map((src, i) => (
+        <div
+          key={src}
+          className="absolute inset-0 transition-opacity duration-[2500ms] ease-in-out"
+          style={{ opacity: activeImg === i ? 1 : 0 }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={src}
+            alt=""
+            className="w-full h-full object-cover"
+            style={{
+              animation:
+                activeImg === i
+                  ? 'kenburns 18s ease-in-out infinite alternate'
+                  : 'none',
+            }}
+          />
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      ))}
+
+      <div className="absolute inset-0 bg-gradient-to-br from-[#0A1628]/85 via-[#0A1628]/75 to-[#0047B3]/60" />
+
+      <svg
+        className="absolute inset-0 w-full h-full pointer-events-none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden
+      >
+        {[
+          { cx: '12%', cy: '20%', r: 2, dur: '6s' },
+          { cx: '85%', cy: '15%', r: 1.5, dur: '8s' },
+          { cx: '70%', cy: '75%', r: 2, dur: '7s' },
+          { cx: '25%', cy: '80%', r: 1.5, dur: '9s' },
+          { cx: '50%', cy: '10%', r: 1, dur: '5s' },
+          { cx: '90%', cy: '50%', r: 1.5, dur: '7.5s' },
+        ].map((p, i) => (
+          <circle
+            key={i}
+            cx={p.cx}
+            cy={p.cy}
+            r={p.r}
+            fill="white"
+            opacity="0.15"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+            <animate
+              attributeName="opacity"
+              values="0.08;0.2;0.08"
+              dur={p.dur}
+              repeatCount="indefinite"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+            <animate
+              attributeName="cy"
+              values={`${p.cy};${parseFloat(p.cy) - 2}%;${p.cy}`}
+              dur={p.dur}
+              repeatCount="indefinite"
+            />
+          </circle>
+        ))}
+      </svg>
+
+      <div
+        className="relative z-10 w-full max-w-[440px] mx-4 transition-all duration-700 ease-out"
+        style={{
+          opacity: ready ? 1 : 0,
+          transform: ready
+            ? 'translateY(0) scale(1)'
+            : 'translateY(30px) scale(0.97)',
+        }}
+      >
+        <LoginForm
+          email={email}
+          password={password}
+          onEmailChange={setEmail}
+          onPasswordChange={setPassword}
+          onSubmit={handleLogin}
+          onForgotPassword={handleForgotPassword}
+          loading={loading}
+          error={error}
+          showPassword={showPassword}
+          onToggleShowPassword={() => setShowPassword((p) => !p)}
+          emailFocused={emailFocused}
+          onEmailFocus={setEmailFocused}
+          passFocused={passFocused}
+          onPassFocus={setPassFocused}
+        />
+
+        <p className="text-center text-white/20 text-xs mt-6">
+          &copy; 2026 RFC. Tous droits réservés.
+        </p>
+      </div>
     </div>
-  );
+  )
 }
