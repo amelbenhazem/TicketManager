@@ -1,0 +1,23 @@
+/**
+ * Variables de design (tokens).
+ * Utilisées par globals.css et composants.
+ */
+:root {
+  /* Couleurs de base */
+  --background: #ffffff;
+  --foreground: #171717;
+
+  /* TicketDesk / RFC */
+  --color-brand: #0066ff;
+  --color-brand-hover: #0052cc;
+  --color-brand-light: #60a5fa;
+  --color-surface-dark: #0a1628;
+  --color-overlay: rgba(10, 22, 40, 0.85);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
