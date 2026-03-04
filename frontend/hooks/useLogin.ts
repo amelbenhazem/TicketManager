@@ -23,8 +23,13 @@ export function useLogin() {
         if (data.access_token) {
           if (typeof window !== 'undefined') {
             localStorage.setItem('access_token', data.access_token)
+            if (data.role) localStorage.setItem('user_role', data.role)
           }
-          router.push('/dashboard')
+          if (data.role === 'admin') {
+            router.push('/admin')
+          } else {
+            router.push('/dashboard')
+          }
         }
       } catch (e) {
         let message: string
