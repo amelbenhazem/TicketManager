@@ -13,7 +13,8 @@ export default () => ({
     expiresIn: process.env.JWT_EXPIRES_IN ?? '7d',
   },
   cors: {
-    origin: process.env.CORS_ORIGIN ?? 'http://localhost:3000,http://localhost:3001',
+    origin:
+      process.env.CORS_ORIGIN ?? 'http://localhost:3000,http://localhost:3001',
   },
   // Compte démo (à remplacer par vraie base utilisateurs)
   auth: {

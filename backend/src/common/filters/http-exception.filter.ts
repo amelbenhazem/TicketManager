@@ -27,13 +27,25 @@ export class AllExceptionsFilter implements ExceptionFilter {
         ? exception.getResponse()
         : { message: 'Erreur interne du serveur' };
 
-    const body = typeof raw === 'object' && raw !== null && 'message' in raw
-      ? raw as { message: unknown }
-      : { message: String(raw) };
+    const body =
+      typeof raw === 'object' && raw !== null && 'message' in raw
+        ? (raw as { message: unknown })
+        : {
+            message: String(
+              typeof raw === 'object' && raw !== null
+                ? JSON.stringify(raw)
+                : raw,
+            ),
+          };
 
-    const message = Array.isArray(body.message)
-      ? (body.message as string[]).join('. ')
-      : String(body.message ?? 'Erreur inconnue');
+    const msg = body.message;
+    const message = Array.isArray(msg)
+      ? (msg as string[]).join('. ')
+      : typeof msg === 'string'
+        ? msg
+        : msg != null && typeof msg === 'object'
+          ? JSON.stringify(msg)
+          : 'Erreur inconnue';
 
     if (status >= 500) {
       this.logger.error(

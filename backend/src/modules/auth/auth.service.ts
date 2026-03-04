@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import type { StringValue } from 'ms';
 import { LoginDto } from './dto';
 import { UsersService } from '../users/users.service';
 import { UserRole } from '../users/schemas/user.schema';
@@ -36,7 +37,8 @@ export class AuthService {
       email: dto.email,
       role,
     };
-    const expiresIn = this.config.get<string>('jwt.expiresIn', '7d');
+    const expiresIn = (this.config.get<string>('jwt.expiresIn', '7d') ||
+      '7d') as StringValue;
     const access_token = this.jwtService.sign(payload, { expiresIn });
 
     return { access_token, expiresIn, role };
@@ -61,8 +63,9 @@ export class AuthService {
     if (!found) return { user: null, role: '' };
     const valid = await this.usersService.validatePassword(found, password);
     if (!valid) return { user: null, role: '' };
+    const userId = found._id != null ? String(found._id) : null;
     return {
-      user: (found as any)._id?.toString(),
+      user: userId,
       role: found.role,
     };
   }

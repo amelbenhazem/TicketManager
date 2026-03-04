@@ -23,7 +23,9 @@ async function bootstrap() {
   if (corsOrigin) {
     const origins = corsOrigin.split(',').map((o) => o.trim());
     app.enableCors({
-      origin: isDev ? [...origins, 'http://127.0.0.1:3000', 'http://127.0.0.1:3001'] : origins,
+      origin: isDev
+        ? [...origins, 'http://127.0.0.1:3000', 'http://127.0.0.1:3001']
+        : origins,
       credentials: true,
     });
   }
@@ -36,4 +38,4 @@ async function bootstrap() {
   }
 }
 
-bootstrap();
+void bootstrap();

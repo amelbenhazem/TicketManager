@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import {
   ArrowRight,
   Mail,
@@ -48,12 +49,7 @@ export function LoginForm({
     <div className="backdrop-blur-xl bg-white/[0.08] border border-white/[0.15] rounded-3xl shadow-2xl shadow-black/30 p-8 sm:p-10">
       <div className="flex flex-col items-center mb-8">
         <div className="mb-4 [&_img]:h-12 [&_img]:w-auto" style={{ mixBlendMode: 'lighten' }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/Logo-RFC.png"
-            alt="RFC"
-            className="block"
-          />
+          <Image src="/Logo-RFC.png" alt="RFC" width={120} height={48} className="block h-12 w-auto" />
         </div>
         <h1 className="text-2xl font-bold text-white tracking-tight">
           Ticket<span className="text-[#60A5FA]">Desk</span>

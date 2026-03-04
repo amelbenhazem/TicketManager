@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { ReactNode } from 'react'
 
 const BG_IMAGES = [
@@ -22,11 +23,12 @@ export function LoginStyleLayout({ children, bgIndex = 0 }: LoginStyleLayoutProp
           className="absolute inset-0 transition-opacity duration-[2500ms] ease-in-out"
           style={{ opacity: bgIndex === i ? 1 : 0 }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src={src}
             alt=""
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            sizes="100vw"
             style={{
               animation:
                 bgIndex === i

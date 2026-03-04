@@ -106,13 +106,21 @@ export function EditUserModal({
   const [passFocused, setPassFocused] = useState(false)
 
   useEffect(() => {
-    if (user) {
-      setLastName(user.lastName || '')
-      setFirstName(user.firstName || '')
-      setEmail(user.email || '')
-      setPassword('')
-      setRole(user.role)
+    if (!user) return
+    const next = {
+      lastName: user.lastName || '',
+      firstName: user.firstName || '',
+      email: user.email || '',
+      password: '',
+      role: user.role,
     }
+    queueMicrotask(() => {
+      setLastName(next.lastName)
+      setFirstName(next.firstName)
+      setEmail(next.email)
+      setPassword(next.password)
+      setRole(next.role)
+    })
   }, [user])
 
   if (!user) return null

@@ -1,4 +1,8 @@
-import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
@@ -6,7 +10,13 @@ import { User, UserDocument, UserRole } from './schemas/user.schema';
 import { CreateUserDto } from './dto';
 import { UpdateUserDto } from './dto';
 
-export type UserResponse = { id: string; lastName: string; firstName: string; email: string; role: UserRole };
+export type UserResponse = {
+  id: string;
+  lastName: string;
+  firstName: string;
+  email: string;
+  role: UserRole;
+};
 
 @Injectable()
 export class UsersService {
@@ -30,7 +40,10 @@ export class UsersService {
     return this.toResponse(user);
   }
 
-  async findAll(filters?: { role?: UserRole; search?: string }): Promise<UserResponse[]> {
+  async findAll(filters?: {
+    role?: UserRole;
+    search?: string;
+  }): Promise<UserResponse[]> {
     const q: Record<string, unknown> = {};
     if (filters?.role) q.role = filters.role;
     if (filters?.search?.trim()) {
@@ -65,9 +78,13 @@ export class UsersService {
     if (!user) throw new NotFoundException('Utilisateur non trouvé');
 
     if (dto.email !== undefined && dto.email !== user.email) {
-      const existing = await this.userModel.findOne({ email: dto.email }).exec();
+      const existing = await this.userModel
+        .findOne({ email: dto.email })
+        .exec();
       if (existing) {
-        throw new ConflictException('Un utilisateur avec cet email existe déjà');
+        throw new ConflictException(
+          'Un utilisateur avec cet email existe déjà',
+        );
       }
       user.email = dto.email;
     }
@@ -91,13 +108,17 @@ export class UsersService {
     return this.userModel.findOne({ email }).exec();
   }
 
-  async validatePassword(user: UserDocument, password: string): Promise<boolean> {
+  async validatePassword(
+    user: UserDocument,
+    password: string,
+  ): Promise<boolean> {
     return bcrypt.compare(password, user.password);
   }
 
   private toResponse(user: UserDocument): UserResponse {
+    const id = user._id != null ? String(user._id) : '';
     return {
-      id: (user as any)._id?.toString(),
+      id,
       lastName: user.lastName ?? '',
       firstName: user.firstName ?? '',
       email: user.email,

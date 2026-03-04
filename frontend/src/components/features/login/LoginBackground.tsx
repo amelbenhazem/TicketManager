@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
 const BG_IMAGES = [
@@ -36,10 +37,12 @@ export function LoginBackground() {
           className="absolute inset-0 transition-opacity duration-[2500ms] ease-in-out"
           style={{ opacity: activeImg === i ? 1 : 0 }}
         >
-          <img
+          <Image
             src={src}
             alt=""
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            sizes="100vw"
             style={{
               animation:
                 activeImg === i
