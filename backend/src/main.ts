@@ -20,12 +20,16 @@ async function bootstrap() {
 
   const corsOrigin = config.get<string>('cors.origin');
   const isDev = config.get<string>('nodeEnv') !== 'production';
+  const devOrigins = [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+  ];
   if (corsOrigin) {
     const origins = corsOrigin.split(',').map((o) => o.trim());
     app.enableCors({
-      origin: isDev
-        ? [...origins, 'http://127.0.0.1:3000', 'http://127.0.0.1:3001']
-        : origins,
+      origin: isDev ? [...new Set([...origins, ...devOrigins])] : origins,
       credentials: true,
     });
   }

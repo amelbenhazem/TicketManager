@@ -1,21 +1,36 @@
 'use client'
 
-import Link from 'next/link'
-
 export default function DashboardPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0A1628]">
-      <div className="text-center text-white">
-        <h1 className="text-2xl font-bold mb-4">Tableau de bord</h1>
-        <p className="text-white/60 mb-6">
-          Page après connexion.
-        </p>
-        <Link
-          href="/"
-          className="text-[#60A5FA] hover:text-white font-medium"
+    <div className="text-white">
+      <h1 className="text-2xl font-bold mb-2">Dashboard</h1>
+      <p className="text-white/60 mb-6">
+        Bienvenue sur votre espace client. Consultez vos tickets ou créez-en un
+        nouveau.
+      </p>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <a
+          href="/dashboard/tickets"
+          className="block p-6 rounded-2xl backdrop-blur-xl bg-white/[0.08] border border-white/[0.15] hover:bg-white/[0.12] transition-colors"
         >
-          ← Retour à la connexion
-        </Link>
+          <h2 className="text-lg font-semibold text-white mb-1">
+            Mes Tickets
+          </h2>
+          <p className="text-white/60 text-sm">
+            Voir et suivre tous vos tickets.
+          </p>
+        </a>
+        <a
+          href="/dashboard/tickets/new"
+          className="block p-6 rounded-2xl backdrop-blur-xl bg-white/[0.08] border border-white/[0.15] hover:bg-white/[0.12] transition-colors"
+        >
+          <h2 className="text-lg font-semibold text-white mb-1">
+            Nouveau Ticket
+          </h2>
+          <p className="text-white/60 text-sm">
+            Ouvrir une nouvelle demande.
+          </p>
+        </a>
       </div>
     </div>
   )

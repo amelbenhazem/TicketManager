@@ -18,6 +18,23 @@ export type UserResponse = {
 };
 export type UsersStats = { total: number; byRole: Record<string, number> };
 
+export type TicketStatus = 'open' | 'in_progress' | 'closed';
+export type TicketCategory = 'reseau' | 'logiciel' | 'materiel' | 'autre';
+export type TicketPriority = 'low' | 'medium' | 'high';
+export type TicketResponse = {
+  id: string;
+  title: string;
+  description: string;
+  status: TicketStatus;
+  category: TicketCategory;
+  priority: TicketPriority;
+  attachments: string[];
+  userId: string;
+  assignedTo: string | null;
+  createdAt: string;
+  createdBy?: { id: string; firstName: string; lastName: string; email: string };
+};
+
 class ApiError extends Error {
   constructor(
     message: string,
@@ -81,6 +98,7 @@ export const api = {
         method: 'POST',
         body: JSON.stringify(payload),
       }),
+    me: () => request<UserResponse>('auth/me', {}, true),
   },
   users: {
     list: (params?: { role?: UserRole; search?: string }) => {
@@ -129,6 +147,30 @@ export const api = {
     delete: (id: string) =>
       request<{ success: true }>(`users/${id}`, {
         method: 'DELETE',
+      }, true),
+  },
+  tickets: {
+    list: () => request<TicketResponse[]>('tickets', {}, true),
+    getOne: (id: string) =>
+      request<TicketResponse | null>(`tickets/${id}`, {}, true),
+    create: (payload: {
+        title: string;
+        description?: string;
+        category?: TicketCategory;
+        priority?: TicketPriority;
+        attachments?: string[];
+      }) =>
+      request<TicketResponse>('tickets', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }, true),
+    update: (
+      id: string,
+      payload: { status?: TicketStatus; assignedTo?: string | null },
+    ) =>
+      request<TicketResponse>(`tickets/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(payload),
       }, true),
   },
 };

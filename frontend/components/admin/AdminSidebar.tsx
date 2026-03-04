@@ -2,11 +2,11 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { LayoutDashboard, UserPlus, LogOut } from 'lucide-react'
+import { LayoutDashboard, UserPlus, Ticket, LogOut } from 'lucide-react'
 
 type AdminSidebarProps = {
-  activeSection: 'dashboard' | 'create'
-  onNavigate: (section: 'dashboard' | 'create') => void
+  activeSection: 'dashboard' | 'create' | 'tickets'
+  onNavigate: (section: 'dashboard' | 'create' | 'tickets') => void
 }
 
 export function AdminSidebar({ activeSection, onNavigate }: AdminSidebarProps) {
@@ -35,6 +35,14 @@ export function AdminSidebar({ activeSection, onNavigate }: AdminSidebarProps) {
         >
           <UserPlus className="w-5 h-5 shrink-0" />
           Créer un compte
+        </button>
+        <button
+          type="button"
+          onClick={() => onNavigate('tickets')}
+          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left text-sm font-medium transition-all ${activeSection === 'tickets' ? 'bg-[#0066FF] text-white shadow-lg shadow-[#0066FF]/30' : 'text-white/70 hover:bg-white/[0.06] hover:text-white'}`}
+        >
+          <Ticket className="w-5 h-5 shrink-0" />
+          Gérer les tickets
         </button>
       </nav>
 

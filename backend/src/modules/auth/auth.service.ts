@@ -26,6 +26,12 @@ export class AuthService {
     private readonly usersService: UsersService,
   ) {}
 
+  async getProfile(
+    userId: string,
+  ): Promise<import('../users/users.service').UserResponse> {
+    return this.usersService.findOne(userId);
+  }
+
   async login(dto: LoginDto): Promise<AuthResult> {
     const { user, role } = await this.validateUser(dto.email, dto.password);
     if (!user) {

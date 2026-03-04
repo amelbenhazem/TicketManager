@@ -8,13 +8,14 @@ import { StatsCards } from '@/components/admin/StatsCards'
 import { UserList } from '@/components/admin/UserList'
 import { AddUserForm } from '@/components/admin/AddUserForm'
 import { EditUserModal } from '@/components/admin/EditUserModal'
+import { AdminTicketsList } from '@/components/admin/AdminTicketsList'
 import { api, ApiError, type UserRole, type UsersStats, type UserResponse } from '@/lib/api'
 import type { CreateUserData } from '@/components/admin/AddUserForm'
 import type { UpdateUserData } from '@/components/admin/EditUserModal'
 
 export default function AdminDashboardPage() {
   const router = useRouter()
-  const [activeSection, setActiveSection] = useState<'dashboard' | 'create'>('dashboard')
+  const [activeSection, setActiveSection] = useState<'dashboard' | 'create' | 'tickets'>('dashboard')
   const [stats, setStats] = useState<UsersStats | null>(null)
   const [users, setUsers] = useState<UserResponse[]>([])
   const [statsLoading, setStatsLoading] = useState(true)
@@ -183,6 +184,20 @@ export default function AdminDashboardPage() {
                   onClearError={() => setCreateError(null)}
                 />
               </div>
+            )}
+
+            {activeSection === 'tickets' && (
+              <>
+                <header className="mb-6">
+                  <h1 className="text-xl font-bold text-white">
+                    Gérer les tickets
+                  </h1>
+                  <p className="text-white/50 text-sm mt-1">
+                    Voir toutes les informations, affecter un technicien, changer le statut ou clôturer.
+                  </p>
+                </header>
+                <AdminTicketsList />
+              </>
             )}
           </div>
 

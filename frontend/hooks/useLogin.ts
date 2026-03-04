@@ -27,6 +27,8 @@ export function useLogin() {
           }
           if (data.role === 'admin') {
             router.push('/admin')
+          } else if (data.role === 'technician') {
+            router.push('/technician')
           } else {
             router.push('/dashboard')
           }
