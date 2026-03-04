@@ -16,7 +16,7 @@ import { CreateTicketDto } from './dto';
 import { UpdateTicketDto } from './dto';
 
 type RequestWithUser = Request & {
-  user: { id: string; email: string; role: string };
+  user: { id: string; email: string; role: UserRole };
 };
 
 @Controller('tickets')
@@ -65,7 +65,11 @@ export class TicketsController {
     }
     if (req.user.role === UserRole.TECHNICIAN && dto.status !== undefined) {
       const onlyStatus = { status: dto.status };
-      return this.ticketsService.updateStatusByAssigned(id, req.user.id, onlyStatus.status);
+      return this.ticketsService.updateStatusByAssigned(
+        id,
+        req.user.id,
+        onlyStatus.status,
+      );
     }
     throw new ForbiddenException('Action non autorisée');
   }

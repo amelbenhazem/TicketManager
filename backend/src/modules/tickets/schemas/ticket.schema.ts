@@ -36,7 +36,11 @@ export class Ticket {
   @Prop({ required: true, enum: TicketCategory, default: TicketCategory.AUTRE })
   category: TicketCategory;
 
-  @Prop({ required: true, enum: TicketPriority, default: TicketPriority.MEDIUM })
+  @Prop({
+    required: true,
+    enum: TicketPriority,
+    default: TicketPriority.MEDIUM,
+  })
   priority: TicketPriority;
 
   @Prop({ type: [String], default: [] })

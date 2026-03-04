@@ -1,9 +1,19 @@
-import { Controller, Post, Get, Body, HttpCode, HttpStatus, Request } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  HttpCode,
+  HttpStatus,
+  Request,
+} from '@nestjs/common';
 import { AuthService, AuthResult } from './auth.service';
 import { LoginDto } from './dto';
 import { Public } from '../../common/decorators';
 
-type RequestWithUser = Request & { user: { id: string; email: string; role: string } };
+type RequestWithUser = Request & {
+  user: { id: string; email: string; role: string };
+};
 
 @Controller('auth')
 export class AuthController {

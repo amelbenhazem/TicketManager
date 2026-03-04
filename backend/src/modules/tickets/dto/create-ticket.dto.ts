@@ -1,4 +1,10 @@
-import { IsString, IsOptional, MinLength, IsEnum, IsArray } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  MinLength,
+  IsEnum,
+  IsArray,
+} from 'class-validator';
 import { TicketCategory, TicketPriority } from '../schemas/ticket.schema';
 
 export class CreateTicketDto {

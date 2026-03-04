@@ -22,13 +22,19 @@ export type TicketResponse = {
   userId: string;
   assignedTo: string | null;
   createdAt: string;
-  createdBy?: { id: string; firstName: string; lastName: string; email: string };
+  createdBy?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
 };
 
 @Injectable()
 export class TicketsService {
   constructor(
-    @InjectModel(Ticket.name) private readonly ticketModel: Model<TicketDocument>,
+    @InjectModel(Ticket.name)
+    private readonly ticketModel: Model<TicketDocument>,
   ) {}
 
   async findAllByUser(userId: string): Promise<TicketResponse[]> {
@@ -58,19 +64,29 @@ export class TicketsService {
     return tickets.map((t) => this.toResponse(t, true));
   }
 
-  async findOne(id: string, requestUserId: string, isAdmin: boolean): Promise<TicketResponse | null> {
+  async findOne(
+    id: string,
+    requestUserId: string,
+    isAdmin: boolean,
+  ): Promise<TicketResponse | null> {
     const ticket = await this.ticketModel
       .findById(id)
       .populate('userId', 'firstName lastName email')
       .exec();
     if (!ticket) return null;
-    const populated = ticket as unknown as { userId: { _id?: Types.ObjectId; firstName?: string; lastName?: string; email?: string } | Types.ObjectId };
-    const ownerId = populated.userId
-      ? typeof populated.userId === 'object' && populated.userId && '_id' in populated.userId
-        ? String((populated.userId as { _id: Types.ObjectId })._id)
-        : String(populated.userId)
-      : '';
-    const assignedToId = ticket.assignedTo != null ? String(ticket.assignedTo) : null;
+    const populated = ticket as unknown as {
+      userId:
+        | {
+            _id?: Types.ObjectId;
+            firstName?: string;
+            lastName?: string;
+            email?: string;
+          }
+        | Types.ObjectId;
+    };
+    const ownerId = this.toUserIdString(populated.userId);
+    const assignedToId =
+      ticket.assignedTo != null ? String(ticket.assignedTo) : null;
     const isOwner = ownerId === requestUserId;
     const isAssigned = assignedToId === requestUserId;
     if (!isAdmin && !isOwner && !isAssigned) return null;
@@ -114,15 +130,29 @@ export class TicketsService {
   ): Promise<TicketResponse | null> {
     const ticket = await this.ticketModel.findById(id).exec();
     if (!ticket) return null;
-    const assignedId = ticket.assignedTo != null ? String(ticket.assignedTo) : null;
+    const assignedId =
+      ticket.assignedTo != null ? String(ticket.assignedTo) : null;
     if (assignedId !== technicianId) return null;
     ticket.status = status;
     await ticket.save();
     return this.toResponse(ticket);
   }
 
-  private toResponse(ticket: TicketDocument, withCreatedBy = false): TicketResponse {
-    const doc = ticket as TicketDocument & { createdAt?: Date; userId?: unknown };
+  private toUserIdString(userId: unknown): string {
+    if (userId == null) return '';
+    if (typeof userId === 'object' && userId !== null && '_id' in userId)
+      return String((userId as { _id: Types.ObjectId })._id);
+    return String(userId as Types.ObjectId);
+  }
+
+  private toResponse(
+    ticket: TicketDocument,
+    withCreatedBy = false,
+  ): TicketResponse {
+    const doc = ticket as TicketDocument & {
+      createdAt?: Date;
+      userId?: unknown;
+    };
     const created =
       doc.createdAt != null
         ? doc.createdAt instanceof Date
@@ -131,8 +161,18 @@ export class TicketsService {
         : '';
     const userId = ticket.userId;
     let createdBy: TicketResponse['createdBy'];
-    if (withCreatedBy && userId && typeof userId === 'object' && 'email' in userId) {
-      const u = userId as { _id?: Types.ObjectId; firstName?: string; lastName?: string; email?: string };
+    if (
+      withCreatedBy &&
+      userId &&
+      typeof userId === 'object' &&
+      'email' in userId
+    ) {
+      const u = userId as {
+        _id?: Types.ObjectId;
+        firstName?: string;
+        lastName?: string;
+        email?: string;
+      };
       createdBy = {
         id: u._id != null ? String(u._id) : '',
         firstName: u.firstName ?? '',
@@ -148,9 +188,8 @@ export class TicketsService {
       category: ticket.category ?? TicketCategory.AUTRE,
       priority: ticket.priority ?? TicketPriority.MEDIUM,
       attachments: Array.isArray(ticket.attachments) ? ticket.attachments : [],
-      userId: userId != null ? (typeof userId === 'object' && '_id' in (userId as object) ? String((userId as { _id: Types.ObjectId })._id) : String(userId)) : '',
-      assignedTo:
-        ticket.assignedTo != null ? String(ticket.assignedTo) : null,
+      userId: this.toUserIdString(userId),
+      assignedTo: ticket.assignedTo != null ? String(ticket.assignedTo) : null,
       createdAt: created,
       ...(createdBy && { createdBy }),
     };
