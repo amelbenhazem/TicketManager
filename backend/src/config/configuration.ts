@@ -3,7 +3,7 @@
  * Ne jamais mettre de valeurs réelles (secrets) dans ce fichier.
  */
 export default () => ({
-  port: parseInt(process.env.PORT ?? '3000', 10),
+  port: parseInt(process.env.PORT ?? '3001', 10),
   nodeEnv: process.env.NODE_ENV ?? 'development',
   mongodb: {
     uri: process.env.MONGODB_URI ?? 'mongodb://localhost:27017/ticketmanager',

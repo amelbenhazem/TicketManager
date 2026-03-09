@@ -120,6 +120,7 @@ export default function MesTicketsPage() {
                   {statusLabel[t.status] ?? t.status}
                 </span>
               </div>
+              </div>
             </li>
           ))}
         </ul>

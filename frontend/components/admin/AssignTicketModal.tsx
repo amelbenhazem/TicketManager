@@ -22,8 +22,8 @@ export function AssignTicketModal({
 
   useEffect(() => {
     api.users
-      .list({ role: 'technician' })
-      .then(setTechnicians)
+      .list({ role: 'technician', limit: 200 })
+      .then((data) => setTechnicians(data.items ?? []))
       .catch(() => setTechnicians([]))
   }, [])
 
@@ -85,7 +85,7 @@ export function AssignTicketModal({
             <option value="" className="bg-[#0A1628]">
               — Aucun —
             </option>
-            {technicians.map((t) => (
+            {(Array.isArray(technicians) ? technicians : []).map((t) => (
               <option key={t.id} value={t.id} className="bg-[#0A1628]">
                 {t.firstName} {t.lastName} ({t.email})
               </option>

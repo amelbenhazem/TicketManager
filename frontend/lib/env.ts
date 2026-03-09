@@ -11,11 +11,11 @@ const getEnv = (key: string, fallback: string): string => {
   return (process.env[key] ?? fallback);
 };
 
-/** URL de l'API backend — en dev, même machine = localhost ou 127.0.0.1 */
+/** URL de l'API backend — en dev, frontend sur 3000, backend sur 3001 */
 const defaultApiUrl =
   typeof window !== 'undefined' && window.location.hostname === '127.0.0.1'
-    ? 'http://127.0.0.1:3000'
-    : 'http://localhost:3000';
+    ? 'http://127.0.0.1:3001'
+    : 'http://localhost:3001';
 
 export const env = {
   apiUrl: getEnv('NEXT_PUBLIC_API_URL', defaultApiUrl),

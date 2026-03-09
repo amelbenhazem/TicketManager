@@ -25,7 +25,8 @@ export class TicketOwnerOrAdminGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest<RequestWithUser>();
     const user = req.user;
-    const ticketId = req.params['id'];
+    const rawId = req.params['id'];
+    const ticketId = Array.isArray(rawId) ? rawId[0] : rawId;
 
     if (!user?.id || !ticketId) {
       throw new ForbiddenException('Accès refusé');
