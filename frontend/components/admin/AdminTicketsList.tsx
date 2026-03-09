@@ -8,7 +8,8 @@ import { TicketDetailModal } from './TicketDetailModal'
 const statusLabel: Record<string, string> = {
   open: 'Ouvert',
   in_progress: 'En cours',
-  closed: 'Fermé',
+  resolved: 'Résolu',
+  closed: 'Clôturé',
 }
 const categoryLabel: Record<string, string> = {
   reseau: 'Réseau',
@@ -30,11 +31,14 @@ export function AdminTicketsList() {
   const [assignTicket, setAssignTicket] = useState<TicketResponse | null>(null)
   const [detailTicket, setDetailTicket] = useState<TicketResponse | null>(null)
   const [updatingId, setUpdatingId] = useState<string | null>(null)
+  const [ticketsPage, setTicketsPage] = useState(1)
+  const [ticketsPagination, setTicketsPagination] = useState({ total: 0, page: 1, totalPages: 1 })
 
   const fetchTickets = useCallback(async () => {
     try {
-      const data = await api.tickets.list()
-      setTickets(data)
+      const data = await api.tickets.list({ page: ticketsPage, limit: 20 })
+      setTickets(data.items)
+      setTicketsPagination({ total: data.total, page: data.page, totalPages: data.totalPages })
       setError(null)
     } catch (e) {
       if (e instanceof ApiError && e.status === 403) setTickets([])
@@ -42,21 +46,28 @@ export function AdminTicketsList() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [ticketsPage])
 
   useEffect(() => {
     fetchTickets()
   }, [fetchTickets])
 
   useEffect(() => {
-    api.users.list({ role: 'technician' }).then(setTechnicians).catch(() => setTechnicians([]))
+    api.users.list({ role: 'technician', limit: 200 }).then((data) => setTechnicians(data.items)).catch(() => setTechnicians([]))
   }, [])
 
   const technicianMap = Object.fromEntries(
     technicians.map((t) => [t.id, `${t.firstName} ${t.lastName}`])
   )
 
-  const handleStatusChange = async (ticket: TicketResponse, newStatus: 'open' | 'in_progress' | 'closed') => {
+  const getTechnicianLabel = (t: TicketResponse) =>
+    t.assignedToUser
+      ? `${t.assignedToUser.firstName} ${t.assignedToUser.lastName}`
+      : t.assignedTo
+        ? (technicianMap[t.assignedTo] ?? t.assignedTo)
+        : '—'
+
+  const handleStatusChange = async (ticket: TicketResponse, newStatus: 'open' | 'in_progress' | 'resolved' | 'closed') => {
     setUpdatingId(ticket.id)
     try {
       await api.tickets.update(ticket.id, { status: newStatus })
@@ -121,17 +132,18 @@ export function AdminTicketsList() {
                 <td className="py-3">
                   <select
                     value={t.status}
-                    onChange={(e) => handleStatusChange(t, e.target.value as 'open' | 'in_progress' | 'closed')}
+                    onChange={(e) => handleStatusChange(t, e.target.value as 'open' | 'in_progress' | 'resolved' | 'closed')}
                     disabled={updatingId === t.id}
                     className="bg-white/[0.08] border border-white/[0.12] rounded-lg px-2 py-1 text-white/90 text-sm focus:outline-none focus:border-[#0066FF]"
                   >
                     <option value="open" className="bg-[#0A1628]">Ouvert</option>
                     <option value="in_progress" className="bg-[#0A1628]">En cours</option>
-                    <option value="closed" className="bg-[#0A1628]">Fermé</option>
+                    <option value="resolved" className="bg-[#0A1628]">Résolu</option>
+                    <option value="closed" className="bg-[#0A1628]">Clôturé</option>
                   </select>
                 </td>
                 <td className="py-3 text-white/70">
-                  {t.assignedTo ? (technicianMap[t.assignedTo] ?? t.assignedTo) : '—'}
+                  {getTechnicianLabel(t)}
                 </td>
                 <td className="py-3 text-white/50 text-sm">
                   {t.createdAt ? new Date(t.createdAt).toLocaleDateString('fr-FR') : '—'}
@@ -170,6 +182,32 @@ export function AdminTicketsList() {
         </table>
       </div>
 
+      {ticketsPagination.totalPages > 1 && (
+        <div className="mt-4 flex items-center justify-between text-sm text-white/60">
+          <span>
+            Page {ticketsPagination.page} sur {ticketsPagination.totalPages} ({ticketsPagination.total} ticket(s))
+          </span>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setTicketsPage((p) => Math.max(1, p - 1))}
+              disabled={ticketsPagination.page <= 1}
+              className="px-3 py-1.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] disabled:opacity-40 disabled:pointer-events-none text-white/80"
+            >
+              Précédent
+            </button>
+            <button
+              type="button"
+              onClick={() => setTicketsPage((p) => Math.min(ticketsPagination.totalPages, p + 1))}
+              disabled={ticketsPagination.page >= ticketsPagination.totalPages}
+              className="px-3 py-1.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] disabled:opacity-40 disabled:pointer-events-none text-white/80"
+            >
+              Suivant
+            </button>
+          </div>
+        </div>
+      )}
+
       {assignTicket && (
         <AssignTicketModal
           ticket={assignTicket}
@@ -181,7 +219,7 @@ export function AdminTicketsList() {
       {detailTicket && (
         <TicketDetailModal
           ticket={detailTicket}
-          technicianLabel={detailTicket.assignedTo ? technicianMap[detailTicket.assignedTo] : undefined}
+          technicianLabel={getTechnicianLabel(detailTicket)}
           onClose={() => setDetailTicket(null)}
         />
       )}

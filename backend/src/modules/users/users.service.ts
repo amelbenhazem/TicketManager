@@ -18,6 +18,17 @@ export type UserResponse = {
   role: UserRole;
 };
 
+export type PaginatedUsers = {
+  items: UserResponse[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
+const DEFAULT_LIMIT = 20;
+const MAX_LIMIT = 100;
+
 @Injectable()
 export class UsersService {
   constructor(
@@ -40,10 +51,11 @@ export class UsersService {
     return this.toResponse(user);
   }
 
-  async findAll(filters?: {
-    role?: UserRole;
-    search?: string;
-  }): Promise<UserResponse[]> {
+  async findAll(
+    filters?: { role?: UserRole; search?: string },
+    page = 1,
+    limit = DEFAULT_LIMIT,
+  ): Promise<PaginatedUsers> {
     const q: Record<string, unknown> = {};
     if (filters?.role) q.role = filters.role;
     if (filters?.search?.trim()) {
@@ -54,8 +66,24 @@ export class UsersService {
         { lastName: { $regex: term, $options: 'i' } },
       ];
     }
-    const users = await this.userModel.find(q).sort({ createdAt: -1 }).exec();
-    return users.map((u) => this.toResponse(u));
+    const safeLimit = Math.min(Math.max(1, limit), MAX_LIMIT);
+    const skip = (Math.max(1, page) - 1) * safeLimit;
+    const [users, total] = await Promise.all([
+      this.userModel
+        .find(q)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(safeLimit)
+        .exec(),
+      this.userModel.countDocuments(q).exec(),
+    ]);
+    return {
+      items: users.map((u) => this.toResponse(u)),
+      total,
+      page: Math.max(1, page),
+      limit: safeLimit,
+      totalPages: Math.ceil(total / safeLimit) || 1,
+    };
   }
 
   async getStats(): Promise<{ total: number; byRole: Record<string, number> }> {

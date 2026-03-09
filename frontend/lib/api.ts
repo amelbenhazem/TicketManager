@@ -18,7 +18,15 @@ export type UserResponse = {
 };
 export type UsersStats = { total: number; byRole: Record<string, number> };
 
-export type TicketStatus = 'open' | 'in_progress' | 'closed';
+export type PaginatedUsers = {
+  items: UserResponse[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
+export type TicketStatus = 'open' | 'in_progress' | 'resolved' | 'closed';
 export type TicketCategory = 'reseau' | 'logiciel' | 'materiel' | 'autre';
 export type TicketPriority = 'low' | 'medium' | 'high';
 export type TicketResponse = {
@@ -33,6 +41,15 @@ export type TicketResponse = {
   assignedTo: string | null;
   createdAt: string;
   createdBy?: { id: string; firstName: string; lastName: string; email: string };
+  assignedToUser?: { id: string; firstName: string; lastName: string; email: string };
+};
+
+export type PaginatedTickets = {
+  items: TicketResponse[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 };
 
 class ApiError extends Error {
@@ -101,12 +118,14 @@ export const api = {
     me: () => request<UserResponse>('auth/me', {}, true),
   },
   users: {
-    list: (params?: { role?: UserRole; search?: string }) => {
+    list: (params?: { role?: UserRole; search?: string; page?: number; limit?: number }) => {
       const q = new URLSearchParams();
       if (params?.role) q.set('role', params.role);
       if (params?.search) q.set('search', params.search);
+      if (params?.page != null) q.set('page', String(params.page));
+      if (params?.limit != null) q.set('limit', String(params.limit));
       const query = q.toString();
-      return request<UserResponse[]>(
+      return request<PaginatedUsers>(
         `users${query ? `?${query}` : ''}`,
         {},
         true,
@@ -150,7 +169,17 @@ export const api = {
       }, true),
   },
   tickets: {
-    list: () => request<TicketResponse[]>('tickets', {}, true),
+    list: (params?: { page?: number; limit?: number }) => {
+      const q = new URLSearchParams();
+      if (params?.page != null) q.set('page', String(params.page));
+      if (params?.limit != null) q.set('limit', String(params.limit));
+      const query = q.toString();
+      return request<PaginatedTickets>(
+        `tickets${query ? `?${query}` : ''}`,
+        {},
+        true,
+      );
+    },
     getOne: (id: string) =>
       request<TicketResponse | null>(`tickets/${id}`, {}, true),
     create: (payload: {

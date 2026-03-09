@@ -9,7 +9,7 @@ import {
   Delete,
   UseGuards,
 } from '@nestjs/common';
-import { UsersService, UserResponse } from './users.service';
+import { UsersService, UserResponse, PaginatedUsers } from './users.service';
 import { CreateUserDto } from './dto';
 import { UpdateUserDto } from './dto';
 import { UserRole } from './schemas/user.schema';
@@ -27,8 +27,15 @@ export class UsersController {
   async findAll(
     @Query('role') role?: UserRole,
     @Query('search') search?: string,
-  ): Promise<UserResponse[]> {
-    return this.usersService.findAll({ role, search });
+    @Query('page') pageStr?: string,
+    @Query('limit') limitStr?: string,
+  ): Promise<PaginatedUsers> {
+    const page = Math.max(1, parseInt(pageStr ?? '1', 10) || 1);
+    const limit = Math.min(
+      100,
+      Math.max(1, parseInt(limitStr ?? '20', 10) || 20),
+    );
+    return this.usersService.findAll({ role, search }, page, limit);
   }
 
   @Get('stats')

@@ -54,7 +54,7 @@ export function TechnicianSidebar() {
           className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-white/70 hover:bg-white/[0.06] hover:text-white transition-all"
         >
           <LogOut className="w-5 h-5 shrink-0" />
-          Logout
+          Déconnexion
         </Link>
       </div>
     </aside>

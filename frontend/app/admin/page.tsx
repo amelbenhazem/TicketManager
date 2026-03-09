@@ -27,6 +27,8 @@ export default function AdminDashboardPage() {
   const [updateError, setUpdateError] = useState<string | null>(null)
   const [roleFilter, setRoleFilter] = useState<UserRole | ''>('')
   const [search, setSearch] = useState('')
+  const [usersPage, setUsersPage] = useState(1)
+  const [usersPagination, setUsersPagination] = useState({ total: 0, page: 1, totalPages: 1 })
 
   useEffect(() => {
     if (typeof window !== 'undefined' && !localStorage.getItem('access_token')) {
@@ -53,8 +55,11 @@ export default function AdminDashboardPage() {
       const data = await api.users.list({
         role: roleFilter || undefined,
         search: search.trim() || undefined,
+        page: usersPage,
+        limit: 20,
       })
-      setUsers(data)
+      setUsers(data.items)
+      setUsersPagination({ total: data.total, page: data.page, totalPages: data.totalPages })
     } catch (e) {
       if (e instanceof ApiError && e.status === 403) {
         router.replace('/')
@@ -64,16 +69,20 @@ export default function AdminDashboardPage() {
     } finally {
       setUsersLoading(false)
     }
-  }, [roleFilter, search, router])
+  }, [roleFilter, search, usersPage, router])
 
   useEffect(() => {
     fetchStats()
   }, [fetchStats])
 
   useEffect(() => {
-    const t = setTimeout(() => fetchUsers(), 300)
+    setUsersPage(1)
+  }, [roleFilter, search])
+
+  useEffect(() => {
+    const t = setTimeout(() => fetchUsers(), search ? 300 : 0)
     return () => clearTimeout(t)
-  }, [fetchUsers, roleFilter, search])
+  }, [fetchUsers, usersPage])
 
   const handleCreateUser = async (data: CreateUserData) => {
     setCreateError(null)
@@ -162,6 +171,8 @@ export default function AdminDashboardPage() {
                     onSearchChange={setSearch}
                     onEdit={setEditUser}
                     onDelete={handleDeleteUser}
+                    pagination={usersPagination}
+                    onPageChange={setUsersPage}
                   />
                 </section>
               </>

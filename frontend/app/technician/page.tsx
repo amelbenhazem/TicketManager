@@ -8,7 +8,8 @@ import { TicketDetailModal } from '@/components/admin/TicketDetailModal'
 const statusLabel: Record<string, string> = {
   open: 'Ouvert',
   in_progress: 'En cours',
-  closed: 'Fermé',
+  resolved: 'Résolu',
+  closed: 'Clôturé',
 }
 const categoryLabel: Record<string, string> = {
   reseau: 'Réseau',
@@ -22,10 +23,10 @@ const priorityLabel: Record<string, string> = {
   high: 'Haute',
 }
 
-const COLUMNS: { id: 'open' | 'in_progress' | 'closed'; title: string }[] = [
+const COLUMNS: { id: 'open' | 'in_progress' | 'resolved'; title: string }[] = [
   { id: 'open', title: 'À Traiter' },
   { id: 'in_progress', title: 'En Cours' },
-  { id: 'closed', title: 'Résolus' },
+  { id: 'resolved', title: 'Résolus' },
 ]
 
 export default function TechnicianDashboardPage() {
@@ -35,11 +36,14 @@ export default function TechnicianDashboardPage() {
   const [error, setError] = useState<string | null>(null)
   const [detailTicket, setDetailTicket] = useState<TicketResponse | null>(null)
   const [updatingId, setUpdatingId] = useState<string | null>(null)
+  const [page, setPage] = useState(1)
+  const [pagination, setPagination] = useState({ total: 0, page: 1, totalPages: 1 })
 
   const fetchTickets = useCallback(async () => {
     try {
-      const data = await api.tickets.list()
-      setTickets(data)
+      const data = await api.tickets.list({ page: page, limit: 20 })
+      setTickets(data.items)
+      setPagination({ total: data.total, page: data.page, totalPages: data.totalPages })
       setError(null)
     } catch (e) {
       if (e instanceof ApiError && e.status === 403) router.replace('/')
@@ -47,7 +51,7 @@ export default function TechnicianDashboardPage() {
     } finally {
       setLoading(false)
     }
-  }, [router])
+  }, [page, router])
 
   useEffect(() => {
     if (typeof window !== 'undefined' && !localStorage.getItem('access_token')) {
@@ -59,7 +63,7 @@ export default function TechnicianDashboardPage() {
 
   const handleStatusChange = async (
     ticket: TicketResponse,
-    newStatus: 'open' | 'in_progress' | 'closed'
+    newStatus: 'open' | 'in_progress' | 'resolved'
   ) => {
     setUpdatingId(ticket.id)
     try {
@@ -72,7 +76,7 @@ export default function TechnicianDashboardPage() {
     }
   }
 
-  const getTicketsByStatus = (status: 'open' | 'in_progress' | 'closed') =>
+  const getTicketsByStatus = (status: 'open' | 'in_progress' | 'resolved') =>
     tickets.filter((t) => t.status === status)
 
   const clientLabel = (t: TicketResponse) =>
@@ -136,7 +140,7 @@ export default function TechnicianDashboardPage() {
                       onChange={(e) =>
                         handleStatusChange(
                           t,
-                          e.target.value as 'open' | 'in_progress' | 'closed'
+                          e.target.value as 'open' | 'in_progress' | 'resolved'
                         )
                       }
                       disabled={updatingId === t.id}
@@ -148,7 +152,7 @@ export default function TechnicianDashboardPage() {
                       <option value="in_progress" className="bg-[#0A1628]">
                         En cours
                       </option>
-                      <option value="closed" className="bg-[#0A1628]">
+                      <option value="resolved" className="bg-[#0A1628]">
                         Résolu
                       </option>
                     </select>
@@ -168,6 +172,30 @@ export default function TechnicianDashboardPage() {
           </div>
         ))}
       </div>
+
+      {pagination.totalPages > 1 && (
+        <div className="mt-6 flex items-center justify-between text-sm text-white/60">
+          <span>Page {pagination.page} sur {pagination.totalPages}</span>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={pagination.page <= 1}
+              className="px-3 py-1.5 rounded-lg bg-white/[0.08] hover:bg-white/[0.12] disabled:opacity-40 text-white/80"
+            >
+              Précédent
+            </button>
+            <button
+              type="button"
+              onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
+              disabled={pagination.page >= pagination.totalPages}
+              className="px-3 py-1.5 rounded-lg bg-white/[0.08] hover:bg-white/[0.12] disabled:opacity-40 text-white/80"
+            >
+              Suivant
+            </button>
+          </div>
+        </div>
+      )}
 
       {detailTicket && (
         <TicketDetailModal

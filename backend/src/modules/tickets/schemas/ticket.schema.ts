@@ -6,6 +6,7 @@ export type TicketDocument = Ticket & Document;
 export enum TicketStatus {
   OPEN = 'open',
   IN_PROGRESS = 'in_progress',
+  RESOLVED = 'resolved',
   CLOSED = 'closed',
 }
 
@@ -44,6 +45,7 @@ export class Ticket {
   priority: TicketPriority;
 
   @Prop({ type: [String], default: [] })
+  /** URLs Cloudinary (secure_url) retournées par POST /tickets/attachments/upload. Rien d’autre n’est garanti (pas de chemin local, pas d’identifiant opaque seul). */
   attachments: string[];
 
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })

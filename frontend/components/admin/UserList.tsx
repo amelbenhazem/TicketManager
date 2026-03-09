@@ -1,6 +1,6 @@
 'use client'
 
-import { Search, Users, Pencil, Trash2 } from 'lucide-react'
+import { Search, Users, Pencil, Trash2, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { UserResponse, UserRole } from '@/lib/api'
 
 const ROLE_LABELS: Record<string, string> = {
@@ -18,6 +18,8 @@ type UserListProps = {
   onSearchChange: (v: string) => void
   onEdit: (user: UserResponse) => void
   onDelete: (user: UserResponse) => void
+  pagination?: { total: number; page: number; totalPages: number }
+  onPageChange?: (page: number) => void
 }
 
 export function UserList({
@@ -29,6 +31,8 @@ export function UserList({
   onSearchChange,
   onEdit,
   onDelete,
+  pagination,
+  onPageChange,
 }: UserListProps) {
   const handleDeleteClick = (user: UserResponse) => {
     const name = [user.firstName, user.lastName].filter(Boolean).join(' ') || user.email
@@ -130,6 +134,32 @@ export function UserList({
           </table>
         )}
       </div>
+
+      {pagination && onPageChange && pagination.totalPages > 1 && (
+        <div className="mt-4 flex items-center justify-between text-sm text-white/60">
+          <span>
+            Page {pagination.page} sur {pagination.totalPages} ({pagination.total} au total)
+          </span>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => onPageChange(pagination.page - 1)}
+              disabled={pagination.page <= 1}
+              className="p-2 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] disabled:opacity-40 disabled:pointer-events-none"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => onPageChange(pagination.page + 1)}
+              disabled={pagination.page >= pagination.totalPages}
+              className="p-2 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] disabled:opacity-40 disabled:pointer-events-none"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

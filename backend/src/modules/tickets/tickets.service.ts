@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ForbiddenException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import {
@@ -10,6 +10,7 @@ import {
 } from './schemas/ticket.schema';
 import { CreateTicketDto } from './dto';
 import { UpdateTicketDto } from './dto';
+import { UserRole } from '../users/schemas/user.schema';
 
 export type TicketResponse = {
   id: string;
@@ -28,7 +29,24 @@ export type TicketResponse = {
     lastName: string;
     email: string;
   };
+  assignedToUser?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
 };
+
+export type PaginatedTickets = {
+  items: TicketResponse[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
+const DEFAULT_LIMIT = 20;
+const MAX_LIMIT = 100;
 
 @Injectable()
 export class TicketsService {
@@ -37,31 +55,83 @@ export class TicketsService {
     private readonly ticketModel: Model<TicketDocument>,
   ) {}
 
-  async findAllByUser(userId: string): Promise<TicketResponse[]> {
+  async findAllByUser(
+    userId: string,
+    page = 1,
+    limit = DEFAULT_LIMIT,
+  ): Promise<PaginatedTickets> {
+    const safeLimit = Math.min(Math.max(1, limit), MAX_LIMIT);
+    const skip = (Math.max(1, page) - 1) * safeLimit;
     const objectId = new Types.ObjectId(userId);
-    const tickets = await this.ticketModel
-      .find({ userId: objectId })
-      .sort({ createdAt: -1 })
-      .exec();
-    return tickets.map((t) => this.toResponse(t));
+    const [tickets, total] = await Promise.all([
+      this.ticketModel
+        .find({ userId: objectId })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(safeLimit)
+        .populate('userId', 'firstName lastName email')
+        .populate('assignedTo', 'firstName lastName email')
+        .exec(),
+      this.ticketModel.countDocuments({ userId: objectId }).exec(),
+    ]);
+    return {
+      items: tickets.map((t) => this.toResponse(t)),
+      total,
+      page: Math.max(1, page),
+      limit: safeLimit,
+      totalPages: Math.ceil(total / safeLimit) || 1,
+    };
   }
 
-  async findAll(): Promise<TicketResponse[]> {
-    const tickets = await this.ticketModel
-      .find()
-      .sort({ createdAt: -1 })
-      .exec();
-    return tickets.map((t) => this.toResponse(t));
+  async findAll(page = 1, limit = DEFAULT_LIMIT): Promise<PaginatedTickets> {
+    const safeLimit = Math.min(Math.max(1, limit), MAX_LIMIT);
+    const skip = (Math.max(1, page) - 1) * safeLimit;
+    const [tickets, total] = await Promise.all([
+      this.ticketModel
+        .find()
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(safeLimit)
+        .populate('userId', 'firstName lastName email')
+        .populate('assignedTo', 'firstName lastName email')
+        .exec(),
+      this.ticketModel.countDocuments().exec(),
+    ]);
+    return {
+      items: tickets.map((t) => this.toResponse(t)),
+      total,
+      page: Math.max(1, page),
+      limit: safeLimit,
+      totalPages: Math.ceil(total / safeLimit) || 1,
+    };
   }
 
-  async findAllByAssignedTo(technicianId: string): Promise<TicketResponse[]> {
+  async findAllByAssignedTo(
+    technicianId: string,
+    page = 1,
+    limit = DEFAULT_LIMIT,
+  ): Promise<PaginatedTickets> {
+    const safeLimit = Math.min(Math.max(1, limit), MAX_LIMIT);
+    const skip = (Math.max(1, page) - 1) * safeLimit;
     const objectId = new Types.ObjectId(technicianId);
-    const tickets = await this.ticketModel
-      .find({ assignedTo: objectId })
-      .sort({ createdAt: -1 })
-      .populate('userId', 'firstName lastName email')
-      .exec();
-    return tickets.map((t) => this.toResponse(t, true));
+    const [tickets, total] = await Promise.all([
+      this.ticketModel
+        .find({ assignedTo: objectId })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(safeLimit)
+        .populate('userId', 'firstName lastName email')
+        .populate('assignedTo', 'firstName lastName email')
+        .exec(),
+      this.ticketModel.countDocuments({ assignedTo: objectId }).exec(),
+    ]);
+    return {
+      items: tickets.map((t) => this.toResponse(t)),
+      total,
+      page: Math.max(1, page),
+      limit: safeLimit,
+      totalPages: Math.ceil(total / safeLimit) || 1,
+    };
   }
 
   async findOne(
@@ -72,6 +142,7 @@ export class TicketsService {
     const ticket = await this.ticketModel
       .findById(id)
       .populate('userId', 'firstName lastName email')
+      .populate('assignedTo', 'firstName lastName email')
       .exec();
     if (!ticket) return null;
     const populated = ticket as unknown as {
@@ -83,6 +154,15 @@ export class TicketsService {
             email?: string;
           }
         | Types.ObjectId;
+      assignedTo:
+        | {
+            _id?: Types.ObjectId;
+            firstName?: string;
+            lastName?: string;
+            email?: string;
+          }
+        | Types.ObjectId
+        | null;
     };
     const ownerId = this.toUserIdString(populated.userId);
     const assignedToId =
@@ -90,7 +170,22 @@ export class TicketsService {
     const isOwner = ownerId === requestUserId;
     const isAssigned = assignedToId === requestUserId;
     if (!isAdmin && !isOwner && !isAssigned) return null;
-    return this.toResponse(ticket, true);
+    return this.toResponse(ticket);
+  }
+
+  /** Utilisé par TicketOwnerOrAdminGuard : retourne l’assignation du ticket sans charger le document complet. */
+  async getTicketForGuard(
+    id: string,
+  ): Promise<{ assignedToId: string | null } | null> {
+    const ticket = await this.ticketModel
+      .findById(id)
+      .select('assignedTo')
+      .lean()
+      .exec();
+    if (!ticket) return null;
+    const assignedToId =
+      ticket.assignedTo != null ? String(ticket.assignedTo) : null;
+    return { assignedToId };
   }
 
   async create(userId: string, dto: CreateTicketDto): Promise<TicketResponse> {
@@ -104,38 +199,63 @@ export class TicketsService {
       userId: new Types.ObjectId(userId),
       assignedTo: null,
     });
+    await ticket.populate('userId', 'firstName lastName email');
     return this.toResponse(ticket);
   }
 
   async update(
     id: string,
     dto: UpdateTicketDto,
+    user: { id: string; role: UserRole },
   ): Promise<TicketResponse | null> {
     const ticket = await this.ticketModel.findById(id).exec();
     if (!ticket) return null;
-    if (dto.status !== undefined) ticket.status = dto.status;
-    if (dto.assignedTo !== undefined) {
-      ticket.assignedTo = dto.assignedTo
-        ? new Types.ObjectId(dto.assignedTo)
-        : null;
-    }
-    await ticket.save();
-    return this.toResponse(ticket);
-  }
 
-  async updateStatusByAssigned(
-    id: string,
-    technicianId: string,
-    status: TicketStatus,
-  ): Promise<TicketResponse | null> {
-    const ticket = await this.ticketModel.findById(id).exec();
-    if (!ticket) return null;
-    const assignedId =
-      ticket.assignedTo != null ? String(ticket.assignedTo) : null;
-    if (assignedId !== technicianId) return null;
-    ticket.status = status;
-    await ticket.save();
-    return this.toResponse(ticket);
+    if (user.role === UserRole.ADMIN) {
+      if (dto.status !== undefined) ticket.status = dto.status;
+      if (dto.assignedTo !== undefined) {
+        ticket.assignedTo = dto.assignedTo
+          ? new Types.ObjectId(dto.assignedTo)
+          : null;
+      }
+      await ticket.save();
+      await ticket.populate('userId', 'firstName lastName email');
+      await ticket.populate('assignedTo', 'firstName lastName email');
+      return this.toResponse(ticket);
+    }
+
+    if (user.role === UserRole.TECHNICIAN) {
+      const assignedId =
+        ticket.assignedTo != null ? String(ticket.assignedTo) : null;
+      if (assignedId !== user.id) {
+        throw new ForbiddenException(
+          'Seul le technicien assigné à ce ticket peut le modifier.',
+        );
+      }
+      // Le technicien ne peut modifier que le statut, et pas le passer à clôturé
+      if (dto.assignedTo !== undefined) {
+        throw new ForbiddenException(
+          'Le technicien ne peut pas modifier l’affectation du ticket.',
+        );
+      }
+      if (dto.status === undefined) {
+        throw new ForbiddenException(
+          'Le technicien ne peut modifier que le statut du ticket.',
+        );
+      }
+      if (dto.status === TicketStatus.CLOSED) {
+        throw new ForbiddenException(
+          'Seul l’administrateur peut clôturer un ticket.',
+        );
+      }
+      ticket.status = dto.status;
+      await ticket.save();
+      await ticket.populate('userId', 'firstName lastName email');
+      await ticket.populate('assignedTo', 'firstName lastName email');
+      return this.toResponse(ticket);
+    }
+
+    throw new ForbiddenException('Action non autorisée');
   }
 
   private toUserIdString(userId: unknown): string {
@@ -145,13 +265,11 @@ export class TicketsService {
     return String(userId as Types.ObjectId);
   }
 
-  private toResponse(
-    ticket: TicketDocument,
-    withCreatedBy = false,
-  ): TicketResponse {
+  private toResponse(ticket: TicketDocument): TicketResponse {
     const doc = ticket as TicketDocument & {
       createdAt?: Date;
       userId?: unknown;
+      assignedTo?: unknown;
     };
     const created =
       doc.createdAt != null
@@ -160,13 +278,10 @@ export class TicketsService {
           : String(doc.createdAt)
         : '';
     const userId = ticket.userId;
+    const assignedToRaw = ticket.assignedTo;
+
     let createdBy: TicketResponse['createdBy'];
-    if (
-      withCreatedBy &&
-      userId &&
-      typeof userId === 'object' &&
-      'email' in userId
-    ) {
+    if (userId && typeof userId === 'object' && 'email' in (userId as object)) {
       const u = userId as {
         _id?: Types.ObjectId;
         firstName?: string;
@@ -180,6 +295,27 @@ export class TicketsService {
         email: u.email ?? '',
       };
     }
+
+    let assignedToUser: TicketResponse['assignedToUser'];
+    if (
+      assignedToRaw &&
+      typeof assignedToRaw === 'object' &&
+      'firstName' in (assignedToRaw as object)
+    ) {
+      const a = assignedToRaw as {
+        _id?: Types.ObjectId;
+        firstName?: string;
+        lastName?: string;
+        email?: string;
+      };
+      assignedToUser = {
+        id: a._id != null ? String(a._id) : '',
+        firstName: a.firstName ?? '',
+        lastName: a.lastName ?? '',
+        email: a.email ?? '',
+      };
+    }
+
     return {
       id: ticket._id != null ? String(ticket._id) : '',
       title: ticket.title,
@@ -189,9 +325,11 @@ export class TicketsService {
       priority: ticket.priority ?? TicketPriority.MEDIUM,
       attachments: Array.isArray(ticket.attachments) ? ticket.attachments : [],
       userId: this.toUserIdString(userId),
-      assignedTo: ticket.assignedTo != null ? String(ticket.assignedTo) : null,
+      assignedTo:
+        assignedToRaw != null ? this.toUserIdString(assignedToRaw) : null,
       createdAt: created,
       ...(createdBy && { createdBy }),
+      ...(assignedToUser && { assignedToUser }),
     };
   }
 }

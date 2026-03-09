@@ -27,5 +27,6 @@ export class CreateTicketDto {
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
+  /** URLs Cloudinary (secure_url) obtenues via POST /tickets/attachments/upload. */
   attachments?: string[];
 }

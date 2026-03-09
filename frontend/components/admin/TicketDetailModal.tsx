@@ -6,7 +6,8 @@ import type { TicketResponse } from '@/lib/api'
 const statusLabel: Record<string, string> = {
   open: 'Ouvert',
   in_progress: 'En cours',
-  closed: 'Fermé',
+  resolved: 'Résolu',
+  closed: 'Clôturé',
 }
 const categoryLabel: Record<string, string> = {
   reseau: 'Réseau',

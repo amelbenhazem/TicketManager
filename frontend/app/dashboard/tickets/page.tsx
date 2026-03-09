@@ -6,7 +6,8 @@ import { api, ApiError, type TicketResponse } from '@/lib/api'
 const statusLabel: Record<string, string> = {
   open: 'Ouvert',
   in_progress: 'En cours',
-  closed: 'Fermé',
+  resolved: 'Résolu',
+  closed: 'Clôturé',
 }
 
 const categoryLabel: Record<string, string> = {
@@ -26,13 +27,18 @@ export default function MesTicketsPage() {
   const [tickets, setTickets] = useState<TicketResponse[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [page, setPage] = useState(1)
+  const [pagination, setPagination] = useState({ total: 0, page: 1, totalPages: 1 })
 
   useEffect(() => {
     let cancelled = false
     api.tickets
-      .list()
+      .list({ page, limit: 20 })
       .then((data) => {
-        if (!cancelled) setTickets(data)
+        if (!cancelled) {
+          setTickets(data.items)
+          setPagination({ total: data.total, page: data.page, totalPages: data.totalPages })
+        }
       })
       .catch((e) => {
         if (!cancelled)
@@ -46,7 +52,7 @@ export default function MesTicketsPage() {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [page])
 
   return (
     <div className="text-white">
@@ -65,6 +71,7 @@ export default function MesTicketsPage() {
           Aucun ticket. Créez-en un depuis « Nouveau Ticket ».
         </p>
       ) : (
+        <>
         <ul className="space-y-4">
           {tickets.map((t) => (
             <li
@@ -99,14 +106,15 @@ export default function MesTicketsPage() {
                 <p className="text-white/40 text-xs mt-1">
                   {new Date(t.createdAt).toLocaleDateString('fr-FR')}
                 </p>
-              </div>
                 <span
                   className={`shrink-0 px-3 py-1 rounded-lg text-xs font-medium ${
                     t.status === 'closed'
                       ? 'bg-white/10 text-white/70'
-                      : t.status === 'in_progress'
-                        ? 'bg-[#0066FF]/30 text-[#60A5FA]'
-                        : 'bg-green-500/20 text-green-300'
+                      : t.status === 'resolved'
+                        ? 'bg-green-500/20 text-green-300'
+                        : t.status === 'in_progress'
+                          ? 'bg-[#0066FF]/30 text-[#60A5FA]'
+                          : 'bg-white/10 text-white/80'
                   }`}
                 >
                   {statusLabel[t.status] ?? t.status}
@@ -115,6 +123,32 @@ export default function MesTicketsPage() {
             </li>
           ))}
         </ul>
+
+        {pagination.totalPages > 1 && (
+          <div className="mt-6 flex items-center justify-between text-sm text-white/50">
+            <span>Page {pagination.page} sur {pagination.totalPages}</span>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={pagination.page <= 1}
+                className="px-3 py-1.5 rounded-lg bg-white/[0.08] hover:bg-white/[0.12] disabled:opacity-40 text-white/70"
+              >
+                Précédent
+              </button>
+              <button
+                type="button"
+                onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
+                disabled={pagination.page >= pagination.totalPages}
+                className="px-3 py-1.5 rounded-lg bg-white/[0.08] hover:bg-white/[0.12] disabled:opacity-40 text-white/70"
+              >
+                Suivant
+              </button>
+            </div>
+          </div>
+        )}
+
+        </>
       )}
     </div>
   )
