@@ -82,7 +82,7 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     const t = setTimeout(() => fetchUsers(), search ? 300 : 0)
     return () => clearTimeout(t)
-  }, [fetchUsers, usersPage])
+  }, [fetchUsers, usersPage, search])
 
   const handleCreateUser = async (data: CreateUserData) => {
     setCreateError(null)

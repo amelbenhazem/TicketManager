@@ -25,7 +25,7 @@ import { UpdateTicketDto } from './dto';
 import { TicketOwnerOrAdminGuard } from './guards/ticket-owner-or-admin.guard';
 import { TicketsAttachmentsService } from './tickets-attachments.service';
 
-const MAX_UPLOAD_SIZE = 10 * 1024 * 1024; // 10 MB
+const MAX_UPLOAD_SIZE = 10 * 1024 * 1024;
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 20;
 const MAX_LIMIT = 100;
@@ -59,21 +59,21 @@ export class TicketsController {
         parseInt(limitStr ?? String(DEFAULT_LIMIT), 10) || DEFAULT_LIMIT,
       ),
     );
-    if (req.user.role === UserRole.ADMIN) {
+    if ((req.user.role as UserRole) === UserRole.ADMIN) {
       return this.ticketsService.findAll(page, limit);
     }
-    if (req.user.role === UserRole.TECHNICIAN) {
+    if ((req.user.role as UserRole) === UserRole.TECHNICIAN) {
       return this.ticketsService.findAllByAssignedTo(req.user.id, page, limit);
     }
     return this.ticketsService.findAllByUser(req.user.id, page, limit);
-  }
+  } // ← accolade fermante de findTickets
 
   @Get(':id')
   async findOne(
     @Param('id') id: string,
     @Request() req: RequestWithUser,
   ): Promise<TicketResponse | null> {
-    const isAdmin = req.user.role === UserRole.ADMIN;
+    const isAdmin = (req.user.role as UserRole) === UserRole.ADMIN;
     return this.ticketsService.findOne(id, req.user.id, isAdmin);
   }
 

@@ -166,14 +166,13 @@ export class TicketsService {
     };
     const ownerId = this.toUserIdString(populated.userId);
     const assignedToId =
-      ticket.assignedTo != null ? String(ticket.assignedTo) : null;
+      ticket.assignedTo != null ? this.toUserIdString(ticket.assignedTo) : null;
     const isOwner = ownerId === requestUserId;
     const isAssigned = assignedToId === requestUserId;
     if (!isAdmin && !isOwner && !isAssigned) return null;
     return this.toResponse(ticket);
   }
 
-  /** Utilisé par TicketOwnerOrAdminGuard : retourne l’assignation du ticket sans charger le document complet. */
   async getTicketForGuard(
     id: string,
   ): Promise<{ assignedToId: string | null } | null> {
@@ -211,7 +210,8 @@ export class TicketsService {
     const ticket = await this.ticketModel.findById(id).exec();
     if (!ticket) return null;
 
-    if (user.role === UserRole.ADMIN) {
+    // ✅ Fix 1 — cast (user.role as UserRole)
+    if ((user.role as UserRole) === UserRole.ADMIN) {
       if (dto.status !== undefined) ticket.status = dto.status;
       if (dto.assignedTo !== undefined) {
         ticket.assignedTo = dto.assignedTo
@@ -224,7 +224,8 @@ export class TicketsService {
       return this.toResponse(ticket);
     }
 
-    if (user.role === UserRole.TECHNICIAN) {
+    // ✅ Fix 2 — cast (user.role as UserRole)
+    if ((user.role as UserRole) === UserRole.TECHNICIAN) {
       const assignedId =
         ticket.assignedTo != null ? String(ticket.assignedTo) : null;
       if (assignedId !== user.id) {
@@ -232,10 +233,9 @@ export class TicketsService {
           'Seul le technicien assigné à ce ticket peut le modifier.',
         );
       }
-      // Le technicien ne peut modifier que le statut, et pas le passer à clôturé
       if (dto.assignedTo !== undefined) {
         throw new ForbiddenException(
-          'Le technicien ne peut pas modifier l’affectation du ticket.',
+          "Le technicien ne peut pas modifier l'affectation du ticket.",
         );
       }
       if (dto.status === undefined) {
@@ -245,7 +245,7 @@ export class TicketsService {
       }
       if (dto.status === TicketStatus.CLOSED) {
         throw new ForbiddenException(
-          'Seul l’administrateur peut clôturer un ticket.',
+          "Seul l'administrateur peut clôturer un ticket.",
         );
       }
       ticket.status = dto.status;
