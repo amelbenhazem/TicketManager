@@ -59,10 +59,10 @@ export class TicketsController {
         parseInt(limitStr ?? String(DEFAULT_LIMIT), 10) || DEFAULT_LIMIT,
       ),
     );
-    if ((req.user.role as UserRole) === UserRole.ADMIN) {
+    if (req.user.role === UserRole.ADMIN) {
       return this.ticketsService.findAll(page, limit);
     }
-    if ((req.user.role as UserRole) === UserRole.TECHNICIAN) {
+    if (req.user.role === UserRole.TECHNICIAN) {
       return this.ticketsService.findAllByAssignedTo(req.user.id, page, limit);
     }
     return this.ticketsService.findAllByUser(req.user.id, page, limit);
@@ -73,7 +73,7 @@ export class TicketsController {
     @Param('id') id: string,
     @Request() req: RequestWithUser,
   ): Promise<TicketResponse | null> {
-    const isAdmin = (req.user.role as UserRole) === UserRole.ADMIN;
+    const isAdmin = req.user.role === UserRole.ADMIN;
     return this.ticketsService.findOne(id, req.user.id, isAdmin);
   }
 

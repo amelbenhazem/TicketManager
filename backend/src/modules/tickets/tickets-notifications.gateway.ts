@@ -20,12 +20,6 @@ type SocketUser = {
   email: string;
 };
 
-type TypedSocket = Socket & {
-  data: {
-    user?: SocketUser;
-  };
-};
-
 type TicketEventPayload = {
   ticket: TicketResponse;
   timestamp: string;
@@ -46,10 +40,11 @@ export class TicketsNotificationsGateway
   private server!: Server;
 
   private readonly logger = new Logger(TicketsNotificationsGateway.name);
+  private readonly socketUsers = new Map<string, SocketUser>();
 
   constructor(private readonly jwtService: JwtService) {}
 
-  handleConnection(client: TypedSocket): void {
+  handleConnection(client: Socket): void {
     const token = this.extractToken(client);
     if (!token) {
       client.disconnect();
@@ -71,7 +66,7 @@ export class TicketsNotificationsGateway
         role: payload.role as UserRole,
         email: payload.email ?? '',
       };
-      client.data.user = user;
+      this.socketUsers.set(client.id, user);
       void Promise.resolve(client.join(this.userRoom(user.id)));
       void Promise.resolve(client.join(this.roleRoom(user.role)));
       client.emit('notifications.ready', {
@@ -84,8 +79,9 @@ export class TicketsNotificationsGateway
     }
   }
 
-  handleDisconnect(client: TypedSocket): void {
-    const user = client.data.user as SocketUser | undefined;
+  handleDisconnect(client: Socket): void {
+    const user = this.socketUsers.get(client.id);
+    this.socketUsers.delete(client.id);
     if (user) {
       this.logger.debug(`Socket disconnected for user ${user.id}`);
     }
@@ -93,7 +89,7 @@ export class TicketsNotificationsGateway
 
   @SubscribeMessage('notifications.ping')
   handlePing(
-    @ConnectedSocket() client: TypedSocket,
+    @ConnectedSocket() client: Socket,
     @MessageBody() body?: unknown,
   ): void {
     client.emit('notifications.pong', {

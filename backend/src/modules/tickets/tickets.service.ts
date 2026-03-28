@@ -218,7 +218,7 @@ export class TicketsService {
       ticket.assignedTo != null ? String(ticket.assignedTo) : null;
 
     // ✅ Fix 1 — cast (user.role as UserRole)
-    if ((user.role as UserRole) === UserRole.ADMIN) {
+    if (user.role === UserRole.ADMIN) {
       if (dto.status !== undefined) ticket.status = dto.status;
       if (dto.assignedTo !== undefined) {
         ticket.assignedTo = dto.assignedTo
@@ -250,7 +250,7 @@ export class TicketsService {
     }
 
     // ✅ Fix 2 — cast (user.role as UserRole)
-    if ((user.role as UserRole) === UserRole.TECHNICIAN) {
+    if (user.role === UserRole.TECHNICIAN) {
       const assignedId =
         ticket.assignedTo != null ? String(ticket.assignedTo) : null;
       if (assignedId !== user.id) {

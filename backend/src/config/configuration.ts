@@ -11,7 +11,7 @@ export default () => {
     if (!jwtSecret || jwtSecret === 'change-me-in-production') {
       throw new Error(
         'JWT_SECRET doit être défini avec une valeur sécurisée en production. ' +
-        'Générez-en un avec: node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))"',
+          "Générez-en un avec: node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\"",
       );
     }
   }
@@ -27,16 +27,16 @@ export default () => {
       // Durée de vie du JWT (format supporté par `ms`, ex: `24h`)
       expiresIn: process.env.JWT_EXPIRES_IN ?? '24h',
     },
-  cors: {
-    origin:
-      process.env.CORS_ORIGIN ??
-      'http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001',
-  },
-  // Compte démo (à remplacer par vraie base utilisateurs)
-  auth: {
-    demoEmail: process.env.AUTH_DEMO_EMAIL,
-    demoPassword: process.env.AUTH_DEMO_PASSWORD,
-  },
+    cors: {
+      origin:
+        process.env.CORS_ORIGIN ??
+        'http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001',
+    },
+    // Compte démo (à remplacer par vraie base utilisateurs)
+    auth: {
+      demoEmail: process.env.AUTH_DEMO_EMAIL,
+      demoPassword: process.env.AUTH_DEMO_PASSWORD,
+    },
     cloudinary: {
       cloudName: process.env.CLOUDINARY_CLOUD_NAME ?? '',
       apiKey: process.env.CLOUDINARY_API_KEY ?? '',

@@ -56,8 +56,12 @@ const TicketSchema = new Schema(
   { timestamps: true, collection: 'tickets' },
 );
 
-type UserDoc = InferSchemaType<typeof UserSchema> & { _id: mongoose.Types.ObjectId };
-type TicketDoc = InferSchemaType<typeof TicketSchema> & { _id: mongoose.Types.ObjectId };
+type UserDoc = InferSchemaType<typeof UserSchema> & {
+  _id: mongoose.Types.ObjectId;
+};
+type TicketDoc = InferSchemaType<typeof TicketSchema> & {
+  _id: mongoose.Types.ObjectId;
+};
 
 const UserModel = mongoose.model<UserDoc>('User', UserSchema);
 const TicketModel = mongoose.model<TicketDoc>('Ticket', TicketSchema);
@@ -91,7 +95,10 @@ async function run(): Promise<void> {
   console.log(`Connected to MongoDB: ${MONGODB_URI}`);
 
   if (shouldReset) {
-    await Promise.all([TicketModel.deleteMany({}).exec(), UserModel.deleteMany({}).exec()]);
+    await Promise.all([
+      TicketModel.deleteMany({}).exec(),
+      UserModel.deleteMany({}).exec(),
+    ]);
     console.log('Reset done: users and tickets collections cleared.');
   }
 
