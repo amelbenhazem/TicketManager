@@ -6,12 +6,7 @@ import { api, ApiError, type TicketResponse } from '@/lib/api'
 import { TicketDetailModal } from '@/components/admin/TicketDetailModal'
 import { subscribeTicketRealtime } from '@/lib/realtime'
 
-const statusLabel: Record<string, string> = {
-  open: 'Ouvert',
-  in_progress: 'En cours',
-  resolved: 'Résolu',
-  closed: 'Clôturé',
-}
+// statusLabel est défini mais non utilisé ici; retiré pour éviter les warnings lint
 const categoryLabel: Record<string, string> = {
   reseau: 'Réseau',
   logiciel: 'Logiciel',

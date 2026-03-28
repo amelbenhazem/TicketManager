@@ -62,13 +62,13 @@ export default function MesTicketsPage() {
 
   useEffect(() => {
     return fetchTickets()
-  }, [page])
+  }, [page, fetchTickets])
 
   useEffect(() => {
     return subscribeTicketRealtime(() => {
       void fetchTickets({ silent: true })
     })
-  }, [page])
+  }, [fetchTickets])
 
   useEffect(() => {
     const POLL_MS = 30_000

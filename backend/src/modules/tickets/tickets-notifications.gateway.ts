@@ -20,6 +20,12 @@ type SocketUser = {
   email: string;
 };
 
+type TypedSocket = Socket & {
+  data: {
+    user?: SocketUser;
+  };
+};
+
 type TicketEventPayload = {
   ticket: TicketResponse;
   timestamp: string;
@@ -43,7 +49,7 @@ export class TicketsNotificationsGateway
 
   constructor(private readonly jwtService: JwtService) {}
 
-  handleConnection(client: Socket): void {
+  handleConnection(client: TypedSocket): void {
     const token = this.extractToken(client);
     if (!token) {
       client.disconnect();
@@ -66,8 +72,8 @@ export class TicketsNotificationsGateway
         email: payload.email ?? '',
       } satisfies SocketUser;
       client.data.user = user;
-      client.join(this.userRoom(user.id));
-      client.join(this.roleRoom(user.role));
+      void client.join(this.userRoom(user.id));
+      void client.join(this.roleRoom(user.role));
       client.emit('notifications.ready', {
         userId: user.id,
         role: user.role,
@@ -78,15 +84,15 @@ export class TicketsNotificationsGateway
     }
   }
 
-  handleDisconnect(client: Socket): void {
-    const user = client.data.user as SocketUser | undefined;
+  handleDisconnect(client: TypedSocket): void {
+    const user = client.data.user;
     if (user) {
       this.logger.debug(`Socket disconnected for user ${user.id}`);
     }
   }
 
   @SubscribeMessage('notifications.ping')
-  handlePing(@ConnectedSocket() client: Socket, @MessageBody() body?: unknown) {
+  handlePing(@ConnectedSocket() client: TypedSocket, @MessageBody() body?: unknown) {
     client.emit('notifications.pong', {
       ok: true,
       timestamp: new Date().toISOString(),
@@ -162,8 +168,9 @@ export class TicketsNotificationsGateway
   }
 
   private extractToken(client: Socket): string | null {
-    const authToken = client.handshake.auth?.token;
-    if (typeof authToken === 'string' && authToken.trim()) return authToken;
+    const auth = client.handshake.auth as Record<string, unknown> | undefined;
+    const authToken = typeof auth?.token === 'string' ? (auth.token as string) : null;
+    if (authToken && authToken.trim()) return authToken;
 
     const header = client.handshake.headers.authorization;
     if (typeof header === 'string' && header.startsWith('Bearer ')) {

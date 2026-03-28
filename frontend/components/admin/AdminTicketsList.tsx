@@ -6,12 +6,6 @@ import { AssignTicketModal } from './AssignTicketModal'
 import { TicketDetailModal } from './TicketDetailModal'
 import { subscribeTicketRealtime } from '@/lib/realtime'
 
-const statusLabel: Record<string, string> = {
-  open: 'Ouvert',
-  in_progress: 'En cours',
-  resolved: 'Résolu',
-  closed: 'Clôturé',
-}
 const categoryLabel: Record<string, string> = {
   reseau: 'Réseau',
   logiciel: 'Logiciel',
