@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { LayoutDashboard, LogOut } from 'lucide-react'
+import { disconnectRealtime } from '@/lib/realtime'
 
 export function TechnicianSidebar() {
   const pathname = usePathname()
@@ -44,9 +45,10 @@ export function TechnicianSidebar() {
 
       <div className="p-3 border-t border-white/[0.12]">
         <Link
-          href="/"
+          href="/login"
           onClick={() => {
             if (typeof window !== 'undefined') {
+              disconnectRealtime()
               localStorage.removeItem('access_token')
               localStorage.removeItem('user_role')
             }

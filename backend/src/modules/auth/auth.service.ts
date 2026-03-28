@@ -43,8 +43,8 @@ export class AuthService {
       email: dto.email,
       role,
     };
-    const expiresIn = (this.config.get<string>('jwt.expiresIn', '7d') ||
-      '7d') as StringValue;
+    const expiresIn = (this.config.get<string>('jwt.expiresIn', '24h') ||
+      '24h') as StringValue;
     const access_token = this.jwtService.sign(payload, { expiresIn });
 
     return { access_token, expiresIn, role };

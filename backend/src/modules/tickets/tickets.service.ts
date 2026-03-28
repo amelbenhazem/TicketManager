@@ -11,6 +11,7 @@ import {
 import { CreateTicketDto } from './dto';
 import { UpdateTicketDto } from './dto';
 import { UserRole } from '../users/schemas/user.schema';
+import { TicketsNotificationsGateway } from './tickets-notifications.gateway';
 
 export type TicketResponse = {
   id: string;
@@ -53,6 +54,7 @@ export class TicketsService {
   constructor(
     @InjectModel(Ticket.name)
     private readonly ticketModel: Model<TicketDocument>,
+    private readonly ticketsNotifications: TicketsNotificationsGateway,
   ) {}
 
   async findAllByUser(
@@ -199,7 +201,9 @@ export class TicketsService {
       assignedTo: null,
     });
     await ticket.populate('userId', 'firstName lastName email');
-    return this.toResponse(ticket);
+    const created = this.toResponse(ticket);
+    this.ticketsNotifications.notifyTicketCreated(created, userId);
+    return created;
   }
 
   async update(
@@ -209,6 +213,9 @@ export class TicketsService {
   ): Promise<TicketResponse | null> {
     const ticket = await this.ticketModel.findById(id).exec();
     if (!ticket) return null;
+    const previousStatus = ticket.status;
+    const previousAssignedTo =
+      ticket.assignedTo != null ? String(ticket.assignedTo) : null;
 
     // ✅ Fix 1 — cast (user.role as UserRole)
     if ((user.role as UserRole) === UserRole.ADMIN) {
@@ -221,7 +228,25 @@ export class TicketsService {
       await ticket.save();
       await ticket.populate('userId', 'firstName lastName email');
       await ticket.populate('assignedTo', 'firstName lastName email');
-      return this.toResponse(ticket);
+      const updated = this.toResponse(ticket);
+      if (
+        dto.assignedTo !== undefined &&
+        previousAssignedTo !== updated.assignedTo
+      ) {
+        this.ticketsNotifications.notifyTicketAssigned(
+          updated,
+          previousAssignedTo,
+          user.id,
+        );
+      }
+      if (dto.status !== undefined && previousStatus !== updated.status) {
+        this.ticketsNotifications.notifyTicketStatusChanged(
+          updated,
+          previousStatus,
+          user.id,
+        );
+      }
+      return updated;
     }
 
     // ✅ Fix 2 — cast (user.role as UserRole)
@@ -252,7 +277,15 @@ export class TicketsService {
       await ticket.save();
       await ticket.populate('userId', 'firstName lastName email');
       await ticket.populate('assignedTo', 'firstName lastName email');
-      return this.toResponse(ticket);
+      const updated = this.toResponse(ticket);
+      if (dto.status !== undefined && previousStatus !== updated.status) {
+        this.ticketsNotifications.notifyTicketStatusChanged(
+          updated,
+          previousStatus,
+          user.id,
+        );
+      }
+      return updated;
     }
 
     throw new ForbiddenException('Action non autorisée');

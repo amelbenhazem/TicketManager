@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { api, ApiError, type TicketResponse } from '@/lib/api'
+import { subscribeTicketRealtime } from '@/lib/realtime'
 
 const statusLabel: Record<string, string> = {
   open: 'Ouvert',
@@ -30,29 +31,65 @@ export default function MesTicketsPage() {
   const [page, setPage] = useState(1)
   const [pagination, setPagination] = useState({ total: 0, page: 1, totalPages: 1 })
 
-  useEffect(() => {
+  const inFlightRef = useRef(false)
+  const fetchTickets = useCallback((opts?: { silent?: boolean }) => {
+    const silent = opts?.silent ?? false
     let cancelled = false
+    if (inFlightRef.current) return () => {}
+    inFlightRef.current = true
     api.tickets
       .list({ page, limit: 20 })
       .then((data) => {
         if (!cancelled) {
           setTickets(data.items)
           setPagination({ total: data.total, page: data.page, totalPages: data.totalPages })
+          if (!silent) setError(null)
         }
       })
       .catch((e) => {
-        if (!cancelled)
-          setError(
-            e instanceof ApiError ? e.message : 'Erreur lors du chargement',
-          )
+        if (!cancelled && !silent) {
+          setError(e instanceof ApiError ? e.message : 'Erreur lors du chargement')
+        }
       })
       .finally(() => {
-        if (!cancelled) setLoading(false)
+        inFlightRef.current = false
+        if (!cancelled && !silent) setLoading(false)
       })
     return () => {
       cancelled = true
     }
   }, [page])
+
+  useEffect(() => {
+    return fetchTickets()
+  }, [page])
+
+  useEffect(() => {
+    return subscribeTicketRealtime(() => {
+      void fetchTickets({ silent: true })
+    })
+  }, [page])
+
+  useEffect(() => {
+    const POLL_MS = 30_000
+
+    const poll = () => {
+      // Refaire une synchro quand l’onglet redevient visible (le realtime peut être manqué pendant l’inactivité).
+      if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return
+      void fetchTickets({ silent: true })
+    }
+
+    const id = setInterval(poll, POLL_MS)
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') poll()
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+
+    return () => {
+      clearInterval(id)
+      document.removeEventListener('visibilitychange', onVisibility)
+    }
+  }, [fetchTickets])
 
   return (
     <div className="text-white">

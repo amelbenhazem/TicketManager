@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { api, ApiError, type TicketResponse, type UserResponse } from '@/lib/api'
 import { AssignTicketModal } from './AssignTicketModal'
 import { TicketDetailModal } from './TicketDetailModal'
+import { subscribeTicketRealtime } from '@/lib/realtime'
 
 const statusLabel: Record<string, string> = {
   open: 'Ouvert',
@@ -34,22 +35,60 @@ export function AdminTicketsList() {
   const [ticketsPage, setTicketsPage] = useState(1)
   const [ticketsPagination, setTicketsPagination] = useState({ total: 0, page: 1, totalPages: 1 })
 
-  const fetchTickets = useCallback(async () => {
-    try {
-      const data = await api.tickets.list({ page: ticketsPage, limit: 20 })
-      setTickets(data.items)
-      setTicketsPagination({ total: data.total, page: data.page, totalPages: data.totalPages })
-      setError(null)
-    } catch (e) {
-      if (e instanceof ApiError && e.status === 403) setTickets([])
-      else setError(e instanceof ApiError ? e.message : 'Erreur chargement')
-    } finally {
-      setLoading(false)
-    }
-  }, [ticketsPage])
+  const inFlightRef = useRef(false)
+  const fetchTickets = useCallback(
+    async (opts?: { silent?: boolean }) => {
+      const silent = opts?.silent ?? false
+      if (inFlightRef.current) return
+      inFlightRef.current = true
+
+      try {
+        const data = await api.tickets.list({ page: ticketsPage, limit: 20 })
+        setTickets(data.items)
+        setTicketsPagination({ total: data.total, page: data.page, totalPages: data.totalPages })
+        if (!silent) setError(null)
+      } catch (e) {
+        if (e instanceof ApiError && e.status === 403) setTickets([])
+        else if (!silent) setError(e instanceof ApiError ? e.message : 'Erreur chargement')
+      } finally {
+        inFlightRef.current = false
+        if (!silent) setLoading(false)
+      }
+    },
+    [ticketsPage],
+  )
 
   useEffect(() => {
     fetchTickets()
+  }, [fetchTickets])
+
+  useEffect(() => {
+    return subscribeTicketRealtime(
+      () => {
+        void fetchTickets({ silent: true })
+      },
+      { showToast: false },
+    )
+  }, [fetchTickets])
+
+  useEffect(() => {
+    const POLL_MS = 30_000
+
+    const poll = () => {
+      if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return
+      void fetchTickets({ silent: true })
+    }
+
+    const id = setInterval(poll, POLL_MS)
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') poll()
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+
+    return () => {
+      clearInterval(id)
+      document.removeEventListener('visibilitychange', onVisibility)
+    }
   }, [fetchTickets])
 
   useEffect(() => {

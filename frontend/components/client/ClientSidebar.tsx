@@ -10,6 +10,7 @@ import {
   User,
   LogOut,
 } from 'lucide-react'
+import { disconnectRealtime } from '@/lib/realtime'
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -65,9 +66,10 @@ export function ClientSidebar() {
 
       <div className="p-3 border-t border-white/[0.12]">
         <Link
-          href="/"
+          href="/login"
           onClick={() => {
             if (typeof window !== 'undefined') {
+              disconnectRealtime()
               localStorage.removeItem('access_token')
               localStorage.removeItem('user_role')
             }

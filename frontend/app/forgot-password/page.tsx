@@ -11,7 +11,7 @@ export default function ForgotPasswordPage() {
           Page placeholder. À connecter à votre API (envoi d’email de réinitialisation).
         </p>
         <Link
-          href="/"
+          href="/login"
           className="text-[#60A5FA] hover:text-white font-medium"
         >
           ← Retour à la connexion

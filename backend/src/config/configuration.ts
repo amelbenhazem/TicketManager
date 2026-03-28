@@ -24,7 +24,8 @@ export default () => {
     },
     jwt: {
       secret: jwtSecret ?? 'change-me-in-production',
-      expiresIn: process.env.JWT_EXPIRES_IN ?? '7d',
+      // Durée de vie du JWT (format supporté par `ms`, ex: `24h`)
+      expiresIn: process.env.JWT_EXPIRES_IN ?? '24h',
     },
   cors: {
     origin:

@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { api, ApiError, type TicketResponse } from '@/lib/api'
 import { TicketDetailModal } from '@/components/admin/TicketDetailModal'
+import { subscribeTicketRealtime } from '@/lib/realtime'
 
 const statusLabel: Record<string, string> = {
   open: 'Ouvert',
@@ -39,27 +40,65 @@ export default function TechnicianDashboardPage() {
   const [page, setPage] = useState(1)
   const [pagination, setPagination] = useState({ total: 0, page: 1, totalPages: 1 })
 
-  const fetchTickets = useCallback(async () => {
-    try {
-      const data = await api.tickets.list({ page: page, limit: 20 })
-      setTickets(data.items)
-      setPagination({ total: data.total, page: data.page, totalPages: data.totalPages })
-      setError(null)
-    } catch (e) {
-      if (e instanceof ApiError && e.status === 403) router.replace('/')
-      else setError(e instanceof ApiError ? e.message : 'Erreur chargement')
-    } finally {
-      setLoading(false)
-    }
-  }, [page, router])
+  const inFlightRef = useRef(false)
+  const fetchTickets = useCallback(
+    async (opts?: { silent?: boolean }) => {
+      const silent = opts?.silent ?? false
+      if (inFlightRef.current) return
+      inFlightRef.current = true
+
+      try {
+        const data = await api.tickets.list({ page: page, limit: 20 })
+        setTickets(data.items)
+        setPagination({ total: data.total, page: data.page, totalPages: data.totalPages })
+        if (!silent) setError(null)
+      } catch (e) {
+        if (e instanceof ApiError && e.status === 403) {
+          router.replace('/login')
+        } else if (!silent) {
+          setError(e instanceof ApiError ? e.message : 'Erreur chargement')
+        }
+      } finally {
+        inFlightRef.current = false
+        if (!silent) setLoading(false)
+      }
+    },
+    [page, router],
+  )
 
   useEffect(() => {
     if (typeof window !== 'undefined' && !localStorage.getItem('access_token')) {
-      router.replace('/')
+      router.replace('/login')
       return
     }
     fetchTickets()
   }, [fetchTickets, router])
+
+  useEffect(() => {
+    return subscribeTicketRealtime(() => {
+      void fetchTickets({ silent: true })
+    })
+  }, [fetchTickets])
+
+  useEffect(() => {
+    const POLL_MS = 30_000
+
+    const poll = () => {
+      if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return
+      void fetchTickets({ silent: true })
+    }
+
+    const id = setInterval(poll, POLL_MS)
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') poll()
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+
+    return () => {
+      clearInterval(id)
+      document.removeEventListener('visibilitychange', onVisibility)
+    }
+  }, [fetchTickets])
 
   const handleStatusChange = async (
     ticket: TicketResponse,

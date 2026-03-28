@@ -4,6 +4,7 @@
  */
 
 import { env } from './env';
+import { disconnectRealtime } from './realtime';
 
 export type LoginPayload = { email: string; password: string };
 export type LoginResponse = { access_token: string; expiresIn: string; role: string };
@@ -97,11 +98,12 @@ async function request<T>(
   if (!res.ok) {
     // Gestion des erreurs 401 (Non autorisé) - Token invalide ou expiré
     if (res.status === 401 && authenticated && typeof window !== 'undefined') {
+      disconnectRealtime();
       // Nettoyer le localStorage
       localStorage.removeItem('access_token');
       localStorage.removeItem('user_role');
       // Rediriger vers la page de login
-      window.location.href = '/';
+      window.location.href = '/login';
     }
 
     let message: string

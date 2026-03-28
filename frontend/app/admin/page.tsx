@@ -10,6 +10,7 @@ import { AddUserForm } from '@/components/admin/AddUserForm'
 import { EditUserModal } from '@/components/admin/EditUserModal'
 import { AdminTicketsList } from '@/components/admin/AdminTicketsList'
 import { api, ApiError, type UserRole, type UsersStats, type UserResponse } from '@/lib/api'
+import { subscribeTicketRealtime } from '@/lib/realtime'
 import type { CreateUserData } from '@/components/admin/AddUserForm'
 import type { UpdateUserData } from '@/components/admin/EditUserModal'
 
@@ -32,10 +33,14 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     if (typeof window !== 'undefined' && !localStorage.getItem('access_token')) {
-      router.replace('/')
+      router.replace('/login')
       return
     }
   }, [router])
+
+  useEffect(() => {
+    return subscribeTicketRealtime(() => {})
+  }, [])
 
   const fetchStats = useCallback(async () => {
     setStatsLoading(true)
@@ -62,7 +67,7 @@ export default function AdminDashboardPage() {
       setUsersPagination({ total: data.total, page: data.page, totalPages: data.totalPages })
     } catch (e) {
       if (e instanceof ApiError && e.status === 403) {
-        router.replace('/')
+        router.replace('/login')
         return
       }
       setUsers([])

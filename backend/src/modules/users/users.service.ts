@@ -9,6 +9,7 @@ import * as bcrypt from 'bcrypt';
 import { User, UserDocument, UserRole } from './schemas/user.schema';
 import { CreateUserDto } from './dto';
 import { UpdateUserDto } from './dto';
+import { Ticket, TicketDocument } from '../tickets/schemas/ticket.schema';
 
 export type UserResponse = {
   id: string;
@@ -33,6 +34,8 @@ const MAX_LIMIT = 100;
 export class UsersService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+    @InjectModel(Ticket.name)
+    private readonly ticketModel: Model<TicketDocument>,
   ) {}
 
   async create(dto: CreateUserDto): Promise<UserResponse> {
@@ -128,8 +131,21 @@ export class UsersService {
   }
 
   async remove(id: string): Promise<void> {
-    const result = await this.userModel.findByIdAndDelete(id).exec();
-    if (!result) throw new NotFoundException('Utilisateur non trouvé');
+    const user = await this.userModel.findById(id).exec();
+    if (!user) throw new NotFoundException('Utilisateur non trouvé');
+
+    if (user.role === UserRole.TECHNICIAN) {
+      const assignedCount = await this.ticketModel
+        .countDocuments({ assignedTo: user._id })
+        .exec();
+      if (assignedCount > 0) {
+        throw new ConflictException(
+          'Suppression interdite: ce technicien a des tickets assignés.',
+        );
+      }
+    }
+
+    await this.userModel.findByIdAndDelete(id).exec();
   }
 
   async findByEmail(email: string): Promise<UserDocument | null> {
