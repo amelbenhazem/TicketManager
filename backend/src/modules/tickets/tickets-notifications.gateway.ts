@@ -66,14 +66,14 @@ export class TicketsNotificationsGateway
         client.disconnect();
         return;
       }
-      const user = {
+      const user: SocketUser = {
         id: payload.sub,
         role: payload.role as UserRole,
         email: payload.email ?? '',
-      } satisfies SocketUser;
+      };
       client.data.user = user;
-      void client.join(this.userRoom(user.id));
-      void client.join(this.roleRoom(user.role));
+      void Promise.resolve(client.join(this.userRoom(user.id)));
+      void Promise.resolve(client.join(this.roleRoom(user.role)));
       client.emit('notifications.ready', {
         userId: user.id,
         role: user.role,
@@ -85,14 +85,17 @@ export class TicketsNotificationsGateway
   }
 
   handleDisconnect(client: TypedSocket): void {
-    const user = client.data.user;
+    const user = client.data.user as SocketUser | undefined;
     if (user) {
       this.logger.debug(`Socket disconnected for user ${user.id}`);
     }
   }
 
   @SubscribeMessage('notifications.ping')
-  handlePing(@ConnectedSocket() client: TypedSocket, @MessageBody() body?: unknown) {
+  handlePing(
+    @ConnectedSocket() client: TypedSocket,
+    @MessageBody() body?: unknown,
+  ): void {
     client.emit('notifications.pong', {
       ok: true,
       timestamp: new Date().toISOString(),
@@ -168,9 +171,11 @@ export class TicketsNotificationsGateway
   }
 
   private extractToken(client: Socket): string | null {
-    const auth = client.handshake.auth as Record<string, unknown> | undefined;
-    const authToken = typeof auth?.token === 'string' ? (auth.token as string) : null;
-    if (authToken && authToken.trim()) return authToken;
+    const auth = client.handshake.auth as Record<string, unknown>;
+    const authToken = auth['token'];
+    if (typeof authToken === 'string' && authToken.trim()) {
+      return authToken.trim();
+    }
 
     const header = client.handshake.headers.authorization;
     if (typeof header === 'string' && header.startsWith('Bearer ')) {
