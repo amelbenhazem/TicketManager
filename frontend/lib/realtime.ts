@@ -134,6 +134,7 @@ export function disconnectRealtime(): void {
   socketToken = null
 }
 
-function notifyWithSound(): void {
+function notifyWithSound(_message: string): void {
   // toast supprimé volontairement (on garde uniquement la cloche)
+  void _message
 }

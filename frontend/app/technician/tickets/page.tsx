@@ -34,6 +34,7 @@ export default function TechnicianTicketsPage() {
   const [createdFrom, setCreatedFrom] = useState<string>('')
   const [createdTo, setCreatedTo] = useState<string>('')
   const [search, setSearch] = useState<string>('')
+  const [, setUpdatingId] = useState<string | null>(null)
 
   const asEnum = <T extends string>(value: string, allowed: readonly T[]): T | undefined =>
     (allowed as readonly string[]).includes(value) ? (value as T) : undefined
