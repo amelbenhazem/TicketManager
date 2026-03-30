@@ -1,6 +1,6 @@
 'use client'
 
-import { Calendar, X } from 'lucide-react'
+import { X } from 'lucide-react'
 
 type DateInputProps = {
   value: string

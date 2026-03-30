@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { LayoutDashboard, UserPlus, Ticket, LogOut } from 'lucide-react'
 import { disconnectRealtime } from '@/lib/realtime'
 import { useEffect, useState } from 'react'
-import { api, type UserResponse, ApiError } from '@/lib/api'
+import { api, type UserResponse } from '@/lib/api'
 
 type AdminSidebarProps = {
   activeSection: 'dashboard' | 'create' | 'tickets'
@@ -22,7 +22,7 @@ export function AdminSidebar({ activeSection, onNavigate }: AdminSidebarProps) {
       .then((u) => {
         if (mounted) setUser(u)
       })
-      .catch((_e: unknown) => {
+      .catch(() => {
         // Silencieux dans la sidebar
       })
     return () => {

@@ -110,20 +110,23 @@ export class TicketsService {
     byTechnician: Array<{ technicianId: string | null; count: number }>;
     total: number;
   }> {
-    const [byStatusAgg, byPriorityAgg, byTechnicianAgg, total] = await Promise.all([
-      this.ticketModel.aggregate([
-        { $group: { _id: '$status', count: { $sum: 1 } } },
-      ]),
-      this.ticketModel.aggregate([
-        { $group: { _id: '$priority', count: { $sum: 1 } } },
-      ]),
-      this.ticketModel.aggregate([
-        { $group: { _id: '$assignedTo', count: { $sum: 1 } } },
-        { $sort: { count: -1 } },
-        { $limit: 50 },
-      ]),
-      this.ticketModel.countDocuments().exec(),
-    ]);
+    type AggResult<K extends string> = { _id: K | null; count: number };
+
+    const [byStatusAgg, byPriorityAgg, byTechnicianAgg, total] =
+      await Promise.all([
+        this.ticketModel.aggregate<AggResult<TicketStatus>>([
+          { $group: { _id: '$status', count: { $sum: 1 } } },
+        ]),
+        this.ticketModel.aggregate<AggResult<TicketPriority>>([
+          { $group: { _id: '$priority', count: { $sum: 1 } } },
+        ]),
+        this.ticketModel.aggregate<AggResult<string>>([
+          { $group: { _id: '$assignedTo', count: { $sum: 1 } } },
+          { $sort: { count: -1 } },
+          { $limit: 50 },
+        ]),
+        this.ticketModel.countDocuments().exec(),
+      ]);
 
     const initStatus: Record<TicketStatus, number> = {
       [TicketStatus.OPEN]: 0,
@@ -138,22 +141,27 @@ export class TicketsService {
     };
 
     for (const it of byStatusAgg) {
-      if (it?._id && it.count != null && it.count >= 0 && it._id in initStatus) {
-        initStatus[it._id as TicketStatus] = it.count as number;
+      if (it._id && it.count >= 0 && it._id in initStatus) {
+        initStatus[it._id] = it.count;
       }
     }
     for (const it of byPriorityAgg) {
-      if (it?._id && it.count != null && it.count >= 0 && it._id in initPriority) {
-        initPriority[it._id as TicketPriority] = it.count as number;
+      if (it._id && it.count >= 0 && it._id in initPriority) {
+        initPriority[it._id] = it.count;
       }
     }
 
     const byTechnician = byTechnicianAgg.map((it) => ({
       technicianId: it._id != null ? String(it._id) : null,
-      count: it.count as number,
+      count: it.count,
     }));
 
-    return { byStatus: initStatus, byPriority: initPriority, byTechnician, total };
+    return {
+      byStatus: initStatus,
+      byPriority: initPriority,
+      byTechnician,
+      total,
+    };
   }
   async findAllByUser(
     userId: string,
@@ -191,7 +199,9 @@ export class TicketsService {
       this.ticketModel.countDocuments(q).exec(),
     ]);
     return {
-      items: tickets.map((t) => this.toResponse(t as any)),
+      items: tickets.map((t) =>
+        this.toResponse(t as unknown as TicketDocument),
+      ),
       total,
       page: Math.max(1, page),
       limit: safeLimit,
@@ -199,14 +209,19 @@ export class TicketsService {
     };
   }
 
-  async findAll(page = 1, limit = DEFAULT_LIMIT, filters?: TicketFilters): Promise<PaginatedTickets> {
+  async findAll(
+    page = 1,
+    limit = DEFAULT_LIMIT,
+    filters?: TicketFilters,
+  ): Promise<PaginatedTickets> {
     const safeLimit = Math.min(Math.max(1, limit), MAX_LIMIT);
     const skip = (Math.max(1, page) - 1) * safeLimit;
     const q = this.buildBaseQuery(filters);
     if (filters && 'assignedTo' in filters) {
       // Admin-only usage: assignedTo filter (string id or null for unassigned)
       if (filters.assignedTo === null) q.assignedTo = null;
-      else if (filters.assignedTo) q.assignedTo = new Types.ObjectId(filters.assignedTo);
+      else if (filters.assignedTo)
+        q.assignedTo = new Types.ObjectId(filters.assignedTo);
     }
     const [tickets, total] = await Promise.all([
       this.ticketModel
@@ -375,9 +390,11 @@ export class TicketsService {
           : null;
       }
       // Historique: stocker les changements pertinents
-      const historyEntries: Array<Parameters<typeof ticket.updateOne>[0]> = [];
       if (dto.status !== undefined && previousStatus !== dto.status) {
-        (ticket as any).history.push({
+        const history = (
+          ticket as unknown as { history: Array<Record<string, unknown>> }
+        ).history;
+        history.push({
           actorId: user.id,
           actorRole: 'admin',
           action: 'status_changed',
@@ -387,8 +404,15 @@ export class TicketsService {
           timestamp: new Date(),
         });
       }
-      if (dto.assignedTo !== undefined && previousAssignedTo !== (ticket.assignedTo ? String(ticket.assignedTo) : null)) {
-        (ticket as any).history.push({
+      if (
+        dto.assignedTo !== undefined &&
+        previousAssignedTo !==
+          (ticket.assignedTo ? String(ticket.assignedTo) : null)
+      ) {
+        const history = (
+          ticket as unknown as { history: Array<Record<string, unknown>> }
+        ).history;
+        history.push({
           actorId: user.id,
           actorRole: 'admin',
           action: 'assigned_changed',
@@ -407,16 +431,19 @@ export class TicketsService {
         previousAssignedTo !== updated.assignedTo
       ) {
         // Temps réel: notifier le technicien nouvellement assigné
-        this.ticketsNotifications.notifyTicketAssigned(updated, previousAssignedTo, user.id);
+        this.ticketsNotifications.notifyTicketAssigned(
+          updated,
+          previousAssignedTo,
+          user.id,
+        );
 
         // Notifications persistantes:
         // - CLIENT: technicien affecté/retiré
-        const technicianLabel =
-          updated.assignedToUser
-            ? `${updated.assignedToUser.firstName ?? ''} ${updated.assignedToUser.lastName ?? ''}`.trim()
-            : updated.assignedTo
-              ? String(updated.assignedTo)
-              : null;
+        const technicianLabel = updated.assignedToUser
+          ? `${updated.assignedToUser.firstName ?? ''} ${updated.assignedToUser.lastName ?? ''}`.trim()
+          : updated.assignedTo
+            ? String(updated.assignedTo)
+            : null;
         const title =
           updated.assignedTo && technicianLabel
             ? `Technicien affecté: ${technicianLabel}`
@@ -442,7 +469,7 @@ export class TicketsService {
         const recipients = [
           updated.userId,
           ...(updated.assignedTo ? [updated.assignedTo] : []),
-        ].filter((v, i, a) => v && a.indexOf(v) === i) as string[];
+        ].filter((v, i, a) => v && a.indexOf(v) === i);
         await this.notifications.createMany(recipients, {
           event: 'ticket.status_changed',
           ticketId: updated.id,
@@ -479,7 +506,10 @@ export class TicketsService {
       }
       ticket.status = dto.status;
       if (dto.status !== undefined && previousStatus !== dto.status) {
-        (ticket as any).history.push({
+        const history = (
+          ticket as unknown as { history: Array<Record<string, unknown>> }
+        ).history;
+        history.push({
           actorId: user.id,
           actorRole: 'technician',
           action: 'status_changed',

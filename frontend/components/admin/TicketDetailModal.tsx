@@ -39,6 +39,17 @@ export function TicketDetailModal({
     const key = String(s) as keyof typeof statusLabel
     return statusLabel[key] ?? s
   }
+
+  type TicketHistoryItem = {
+    actorId: string
+    actorRole?: string
+    action: string
+    field?: string
+    from?: string | null
+    to?: string | null
+    timestamp?: string
+  }
+  const history = (ticket as unknown as { history?: TicketHistoryItem[] }).history
   const getFileName = (u: string) => {
     try {
       const url = new URL(u)
@@ -184,19 +195,11 @@ export function TicketDetailModal({
             </div>
           )}
 
-          {Array.isArray((ticket as any).history) && (ticket as any).history.length > 0 && (
+          {Array.isArray(history) && history.length > 0 && (
             <div className="mt-4">
               <span className="text-[10px] font-semibold uppercase text-white/50">Historique</span>
               <ul className="mt-2 space-y-2">
-                {((ticket as any).history as Array<{
-                  actorId: string
-                  actorRole?: string
-                  action: string
-                  field?: string
-                  from?: string | null
-                  to?: string | null
-                  timestamp?: string
-                }>).map((h, i) => {
+                {history.map((h, i) => {
                   const when = h.timestamp ? new Date(h.timestamp).toLocaleString('fr-FR') : ''
                   const who = h.actorRole ? `${h.actorRole}` : h.actorId
                   let line = ''

@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import {
-  ArrowRight,
+ // ArrowRight,
   Mail,
   Lock,
   Eye,

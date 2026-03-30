@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { api, ApiError, type TicketResponse, type UserResponse } from '@/lib/api'
+import { api, ApiError, type TicketCategory, type TicketPriority, type TicketResponse, type TicketStatus, type UserResponse } from '@/lib/api'
 import { AssignTicketModal } from './AssignTicketModal'
 import { TicketDetailModal } from './TicketDetailModal'
 import { subscribeTicketRealtime } from '@/lib/realtime'
@@ -28,7 +28,7 @@ export function AdminTicketsList() {
   const [error, setError] = useState<string | null>(null)
   const [assignTicket, setAssignTicket] = useState<TicketResponse | null>(null)
   const [detailTicket, setDetailTicket] = useState<TicketResponse | null>(null)
-  const [updatingId, setUpdatingId] = useState<string | null>(null)
+  const [, setUpdatingId] = useState<string | null>(null)
   const [ticketsPage, setTicketsPage] = useState(1)
   const [ticketsPagination, setTicketsPagination] = useState({ total: 0, page: 1, totalPages: 1 })
   // Filtres
@@ -38,6 +38,9 @@ export function AdminTicketsList() {
   const [createdFrom, setCreatedFrom] = useState<string>('')
   const [createdTo, setCreatedTo] = useState<string>('')
   const [search, setSearch] = useState<string>('')
+
+  const asEnum = <T extends string>(value: string, allowed: readonly T[]): T | undefined =>
+    (allowed as readonly string[]).includes(value) ? (value as T) : undefined
 
   const inFlightRef = useRef(false)
   const fetchTickets = useCallback(
@@ -50,9 +53,9 @@ export function AdminTicketsList() {
         const data = await api.tickets.list({
           page: ticketsPage,
           limit: 20,
-          status: (status || undefined) as any,
-          priority: (priority || undefined) as any,
-          category: (category || undefined) as any,
+          status: asEnum(status, ['open', 'in_progress', 'resolved', 'closed'] as const satisfies readonly TicketStatus[]),
+          priority: asEnum(priority, ['low', 'medium', 'high'] as const satisfies readonly TicketPriority[]),
+          category: asEnum(category, ['reseau', 'logiciel', 'materiel', 'autre'] as const satisfies readonly TicketCategory[]),
           createdFrom: createdFrom || undefined,
           createdTo: createdTo || undefined,
           search: search.trim() || undefined,
@@ -124,35 +127,10 @@ export function AdminTicketsList() {
         ? (technicianMap[t.assignedTo] ?? t.assignedTo)
         : '—'
 
-  const priorityIcon: Record<string, string> = {
-    low: '🟢',
-    medium: '🟠',
-    high: '🔴',
-  }
-  const statusIcon: Record<string, string> = {
-    open: '🔵',
-    in_progress: '🟠',
-    resolved: '🟢',
-    closed: '⚫',
-  }
-
   const handleStatusChange = async (ticket: TicketResponse, newStatus: 'open' | 'in_progress' | 'resolved' | 'closed') => {
     setUpdatingId(ticket.id)
     try {
       await api.tickets.update(ticket.id, { status: newStatus })
-      await fetchTickets()
-    } catch (e) {
-      alert(e instanceof ApiError ? e.message : 'Erreur')
-    } finally {
-      setUpdatingId(null)
-    }
-  }
-
-  const handleCloseTicket = async (ticket: TicketResponse) => {
-    if (ticket.status === 'closed') return
-    setUpdatingId(ticket.id)
-    try {
-      await api.tickets.update(ticket.id, { status: 'closed' })
       await fetchTickets()
     } catch (e) {
       alert(e instanceof ApiError ? e.message : 'Erreur')

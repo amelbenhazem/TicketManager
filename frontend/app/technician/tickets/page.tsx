@@ -2,17 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { api, ApiError, type TicketResponse } from '@/lib/api'
+import { api, ApiError, type TicketCategory, type TicketPriority, type TicketResponse, type TicketStatus } from '@/lib/api'
 import { subscribeTicketRealtime } from '@/lib/realtime'
 import { Select } from '@/components/ui/Select'
 import { SearchInput } from '@/components/ui/SearchInput'
 import { DateInput } from '@/components/ui/DateInput'
-
-const statusLabel: Record<string, string> = {
-  open: 'Ouvert',
-  in_progress: 'En cours',
-  resolved: 'Résolu',
-}
 
 const categoryLabel: Record<string, string> = {
   reseau: 'Réseau',
@@ -40,7 +34,9 @@ export default function TechnicianTicketsPage() {
   const [createdFrom, setCreatedFrom] = useState<string>('')
   const [createdTo, setCreatedTo] = useState<string>('')
   const [search, setSearch] = useState<string>('')
-  const [updatingId, setUpdatingId] = useState<string | null>(null)
+
+  const asEnum = <T extends string>(value: string, allowed: readonly T[]): T | undefined =>
+    (allowed as readonly string[]).includes(value) ? (value as T) : undefined
 
   const inFlightRef = useRef(false)
   const fetchTickets = useCallback(
@@ -53,9 +49,9 @@ export default function TechnicianTicketsPage() {
         const data = await api.tickets.list({
           page: page,
           limit: 20,
-          status: (status || undefined) as any,
-          priority: (priority || undefined) as any,
-          category: (category || undefined) as any,
+          status: asEnum(status, ['open', 'in_progress', 'resolved'] as const satisfies readonly TicketStatus[]),
+          priority: asEnum(priority, ['low', 'medium', 'high'] as const satisfies readonly TicketPriority[]),
+          category: asEnum(category, ['reseau', 'logiciel', 'materiel', 'autre'] as const satisfies readonly TicketCategory[]),
           createdFrom: createdFrom || undefined,
           createdTo: createdTo || undefined,
           search: search.trim() || undefined,

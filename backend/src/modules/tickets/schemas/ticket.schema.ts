@@ -24,12 +24,19 @@ export enum TicketPriority {
 }
 
 export type TicketHistoryEntry = {
-  actorId: string;            // user id à l'origine du changement
-  actorRole?: string;         // role (admin/technician/client) si disponible
+  actorId: string; // user id à l'origine du changement
+  actorRole?: string; // role (admin/technician/client) si disponible
   action: 'status_changed' | 'assigned_changed' | 'created' | 'updated';
-  field?: 'status' | 'assignedTo' | 'title' | 'description' | 'category' | 'priority' | 'attachments';
-  from?: string | null;       // ancienne valeur (stringifiée)
-  to?: string | null;         // nouvelle valeur (stringifiée)
+  field?:
+    | 'status'
+    | 'assignedTo'
+    | 'title'
+    | 'description'
+    | 'category'
+    | 'priority'
+    | 'attachments';
+  from?: string | null; // ancienne valeur (stringifiée)
+  to?: string | null; // nouvelle valeur (stringifiée)
   timestamp: Date;
 };
 

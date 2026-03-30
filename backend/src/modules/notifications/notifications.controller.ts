@@ -15,7 +15,13 @@ export class NotificationsController {
     @Query('limit') limitStr?: string,
   ) {
     const isRead =
-      isReadStr != null ? (isReadStr === 'true' ? true : isReadStr === 'false' ? false : undefined) : undefined;
+      isReadStr != null
+        ? isReadStr === 'true'
+          ? true
+          : isReadStr === 'false'
+            ? false
+            : undefined
+        : undefined;
     const page = Math.max(1, parseInt(pageStr ?? '1', 10) || 1);
     const limit = Math.max(1, parseInt(limitStr ?? '20', 10) || 20);
     return this.notifications.listForUser(req.user.id, { isRead, page, limit });

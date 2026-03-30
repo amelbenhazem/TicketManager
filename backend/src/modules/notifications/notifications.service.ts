@@ -60,17 +60,30 @@ export class NotificationsService {
     params?: { isRead?: boolean; page?: number; limit?: number },
   ): Promise<PaginatedNotifications> {
     const page = Math.max(1, params?.page ?? 1);
-    const safeLimit = Math.min(Math.max(1, params?.limit ?? DEFAULT_LIMIT), MAX_LIMIT);
+    const safeLimit = Math.min(
+      Math.max(1, params?.limit ?? DEFAULT_LIMIT),
+      MAX_LIMIT,
+    );
     const skip = (page - 1) * safeLimit;
     const q: Record<string, unknown> = { userId: new Types.ObjectId(userId) };
     if (typeof params?.isRead === 'boolean') q.isRead = params.isRead;
+    type LeanNotification = {
+      _id: Types.ObjectId;
+      ticketId: Types.ObjectId;
+      event: string;
+      title?: string;
+      meta?: Record<string, unknown>;
+      isRead?: boolean;
+      createdAt?: Date | string;
+    };
+
     const [items, total] = await Promise.all([
       this.notificationModel
         .find(q)
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(safeLimit)
-        .lean()
+        .lean<LeanNotification[]>()
         .exec(),
       this.notificationModel.countDocuments(q).exec(),
     ]);
@@ -80,12 +93,12 @@ export class NotificationsService {
         ticketId: String(n.ticketId),
         event: n.event,
         title: n.title ?? '',
-        meta: (n as any).meta ?? {},
+        meta: n.meta ?? {},
         isRead: !!n.isRead,
         createdAt:
-          (n as any).createdAt instanceof Date
-            ? (n as any).createdAt.toISOString()
-            : String((n as any).createdAt ?? ''),
+          n.createdAt instanceof Date
+            ? n.createdAt.toISOString()
+            : String(n.createdAt ?? ''),
       })),
       total,
       page,
@@ -129,7 +142,10 @@ export class NotificationsService {
 
   async markAllRead(userId: string): Promise<{ success: true }> {
     await this.notificationModel
-      .updateMany({ userId: new Types.ObjectId(userId), isRead: false }, { $set: { isRead: true } })
+      .updateMany(
+        { userId: new Types.ObjectId(userId), isRead: false },
+        { $set: { isRead: true } },
+      )
       .exec();
     return { success: true };
   }

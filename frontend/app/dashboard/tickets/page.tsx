@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { api, ApiError, type TicketResponse } from '@/lib/api'
+import { api, ApiError, type TicketCategory, type TicketPriority, type TicketResponse, type TicketStatus } from '@/lib/api'
 import { subscribeTicketRealtime } from '@/lib/realtime'
 import { NotificationsBell } from '@/components/notifications/NotificationsBell'
 import { Select } from '@/components/ui/Select'
@@ -44,6 +44,9 @@ export default function MesTicketsPage() {
   const [search, setSearch] = useState<string>('')
   const [detailTicket, setDetailTicket] = useState<TicketResponse | null>(null)
 
+  const asEnum = <T extends string>(value: string, allowed: readonly T[]): T | undefined =>
+    (allowed as readonly string[]).includes(value) ? (value as T) : undefined
+
   const inFlightRef = useRef(false)
   const fetchTickets = useCallback((opts?: { silent?: boolean }) => {
     const silent = opts?.silent ?? false
@@ -55,9 +58,9 @@ export default function MesTicketsPage() {
       .list({
         page,
         limit: 20,
-        status: (status || undefined) as any,
-        priority: (priority || undefined) as any,
-        category: (category || undefined) as any,
+        status: asEnum(status, ['open', 'in_progress', 'resolved', 'closed'] as const satisfies readonly TicketStatus[]),
+        priority: asEnum(priority, ['low', 'medium', 'high'] as const satisfies readonly TicketPriority[]),
+        category: asEnum(category, ['reseau', 'logiciel', 'materiel', 'autre'] as const satisfies readonly TicketCategory[]),
         createdFrom: createdFrom || undefined,
         createdTo: createdTo || undefined,
         search: search.trim() || undefined,
@@ -83,10 +86,13 @@ export default function MesTicketsPage() {
     }
   }, [page, status, priority, category, createdFrom, createdTo, search])
 
-  // Reset page when filters change
-  useEffect(() => {
-    setPage(1)
-  }, [status, priority, category, createdFrom, createdTo, search])
+  // Reset page when filters change (done in onChange handlers to avoid setState-in-effect lint)
+  const onSearchChange = (v: string) => { setSearch(v); setPage(1) }
+  const onStatusChange = (v: string) => { setStatus(v); setPage(1) }
+  const onPriorityChange = (v: string) => { setPriority(v); setPage(1) }
+  const onCategoryChange = (v: string) => { setCategory(v); setPage(1) }
+  const onCreatedFromChange = (v: string) => { setCreatedFrom(v); setPage(1) }
+  const onCreatedToChange = (v: string) => { setCreatedTo(v); setPage(1) }
 
   // Debounced fetch for search/filters
   useEffect(() => {
@@ -131,11 +137,11 @@ export default function MesTicketsPage() {
       {/* Filtres */}
       <div className="mb-4 rounded-2xl backdrop-blur-xl bg-white/[0.08] border border-white/[0.15] p-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <SearchInput value={search} onChange={setSearch} placeholder="Recherche (titre, description)" />
+          <SearchInput value={search} onChange={onSearchChange} placeholder="Recherche (titre, description)" />
           <div className="flex gap-2">
             <Select
               value={status}
-              onChange={setStatus}
+              onChange={onStatusChange}
               options={[
                 { value: '', label: 'Tous' },
                 { value: 'open', label: 'Ouvert' },
@@ -148,7 +154,7 @@ export default function MesTicketsPage() {
             />
             <Select
               value={priority}
-              onChange={setPriority}
+              onChange={onPriorityChange}
               options={[
                 { value: '', label: 'Toutes' },
                 { value: 'low', label: 'Basse' },
@@ -161,7 +167,7 @@ export default function MesTicketsPage() {
           </div>
           <Select
             value={category}
-            onChange={setCategory}
+            onChange={onCategoryChange}
             options={[
               { value: '', label: 'Toutes' },
               { value: 'reseau', label: 'Réseau' },
@@ -174,11 +180,11 @@ export default function MesTicketsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
               <div className="text-[11px] font-semibold uppercase tracking-wider text-white/50">Du</div>
-              <DateInput value={createdFrom} onChange={setCreatedFrom} />
+              <DateInput value={createdFrom} onChange={onCreatedFromChange} />
             </div>
             <div className="space-y-1">
               <div className="text-[11px] font-semibold uppercase tracking-wider text-white/50">Au</div>
-              <DateInput value={createdTo} onChange={setCreatedTo} />
+              <DateInput value={createdTo} onChange={onCreatedToChange} />
             </div>
           </div>
           <div className="self-end">

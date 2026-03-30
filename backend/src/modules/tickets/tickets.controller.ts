@@ -24,7 +24,11 @@ import { CreateTicketDto } from './dto';
 import { UpdateTicketDto } from './dto';
 import { TicketOwnerOrAdminGuard } from './guards/ticket-owner-or-admin.guard';
 import { TicketsAttachmentsService } from './tickets-attachments.service';
-import { TicketCategory, TicketPriority, TicketStatus } from './schemas/ticket.schema';
+import {
+  TicketCategory,
+  TicketPriority,
+  TicketStatus,
+} from './schemas/ticket.schema';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { RolesGuard } from '../../common/guards/roles.guard';
 
@@ -85,7 +89,7 @@ export class TicketsController {
         ? (category as TicketCategory)
         : undefined;
 
-    const filters: Partial<import('./tickets.service').TicketFilters> = {
+    const filters: import('./tickets.service').TicketFilters = {
       status: statusEnum,
       priority: priorityEnum,
       category: categoryEnum,
@@ -102,22 +106,17 @@ export class TicketsController {
     };
 
     if (req.user.role === UserRole.ADMIN) {
-      return this.ticketsService.findAll(page, limit, filters as any);
+      return this.ticketsService.findAll(page, limit, filters);
     }
     if (req.user.role === UserRole.TECHNICIAN) {
       return this.ticketsService.findAllByAssignedTo(
         req.user.id,
         page,
         limit,
-        filters as any,
+        filters,
       );
     }
-    return this.ticketsService.findAllByUser(
-      req.user.id,
-      page,
-      limit,
-      filters as any,
-    );
+    return this.ticketsService.findAllByUser(req.user.id, page, limit, filters);
   } // ← accolade fermante de findTickets
 
   @Get('stats')
