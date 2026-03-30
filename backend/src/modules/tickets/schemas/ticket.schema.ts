@@ -23,6 +23,16 @@ export enum TicketPriority {
   HIGH = 'high',
 }
 
+export type TicketHistoryEntry = {
+  actorId: string;            // user id à l'origine du changement
+  actorRole?: string;         // role (admin/technician/client) si disponible
+  action: 'status_changed' | 'assigned_changed' | 'created' | 'updated';
+  field?: 'status' | 'assignedTo' | 'title' | 'description' | 'category' | 'priority' | 'attachments';
+  from?: string | null;       // ancienne valeur (stringifiée)
+  to?: string | null;         // nouvelle valeur (stringifiée)
+  timestamp: Date;
+};
+
 @Schema({ timestamps: true })
 export class Ticket {
   @Prop({ required: true })
@@ -53,6 +63,22 @@ export class Ticket {
 
   @Prop({ type: Types.ObjectId, ref: 'User', default: null })
   assignedTo: Types.ObjectId | null;
+
+  @Prop({
+    type: [
+      {
+        actorId: { type: String, required: true },
+        actorRole: { type: String },
+        action: { type: String, required: true },
+        field: { type: String },
+        from: { type: String, default: null },
+        to: { type: String, default: null },
+        timestamp: { type: Date, required: true },
+      },
+    ],
+    default: [],
+  })
+  history: TicketHistoryEntry[];
 }
 
 export const TicketSchema = SchemaFactory.createForClass(Ticket);

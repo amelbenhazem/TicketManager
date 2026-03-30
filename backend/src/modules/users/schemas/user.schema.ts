@@ -28,3 +28,6 @@ export class User {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+// Index pour accélérer les recherches par rôle (ex: createForAdmins)
+UserSchema.index({ role: 1 });

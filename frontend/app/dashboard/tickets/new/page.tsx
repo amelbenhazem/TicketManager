@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Upload, X } from 'lucide-react'
 import { api, ApiError } from '@/lib/api'
 import type { TicketCategory, TicketPriority } from '@/lib/api'
+import { NotificationsBell } from '@/components/notifications/NotificationsBell'
 
 const CATEGORIES: { value: TicketCategory; label: string }[] = [
   { value: 'reseau', label: 'Réseau' },
@@ -78,7 +79,10 @@ export default function NouveauTicketPage() {
 
   return (
     <div className="text-white max-w-2xl">
-      <h1 className="text-2xl font-bold mb-6">Créer un nouveau ticket</h1>
+      <div className="flex items-start justify-between mb-6">
+        <h1 className="text-2xl font-bold">Créer un nouveau ticket</h1>
+        <NotificationsBell />
+      </div>
 
       {error && (
         <div className="mb-4 p-4 rounded-xl bg-red-500/20 border border-red-400/30 text-red-200 text-sm">

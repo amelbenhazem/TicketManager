@@ -53,6 +53,45 @@ export type PaginatedTickets = {
   totalPages: number;
 };
 
+export type NotificationItem = {
+  id: string;
+  ticketId: string;
+  event: string;
+  title: string;
+  meta?: Record<string, unknown>;
+  isRead: boolean;
+  createdAt: string;
+};
+
+export type PaginatedNotifications = {
+  items: NotificationItem[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
+export type UnreadCountResponse = { count: number };
+
+	export type TicketListFilters = {
+		status?: TicketStatus;
+		priority?: TicketPriority;
+		category?: TicketCategory;
+		createdFrom?: string; // ISO date
+		createdTo?: string;   // ISO date
+		assignedTo?: string | 'null'; // admin only; 'null' pour non assigné
+		search?: string;
+		page?: number;
+		limit?: number;
+	};
+
+export type TicketsStats = {
+  byStatus: Record<TicketStatus, number>;
+  byPriority: Record<TicketPriority, number>;
+  byTechnician: Array<{ technicianId: string | null; count: number }>;
+  total: number;
+};
+
 class ApiError extends Error {
   constructor(
     message: string,
@@ -180,16 +219,20 @@ export const api = {
       }, true),
   },
   tickets: {
-    list: (params?: { page?: number; limit?: number }) => {
+			getStats: () => request<TicketsStats>('tickets/stats', {}, true),
+			list: (params?: TicketListFilters) => {
       const q = new URLSearchParams();
       if (params?.page != null) q.set('page', String(params.page));
       if (params?.limit != null) q.set('limit', String(params.limit));
+				if (params?.status) q.set('status', params.status);
+				if (params?.priority) q.set('priority', params.priority);
+				if (params?.category) q.set('category', params.category);
+				if (params?.createdFrom) q.set('createdFrom', params.createdFrom);
+				if (params?.createdTo) q.set('createdTo', params.createdTo);
+				if (params?.assignedTo != null) q.set('assignedTo', String(params.assignedTo));
+				if (params?.search) q.set('search', params.search);
       const query = q.toString();
-      return request<PaginatedTickets>(
-        `tickets${query ? `?${query}` : ''}`,
-        {},
-        true,
-      );
+				return request<PaginatedTickets>(`tickets${query ? `?${query}` : ''}`, {}, true);
     },
     getOne: (id: string) =>
       request<TicketResponse | null>(`tickets/${id}`, {}, true),
@@ -212,6 +255,22 @@ export const api = {
         method: 'PATCH',
         body: JSON.stringify(payload),
       }, true),
+  },
+  notifications: {
+    list: (params?: { isRead?: boolean; page?: number; limit?: number }) => {
+      const q = new URLSearchParams();
+      if (typeof params?.isRead === 'boolean') q.set('isRead', String(params.isRead));
+      if (params?.page != null) q.set('page', String(params.page));
+      if (params?.limit != null) q.set('limit', String(params.limit));
+      const query = q.toString();
+      return request<PaginatedNotifications>(`notifications${query ? `?${query}` : ''}`, {}, true);
+    },
+    markRead: (id: string) =>
+      request<{ success: true }>(`notifications/${id}/read`, { method: 'PATCH' }, true),
+    markAllRead: () =>
+      request<{ success: true }>('notifications/readAll', { method: 'PATCH' }, true),
+    unreadCount: () =>
+      request<UnreadCountResponse>('notifications/unread-count', {}, true),
   },
 };
 

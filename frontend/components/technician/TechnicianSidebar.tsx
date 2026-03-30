@@ -3,11 +3,29 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, LogOut } from 'lucide-react'
+import { LayoutDashboard, ListChecks, LogOut } from 'lucide-react'
 import { disconnectRealtime } from '@/lib/realtime'
+import { useEffect, useState } from 'react'
+import { api, type UserResponse } from '@/lib/api'
 
 export function TechnicianSidebar() {
   const pathname = usePathname()
+  const [user, setUser] = useState<UserResponse | null>(null)
+
+  useEffect(() => {
+    let mounted = true
+    api.auth
+      .me()
+      .then((u) => {
+        if (mounted) setUser(u)
+      })
+      .catch(() => {
+        // silencieux
+      })
+    return () => {
+      mounted = false
+    }
+  }, [])
 
   return (
     <aside className="w-64 shrink-0 backdrop-blur-xl bg-white/[0.08] border-r border-white/[0.15] flex flex-col">
@@ -24,8 +42,8 @@ export function TechnicianSidebar() {
             className="block h-9 w-auto"
           />
         </div>
-        <p className="text-white/60 text-xs mt-2 font-medium">
-          TicketDesk Technicien
+        <p className="text-white/80 text-sm mt-2 font-medium">
+          {user ? `${user.lastName} ${user.firstName}` : ''}
         </p>
       </div>
 
@@ -40,6 +58,17 @@ export function TechnicianSidebar() {
         >
           <LayoutDashboard className="w-5 h-5 shrink-0" />
           Tableau de bord
+        </Link>
+        <Link
+          href="/technician/tickets"
+          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left text-sm font-medium transition-all ${
+            pathname === '/technician/tickets'
+              ? 'bg-[#0066FF] text-white shadow-lg shadow-[#0066FF]/30'
+              : 'text-white/70 hover:bg-white/[0.06] hover:text-white'
+          }`}
+        >
+          <ListChecks className="w-5 h-5 shrink-0" />
+          Mes tickets assignés
         </Link>
       </nav>
 

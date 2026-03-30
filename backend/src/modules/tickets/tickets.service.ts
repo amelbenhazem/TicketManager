@@ -12,6 +12,7 @@ import { CreateTicketDto } from './dto';
 import { UpdateTicketDto } from './dto';
 import { UserRole } from '../users/schemas/user.schema';
 import { TicketsNotificationsGateway } from './tickets-notifications.gateway';
+import { NotificationsService } from '../notifications/notifications.service';
 
 export type TicketResponse = {
   id: string;
@@ -24,6 +25,15 @@ export type TicketResponse = {
   userId: string;
   assignedTo: string | null;
   createdAt: string;
+  history?: Array<{
+    actorId: string;
+    actorRole?: string;
+    action: string;
+    field?: string;
+    from?: string | null;
+    to?: string | null;
+    timestamp: string;
+  }>;
   createdBy?: {
     id: string;
     firstName: string;
@@ -49,35 +59,139 @@ export type PaginatedTickets = {
 const DEFAULT_LIMIT = 20;
 const MAX_LIMIT = 100;
 
+export type TicketFilters = {
+  status?: TicketStatus;
+  priority?: TicketPriority;
+  category?: TicketCategory;
+  createdFrom?: string;
+  createdTo?: string;
+  assignedTo?: string | null;
+  search?: string;
+};
+
 @Injectable()
 export class TicketsService {
   constructor(
     @InjectModel(Ticket.name)
     private readonly ticketModel: Model<TicketDocument>,
     private readonly ticketsNotifications: TicketsNotificationsGateway,
+    private readonly notifications: NotificationsService,
   ) {}
 
+  private buildBaseQuery(filters?: TicketFilters): Record<string, unknown> {
+    const q: Record<string, unknown> = {};
+    if (!filters) return q;
+
+    if (filters.status) q.status = filters.status;
+    if (filters.priority) q.priority = filters.priority;
+    if (filters.category) q.category = filters.category;
+
+    if (filters.createdFrom || filters.createdTo) {
+      const created: Record<string, unknown> = {};
+      if (filters.createdFrom) created.$gte = new Date(filters.createdFrom);
+      if (filters.createdTo) created.$lte = new Date(filters.createdTo);
+      q.createdAt = created;
+    }
+
+    if (filters.search && filters.search.trim()) {
+      const term = filters.search.trim();
+      q.$or = [
+        { title: { $regex: term, $options: 'i' } },
+        { description: { $regex: term, $options: 'i' } },
+      ];
+    }
+
+    return q;
+  }
+
+  async getStats(): Promise<{
+    byStatus: Record<TicketStatus, number>;
+    byPriority: Record<TicketPriority, number>;
+    byTechnician: Array<{ technicianId: string | null; count: number }>;
+    total: number;
+  }> {
+    const [byStatusAgg, byPriorityAgg, byTechnicianAgg, total] = await Promise.all([
+      this.ticketModel.aggregate([
+        { $group: { _id: '$status', count: { $sum: 1 } } },
+      ]),
+      this.ticketModel.aggregate([
+        { $group: { _id: '$priority', count: { $sum: 1 } } },
+      ]),
+      this.ticketModel.aggregate([
+        { $group: { _id: '$assignedTo', count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+        { $limit: 50 },
+      ]),
+      this.ticketModel.countDocuments().exec(),
+    ]);
+
+    const initStatus: Record<TicketStatus, number> = {
+      [TicketStatus.OPEN]: 0,
+      [TicketStatus.IN_PROGRESS]: 0,
+      [TicketStatus.RESOLVED]: 0,
+      [TicketStatus.CLOSED]: 0,
+    };
+    const initPriority: Record<TicketPriority, number> = {
+      [TicketPriority.LOW]: 0,
+      [TicketPriority.MEDIUM]: 0,
+      [TicketPriority.HIGH]: 0,
+    };
+
+    for (const it of byStatusAgg) {
+      if (it?._id && it.count != null && it.count >= 0 && it._id in initStatus) {
+        initStatus[it._id as TicketStatus] = it.count as number;
+      }
+    }
+    for (const it of byPriorityAgg) {
+      if (it?._id && it.count != null && it.count >= 0 && it._id in initPriority) {
+        initPriority[it._id as TicketPriority] = it.count as number;
+      }
+    }
+
+    const byTechnician = byTechnicianAgg.map((it) => ({
+      technicianId: it._id != null ? String(it._id) : null,
+      count: it.count as number,
+    }));
+
+    return { byStatus: initStatus, byPriority: initPriority, byTechnician, total };
+  }
   async findAllByUser(
     userId: string,
     page = 1,
     limit = DEFAULT_LIMIT,
+    filters?: TicketFilters,
   ): Promise<PaginatedTickets> {
     const safeLimit = Math.min(Math.max(1, limit), MAX_LIMIT);
     const skip = (Math.max(1, page) - 1) * safeLimit;
     const objectId = new Types.ObjectId(userId);
+    const q = { ...this.buildBaseQuery(filters), userId: objectId };
     const [tickets, total] = await Promise.all([
       this.ticketModel
-        .find({ userId: objectId })
+        .find(q)
+        // Projection: la liste client n'a pas besoin de champs lourds
+        .select({
+          title: 1,
+          description: 1,
+          status: 1,
+          category: 1,
+          priority: 1,
+          attachments: 1,
+          userId: 1,
+          assignedTo: 1,
+          createdAt: 1,
+          history: 1,
+        })
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(safeLimit)
         .populate('userId', 'firstName lastName email')
         .populate('assignedTo', 'firstName lastName email')
+        .lean()
         .exec(),
-      this.ticketModel.countDocuments({ userId: objectId }).exec(),
+      this.ticketModel.countDocuments(q).exec(),
     ]);
     return {
-      items: tickets.map((t) => this.toResponse(t)),
+      items: tickets.map((t) => this.toResponse(t as any)),
       total,
       page: Math.max(1, page),
       limit: safeLimit,
@@ -85,19 +199,25 @@ export class TicketsService {
     };
   }
 
-  async findAll(page = 1, limit = DEFAULT_LIMIT): Promise<PaginatedTickets> {
+  async findAll(page = 1, limit = DEFAULT_LIMIT, filters?: TicketFilters): Promise<PaginatedTickets> {
     const safeLimit = Math.min(Math.max(1, limit), MAX_LIMIT);
     const skip = (Math.max(1, page) - 1) * safeLimit;
+    const q = this.buildBaseQuery(filters);
+    if (filters && 'assignedTo' in filters) {
+      // Admin-only usage: assignedTo filter (string id or null for unassigned)
+      if (filters.assignedTo === null) q.assignedTo = null;
+      else if (filters.assignedTo) q.assignedTo = new Types.ObjectId(filters.assignedTo);
+    }
     const [tickets, total] = await Promise.all([
       this.ticketModel
-        .find()
+        .find(q)
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(safeLimit)
         .populate('userId', 'firstName lastName email')
         .populate('assignedTo', 'firstName lastName email')
         .exec(),
-      this.ticketModel.countDocuments().exec(),
+      this.ticketModel.countDocuments(q).exec(),
     ]);
     return {
       items: tickets.map((t) => this.toResponse(t)),
@@ -112,20 +232,22 @@ export class TicketsService {
     technicianId: string,
     page = 1,
     limit = DEFAULT_LIMIT,
+    filters?: TicketFilters,
   ): Promise<PaginatedTickets> {
     const safeLimit = Math.min(Math.max(1, limit), MAX_LIMIT);
     const skip = (Math.max(1, page) - 1) * safeLimit;
     const objectId = new Types.ObjectId(technicianId);
+    const q = { ...this.buildBaseQuery(filters), assignedTo: objectId };
     const [tickets, total] = await Promise.all([
       this.ticketModel
-        .find({ assignedTo: objectId })
+        .find(q)
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(safeLimit)
         .populate('userId', 'firstName lastName email')
         .populate('assignedTo', 'firstName lastName email')
         .exec(),
-      this.ticketModel.countDocuments({ assignedTo: objectId }).exec(),
+      this.ticketModel.countDocuments(q).exec(),
     ]);
     return {
       items: tickets.map((t) => this.toResponse(t)),
@@ -199,10 +321,28 @@ export class TicketsService {
       attachments: dto.attachments ?? [],
       userId: new Types.ObjectId(userId),
       assignedTo: null,
+      history: [
+        {
+          actorId: userId,
+          actorRole: 'client',
+          action: 'created',
+          field: undefined,
+          from: null,
+          to: null,
+          timestamp: new Date(),
+        },
+      ],
     });
     await ticket.populate('userId', 'firstName lastName email');
     const created = this.toResponse(ticket);
     this.ticketsNotifications.notifyTicketCreated(created, userId);
+    // Notifications persistantes: ADMIN uniquement (ne pas notifier le client créateur)
+    await this.notifications.createForAdmins({
+      event: 'ticket.created',
+      ticketId: created.id,
+      title: `Nouveau ticket: ${created.title}`,
+      meta: {},
+    });
     return created;
   }
 
@@ -211,6 +351,15 @@ export class TicketsService {
     dto: UpdateTicketDto,
     user: { id: string; role: UserRole },
   ): Promise<TicketResponse | null> {
+    const frStatus = (s: TicketStatus | string): string => {
+      const map: Record<string, string> = {
+        open: 'Ouvert',
+        in_progress: 'En cours',
+        resolved: 'Résolu',
+        closed: 'Clôturé',
+      };
+      return map[String(s)] ?? String(s);
+    };
     const ticket = await this.ticketModel.findById(id).exec();
     if (!ticket) return null;
     const previousStatus = ticket.status;
@@ -225,6 +374,30 @@ export class TicketsService {
           ? new Types.ObjectId(dto.assignedTo)
           : null;
       }
+      // Historique: stocker les changements pertinents
+      const historyEntries: Array<Parameters<typeof ticket.updateOne>[0]> = [];
+      if (dto.status !== undefined && previousStatus !== dto.status) {
+        (ticket as any).history.push({
+          actorId: user.id,
+          actorRole: 'admin',
+          action: 'status_changed',
+          field: 'status',
+          from: String(previousStatus),
+          to: String(dto.status),
+          timestamp: new Date(),
+        });
+      }
+      if (dto.assignedTo !== undefined && previousAssignedTo !== (ticket.assignedTo ? String(ticket.assignedTo) : null)) {
+        (ticket as any).history.push({
+          actorId: user.id,
+          actorRole: 'admin',
+          action: 'assigned_changed',
+          field: 'assignedTo',
+          from: previousAssignedTo,
+          to: ticket.assignedTo ? String(ticket.assignedTo) : null,
+          timestamp: new Date(),
+        });
+      }
       await ticket.save();
       await ticket.populate('userId', 'firstName lastName email');
       await ticket.populate('assignedTo', 'firstName lastName email');
@@ -233,18 +406,49 @@ export class TicketsService {
         dto.assignedTo !== undefined &&
         previousAssignedTo !== updated.assignedTo
       ) {
-        this.ticketsNotifications.notifyTicketAssigned(
-          updated,
-          previousAssignedTo,
-          user.id,
-        );
+        // Temps réel: notifier le technicien nouvellement assigné
+        this.ticketsNotifications.notifyTicketAssigned(updated, previousAssignedTo, user.id);
+
+        // Notifications persistantes:
+        // - CLIENT: technicien affecté/retiré
+        const technicianLabel =
+          updated.assignedToUser
+            ? `${updated.assignedToUser.firstName ?? ''} ${updated.assignedToUser.lastName ?? ''}`.trim()
+            : updated.assignedTo
+              ? String(updated.assignedTo)
+              : null;
+        const title =
+          updated.assignedTo && technicianLabel
+            ? `Technicien affecté: ${technicianLabel}`
+            : `Affectation retirée`;
+        await this.notifications.createMany([updated.userId], {
+          event: 'ticket.assigned',
+          ticketId: updated.id,
+          title,
+          meta: { previousAssignedTo },
+        });
+
+        // - TECHNICIEN assigné: nouveau ticket affecté
+        if (updated.assignedTo) {
+          await this.notifications.createMany([updated.assignedTo], {
+            event: 'ticket.assigned',
+            ticketId: updated.id,
+            title: `Ticket affecté: ${updated.title}`,
+            meta: { previousAssignedTo },
+          });
+        }
       }
       if (dto.status !== undefined && previousStatus !== updated.status) {
-        this.ticketsNotifications.notifyTicketStatusChanged(
-          updated,
-          previousStatus,
-          user.id,
-        );
+        const recipients = [
+          updated.userId,
+          ...(updated.assignedTo ? [updated.assignedTo] : []),
+        ].filter((v, i, a) => v && a.indexOf(v) === i) as string[];
+        await this.notifications.createMany(recipients, {
+          event: 'ticket.status_changed',
+          ticketId: updated.id,
+          title: `Statut: ${frStatus(previousStatus)} → ${frStatus(updated.status)}`,
+          meta: { previousStatus },
+        });
       }
       return updated;
     }
@@ -274,6 +478,17 @@ export class TicketsService {
         );
       }
       ticket.status = dto.status;
+      if (dto.status !== undefined && previousStatus !== dto.status) {
+        (ticket as any).history.push({
+          actorId: user.id,
+          actorRole: 'technician',
+          action: 'status_changed',
+          field: 'status',
+          from: String(previousStatus),
+          to: String(dto.status),
+          timestamp: new Date(),
+        });
+      }
       await ticket.save();
       await ticket.populate('userId', 'firstName lastName email');
       await ticket.populate('assignedTo', 'firstName lastName email');
@@ -284,6 +499,19 @@ export class TicketsService {
           previousStatus,
           user.id,
         );
+        // Notifications persistantes: client + admins (pas le technicien)
+        await this.notifications.createMany([updated.userId], {
+          event: 'ticket.status_changed',
+          ticketId: updated.id,
+          title: `Statut: ${frStatus(previousStatus)} → ${frStatus(updated.status)}`,
+          meta: { previousStatus },
+        });
+        await this.notifications.createForAdmins({
+          event: 'ticket.status_changed',
+          ticketId: updated.id,
+          title: `Statut: ${frStatus(previousStatus)} → ${frStatus(updated.status)}`,
+          meta: { previousStatus },
+        });
       }
       return updated;
     }
@@ -303,6 +531,15 @@ export class TicketsService {
       createdAt?: Date;
       userId?: unknown;
       assignedTo?: unknown;
+      history?: Array<{
+        actorId: string;
+        actorRole?: string;
+        action: string;
+        field?: string;
+        from?: string | null;
+        to?: string | null;
+        timestamp?: Date | string;
+      }>;
     };
     const created =
       doc.createdAt != null
@@ -312,6 +549,22 @@ export class TicketsService {
         : '';
     const userId = ticket.userId;
     const assignedToRaw = ticket.assignedTo;
+
+    const history =
+      Array.isArray(doc.history) && doc.history.length > 0
+        ? doc.history.map((h) => ({
+            actorId: h.actorId,
+            actorRole: h.actorRole,
+            action: h.action,
+            field: h.field,
+            from: h.from ?? null,
+            to: h.to ?? null,
+            timestamp:
+              h.timestamp instanceof Date
+                ? h.timestamp.toISOString()
+                : String(h.timestamp ?? ''),
+          }))
+        : undefined;
 
     let createdBy: TicketResponse['createdBy'];
     if (userId && typeof userId === 'object' && 'email' in (userId as object)) {
@@ -361,6 +614,7 @@ export class TicketsService {
       assignedTo:
         assignedToRaw != null ? this.toUserIdString(assignedToRaw) : null,
       createdAt: created,
+      ...(history && { history }),
       ...(createdBy && { createdBy }),
       ...(assignedToUser && { assignedToUser }),
     };

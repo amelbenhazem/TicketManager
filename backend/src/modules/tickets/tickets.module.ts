@@ -7,10 +7,12 @@ import { TicketOwnerOrAdminGuard } from './guards/ticket-owner-or-admin.guard';
 import { TicketsAttachmentsService } from './tickets-attachments.service';
 import { TicketsNotificationsGateway } from './tickets-notifications.gateway';
 import { AuthModule } from '../auth/auth.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
     AuthModule,
+    NotificationsModule,
     MongooseModule.forFeature([{ name: Ticket.name, schema: TicketSchema }]),
   ],
   controllers: [TicketsController],

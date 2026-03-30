@@ -20,7 +20,6 @@ type TicketRealtimePayload = {
 
 let socket: Socket | null = null
 let socketToken: string | null = null
-let lastSoundAt = 0
 let lastErrorToastAt = 0
 
 function getSocket(): Socket | null {
@@ -80,7 +79,8 @@ export function subscribeTicketRealtime(
 ): () => void {
   const s = getSocket()
   if (!s) return () => {}
-  const showToast = options.showToast ?? true
+  // Désactivé: on ne veut plus de toasts "🔔 ..." ; tout passe par la cloche (notifications persistantes)
+  const showToast = options.showToast ?? false
 
   const handlers: Array<{
     event: TicketRealtimeEvent
@@ -134,40 +134,6 @@ export function disconnectRealtime(): void {
   socketToken = null
 }
 
-function notifyWithSound(message: string): void {
-  toast(message, { icon: '🔔', duration: 5000 })
-  playNotificationSound()
-}
-
-function playNotificationSound(): void {
-  if (typeof window === 'undefined') return
-  const now = Date.now()
-  if (now - lastSoundAt < 500) return
-  lastSoundAt = now
-
-  const AudioContextCtor = window.AudioContext || (window as typeof window & {
-    webkitAudioContext?: typeof AudioContext
-  }).webkitAudioContext
-  if (!AudioContextCtor) return
-
-  try {
-    const ctx = new AudioContextCtor()
-    const oscillator = ctx.createOscillator()
-    const gain = ctx.createGain()
-
-    oscillator.type = 'sine'
-    oscillator.frequency.value = 880
-    gain.gain.value = 0.1
-
-    oscillator.connect(gain)
-    gain.connect(ctx.destination)
-    oscillator.start()
-    oscillator.stop(ctx.currentTime + 0.25)
-
-    oscillator.onended = () => {
-      void ctx.close()
-    }
-  } catch {
-    // Some browsers block autoplay sound until user interaction.
-  }
+function notifyWithSound(_message: string): void {
+  // toast supprimé volontairement (on garde uniquement la cloche)
 }

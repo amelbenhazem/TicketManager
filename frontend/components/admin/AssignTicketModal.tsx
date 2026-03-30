@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { X } from 'lucide-react'
+import { X, ChevronDown } from 'lucide-react'
 import { api, ApiError, type UserResponse, type TicketResponse } from '@/lib/api'
 
 type AssignTicketModalProps = {
@@ -17,6 +17,8 @@ export function AssignTicketModal({
 }: AssignTicketModalProps) {
   const [technicians, setTechnicians] = useState<UserResponse[]>([])
   const [selectedId, setSelectedId] = useState<string>(ticket.assignedTo ?? '')
+  const [query, setQuery] = useState<string>('')
+  const [open, setOpen] = useState<boolean>(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -26,6 +28,16 @@ export function AssignTicketModal({
       .then((data) => setTechnicians(data.items ?? []))
       .catch(() => setTechnicians([]))
   }, [])
+
+  const filtered = (() => {
+    if (!query.trim()) return technicians
+    const q = query.trim().toLowerCase()
+    return technicians.filter((t) => {
+      const name = `${t.firstName ?? ''} ${t.lastName ?? ''}`.toLowerCase()
+      const email = (t.email ?? '').toLowerCase()
+      return name.includes(q) || email.includes(q)
+    })
+  })()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -77,20 +89,71 @@ export function AssignTicketModal({
           <label className="block text-[10px] font-semibold tracking-wider uppercase text-white/50 mb-2">
             Choisir un technicien
           </label>
-          <select
-            value={selectedId}
-            onChange={(e) => setSelectedId(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl bg-white/[0.06] border border-white/[0.12] text-white focus:outline-none focus:border-[#0066FF]"
-          >
-            <option value="" className="bg-[#0A1628]">
-              — Aucun —
-            </option>
-            {(Array.isArray(technicians) ? technicians : []).map((t) => (
-              <option key={t.id} value={t.id} className="bg-[#0A1628]">
-                {t.firstName} {t.lastName} ({t.email})
-              </option>
-            ))}
-          </select>
+          {/* Déclencheur du dropdown */}
+          <div className="relative mb-2">
+            <button
+              type="button"
+              className="tm-select pr-8 text-left w-full"
+              aria-haspopup="listbox"
+              aria-expanded={open}
+              onClick={() => setOpen((o) => !o)}
+            >
+              {(() => {
+                if (!selectedId) return <span className="text-white/50">— Aucun —</span>
+                const t = technicians.find((u) => u.id === selectedId)
+                return t ? `${t.firstName} ${t.lastName} (${t.email})` : <span className="text-white/50">— Aucun —</span>
+              })()}
+              <ChevronDown className="w-4 h-4 absolute right-2 top-1/2 -translate-y-1/2 text-white/60 pointer-events-none" />
+            </button>
+            {open && (
+              <div className="absolute z-20 mt-1 w-full rounded-xl bg-[#0A1628] border border-white/[0.15] shadow-xl p-2">
+                <div className="tm-input-wrap mb-2">
+                  <input
+                    type="text"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Rechercher (nom ou email)"
+                    className="tm-input"
+                    autoFocus
+                  />
+                </div>
+                <div className="max-h-56 overflow-auto">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedId('')
+                      setOpen(false)
+                    }}
+                    className={`w-full text-left px-3 py-2 rounded-lg ${selectedId === '' ? 'bg-white/[0.08] text-white' : 'text-white/80 hover:bg-white/[0.08]'}`}
+                    role="option"
+                    aria-selected={selectedId === ''}
+                  >
+                    — Aucun —
+                  </button>
+                  {(Array.isArray(filtered) ? filtered : []).map((t) => {
+                    const id = t.id
+                    const label = `${t.firstName} ${t.lastName} (${t.email})`
+                    const active = selectedId === id
+                    return (
+                      <button
+                        key={id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedId(id)
+                          setOpen(false)
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-lg ${active ? 'bg-white/[0.08] text-white' : 'text-white/80 hover:bg-white/[0.08]'}`}
+                        role="option"
+                        aria-selected={active}
+                      >
+                        {label}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
           <div className="flex gap-3 mt-6">
             <button
               type="button"

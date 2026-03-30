@@ -13,6 +13,8 @@
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "react-chartjs-2": "^5.2.0",
+    "chart.js": "^4.4.4",
     "react-hot-toast": "^2.5.2",
     "socket.io-client": "^4.8.1"
   },

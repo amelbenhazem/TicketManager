@@ -5,6 +5,9 @@ import { api, ApiError, type TicketResponse, type UserResponse } from '@/lib/api
 import { AssignTicketModal } from './AssignTicketModal'
 import { TicketDetailModal } from './TicketDetailModal'
 import { subscribeTicketRealtime } from '@/lib/realtime'
+import { Select } from '@/components/ui/Select'
+import { SearchInput } from '@/components/ui/SearchInput'
+import { DateInput } from '@/components/ui/DateInput'
 
 const categoryLabel: Record<string, string> = {
   reseau: 'Réseau',
@@ -28,6 +31,13 @@ export function AdminTicketsList() {
   const [updatingId, setUpdatingId] = useState<string | null>(null)
   const [ticketsPage, setTicketsPage] = useState(1)
   const [ticketsPagination, setTicketsPagination] = useState({ total: 0, page: 1, totalPages: 1 })
+  // Filtres
+  const [status, setStatus] = useState<string>('')
+  const [priority, setPriority] = useState<string>('')
+  const [category, setCategory] = useState<string>('')
+  const [createdFrom, setCreatedFrom] = useState<string>('')
+  const [createdTo, setCreatedTo] = useState<string>('')
+  const [search, setSearch] = useState<string>('')
 
   const inFlightRef = useRef(false)
   const fetchTickets = useCallback(
@@ -37,7 +47,16 @@ export function AdminTicketsList() {
       inFlightRef.current = true
 
       try {
-        const data = await api.tickets.list({ page: ticketsPage, limit: 20 })
+        const data = await api.tickets.list({
+          page: ticketsPage,
+          limit: 20,
+          status: (status || undefined) as any,
+          priority: (priority || undefined) as any,
+          category: (category || undefined) as any,
+          createdFrom: createdFrom || undefined,
+          createdTo: createdTo || undefined,
+          search: search.trim() || undefined,
+        })
         setTickets(data.items)
         setTicketsPagination({ total: data.total, page: data.page, totalPages: data.totalPages })
         if (!silent) setError(null)
@@ -49,7 +68,7 @@ export function AdminTicketsList() {
         if (!silent) setLoading(false)
       }
     },
-    [ticketsPage],
+    [ticketsPage, status, priority, category, createdFrom, createdTo, search],
   )
 
   useEffect(() => {
@@ -89,6 +108,11 @@ export function AdminTicketsList() {
     api.users.list({ role: 'technician', limit: 200 }).then((data) => setTechnicians(data.items)).catch(() => setTechnicians([]))
   }, [])
 
+  // Reset pagination à 1 sur changement de filtres
+  useEffect(() => {
+    setTicketsPage(1)
+  }, [status, priority, category, createdFrom, createdTo, search])
+
   const technicianMap = Object.fromEntries(
     technicians.map((t) => [t.id, `${t.firstName} ${t.lastName}`])
   )
@@ -99,6 +123,18 @@ export function AdminTicketsList() {
       : t.assignedTo
         ? (technicianMap[t.assignedTo] ?? t.assignedTo)
         : '—'
+
+  const priorityIcon: Record<string, string> = {
+    low: '🟢',
+    medium: '🟠',
+    high: '🔴',
+  }
+  const statusIcon: Record<string, string> = {
+    open: '🔵',
+    in_progress: '🟠',
+    resolved: '🟢',
+    closed: '⚫',
+  }
 
   const handleStatusChange = async (ticket: TicketResponse, newStatus: 'open' | 'in_progress' | 'resolved' | 'closed') => {
     setUpdatingId(ticket.id)
@@ -143,6 +179,92 @@ export function AdminTicketsList() {
 
   return (
     <>
+      {/* Filtres */}
+      <div className="mb-4 rounded-2xl backdrop-blur-xl bg-white/[0.08] border border-white/[0.15] p-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <SearchInput value={search} onChange={setSearch} placeholder="Recherche (titre, description)" />
+
+          <div className="flex gap-2">
+            <Select
+              className="flex-1"
+              placeholder="Statut"
+              value={status}
+              onChange={setStatus}
+              options={[
+                { value: '', label: 'Tous' },
+                { value: 'open', label: 'Ouvert' },
+                { value: 'in_progress', label: 'En cours' },
+                { value: 'resolved', label: 'Résolu' },
+                { value: 'closed', label: 'Clôturé' },
+              ]}
+            />
+            <Select
+              className="flex-1"
+              placeholder="Priorité"
+              value={priority}
+              onChange={setPriority}
+              options={[
+                { value: '', label: 'Toutes' },
+                { value: 'low', label: 'Basse' },
+                { value: 'medium', label: 'Moyenne' },
+                { value: 'high', label: 'Haute' },
+              ]}
+            />
+          </div>
+
+          <div className="space-y-3">
+            <Select
+              placeholder="Catégorie"
+              value={category}
+              onChange={setCategory}
+              options={[
+                { value: '', label: 'Toutes' },
+                { value: 'reseau', label: 'Réseau' },
+                { value: 'logiciel', label: 'Logiciel' },
+                { value: 'materiel', label: 'Matériel' },
+                { value: 'autre', label: 'Autre' },
+              ]}
+            />
+          </div>
+
+          {/* Période (Du / Au) sur une ligne dédiée, labels au-dessus pour éviter le décalage */}
+          <div className="md:col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-white/50">Du</div>
+              <DateInput value={createdFrom} onChange={setCreatedFrom} />
+            </div>
+            <div className="space-y-1">
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-white/50">Au</div>
+              <DateInput value={createdTo} onChange={setCreatedTo} />
+            </div>
+          </div>
+
+          {/* Bouton reset après la période, aligné à droite */}
+          <div className="md:col-span-3 flex justify-end">
+            <button
+              type="button"
+              onClick={() => {
+                setSearch('')
+                setStatus('')
+                setPriority('')
+                setCategory('')
+                setCreatedFrom('')
+                setCreatedTo('')
+                setTicketsPage(1)
+              }}
+              className="tm-button"
+            >
+              Réinitialiser filtres
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <div className="mb-2 text-sm text-white/70">
+        {ticketsPagination.total} ticket(s) trouvés
+      </div>
+
       <div className="overflow-x-auto">
         <table className="w-full text-left">
           <thead>
@@ -161,19 +283,23 @@ export function AdminTicketsList() {
               <tr key={t.id} className="border-b border-white/5">
                 <td className="py-3 text-white font-medium">{t.title}</td>
                 <td className="py-3 text-white/70">{categoryLabel[t.category] ?? t.category}</td>
-                <td className="py-3 text-white/70">{priorityLabel[t.priority] ?? t.priority}</td>
+                <td className="py-3 text-white/70">
+                  <span className={`tm-badge-priority ${t.priority}`}>
+                    {priorityLabel[t.priority] ?? t.priority}
+                  </span>
+                </td>
                 <td className="py-3">
-                  <select
+                  <Select
                     value={t.status}
-                    onChange={(e) => handleStatusChange(t, e.target.value as 'open' | 'in_progress' | 'resolved' | 'closed')}
-                    disabled={updatingId === t.id}
-                    className="bg-white/[0.08] border border-white/[0.12] rounded-lg px-2 py-1 text-white/90 text-sm focus:outline-none focus:border-[#0066FF]"
-                  >
-                    <option value="open" className="bg-[#0A1628]">Ouvert</option>
-                    <option value="in_progress" className="bg-[#0A1628]">En cours</option>
-                    <option value="resolved" className="bg-[#0A1628]">Résolu</option>
-                    <option value="closed" className="bg-[#0A1628]">Clôturé</option>
-                  </select>
+                    onChange={(v) => handleStatusChange(t, v as 'open' | 'in_progress' | 'resolved' | 'closed')}
+                    options={[
+                      { value: 'open', label: 'Ouvert' },
+                      { value: 'in_progress', label: 'En cours' },
+                      { value: 'resolved', label: 'Résolu' },
+                      { value: 'closed', label: 'Clôturé' },
+                    ]}
+                    className="w-[180px]"
+                  />
                 </td>
                 <td className="py-3 text-white/70">
                   {getTechnicianLabel(t)}
@@ -197,16 +323,6 @@ export function AdminTicketsList() {
                     >
                       Affecter
                     </button>
-                    {t.status !== 'closed' && (
-                      <button
-                        type="button"
-                        onClick={() => handleCloseTicket(t)}
-                        disabled={updatingId === t.id}
-                        className="px-3 py-1.5 rounded-lg text-xs font-medium bg-green-500/20 text-green-300 hover:bg-green-500/30 disabled:opacity-50"
-                      >
-                        Valider & Clôturer
-                      </button>
-                    )}
                   </div>
                 </td>
               </tr>
@@ -220,7 +336,7 @@ export function AdminTicketsList() {
           <span>
             Page {ticketsPagination.page} sur {ticketsPagination.totalPages} ({ticketsPagination.total} ticket(s))
           </span>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => setTicketsPage((p) => Math.max(1, p - 1))}
@@ -229,6 +345,18 @@ export function AdminTicketsList() {
             >
               Précédent
             </button>
+            <div className="flex items-center gap-1">
+              {Array.from({ length: ticketsPagination.totalPages }, (_, i) => i + 1).map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  onClick={() => setTicketsPage(n)}
+                  className={`px-2.5 py-1.5 rounded-lg text-white/80 ${n === ticketsPagination.page ? 'bg-[#0066FF] text-white' : 'bg-white/[0.06] hover:bg-white/[0.1]'}`}
+                >
+                  {n}
+                </button>
+              ))}
+            </div>
             <button
               type="button"
               onClick={() => setTicketsPage((p) => Math.min(ticketsPagination.totalPages, p + 1))}

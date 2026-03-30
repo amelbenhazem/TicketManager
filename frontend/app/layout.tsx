@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TicketDesk | Connexion",
+  title: "TicketManager | Connexion",
   description: "Portail de gestion des incidents RFC",
 };
 

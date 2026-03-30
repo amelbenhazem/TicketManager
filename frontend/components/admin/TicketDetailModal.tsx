@@ -34,6 +34,24 @@ export function TicketDetailModal({
   clientLabel,
   onClose,
 }: TicketDetailModalProps) {
+  const translateStatus = (s?: string | null) => {
+    if (!s) return '—'
+    const key = String(s) as keyof typeof statusLabel
+    return statusLabel[key] ?? s
+  }
+  const getFileName = (u: string) => {
+    try {
+      const url = new URL(u)
+      const pathname = url.pathname.split('/').filter(Boolean)
+      const last = pathname[pathname.length - 1] ?? u
+      return decodeURIComponent(last)
+    } catch {
+      // not a valid URL, fallback to raw string
+      const parts = u.split('/')
+      return decodeURIComponent(parts[parts.length - 1] ?? u)
+    }
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
@@ -100,13 +118,104 @@ export function TicketDetailModal({
                 : '—'}
             </p>
           </div>
+          <div>
+            <span className="text-[10px] font-semibold uppercase text-white/50">Créé par</span>
+            <p className="text-white mt-1">
+              {ticket.createdBy
+                ? `${ticket.createdBy.firstName} ${ticket.createdBy.lastName} (${ticket.createdBy.email})`
+                : clientLabel
+                  ? clientLabel
+                  : ticket.userId || '—'}
+            </p>
+          </div>
           {Array.isArray(ticket.attachments) && ticket.attachments.length > 0 && (
             <div>
               <span className="text-[10px] font-semibold uppercase text-white/50">Pièces jointes</span>
-              <ul className="text-white/80 mt-1 list-disc list-inside">
-                {ticket.attachments.map((a, i) => (
-                  <li key={i}>{a}</li>
-                ))}
+              <div className="mt-2 grid grid-cols-1 gap-2">
+                {ticket.attachments.map((a, i) => {
+                  const rawUrl = String(a)
+                  const name = getFileName(rawUrl)
+
+                  // Construire deux URLs:
+                  // - viewUrl: sans "download" → prévisualisation si possible
+                  // - downloadUrl: avec attribut download; pour Cloudinary, on peut ajouter fl_attachment
+                  let viewUrl = rawUrl
+                  let downloadUrl = rawUrl
+                  try {
+                    const u = new URL(rawUrl)
+                    // Pour Cloudinary, remplacer '/upload/' par '/upload/fl_attachment/'
+                    if (u.hostname.includes('cloudinary')) {
+                      downloadUrl = rawUrl.replace('/upload/', '/upload/fl_attachment/')
+                      viewUrl = rawUrl.replace('/upload/fl_attachment/', '/upload/')
+                    }
+                  } catch {
+                    // laisser tel quel si URL invalide
+                  }
+
+                  return (
+                    <div
+                      key={i}
+                      className="flex items-center justify-between gap-3 px-3 py-2 rounded-lg bg-white/[0.06] border border-white/[0.1] text-white/80"
+                    >
+                      <span className="truncate">{name}</span>
+                      <div className="shrink-0 flex items-center gap-2">
+                        <a
+                          href={viewUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-2 py-1 rounded-md text-xs bg-white/[0.08] hover:bg-white/[0.12]"
+                        >
+                          Voir
+                        </a>
+                        <a
+                          href={downloadUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          download
+                          className="px-2 py-1 rounded-md text-xs bg-[#0066FF]/30 text-[#9ec6ff] hover:bg-[#0066FF]/45"
+                        >
+                          Télécharger
+                        </a>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {Array.isArray((ticket as any).history) && (ticket as any).history.length > 0 && (
+            <div className="mt-4">
+              <span className="text-[10px] font-semibold uppercase text-white/50">Historique</span>
+              <ul className="mt-2 space-y-2">
+                {((ticket as any).history as Array<{
+                  actorId: string
+                  actorRole?: string
+                  action: string
+                  field?: string
+                  from?: string | null
+                  to?: string | null
+                  timestamp?: string
+                }>).map((h, i) => {
+                  const when = h.timestamp ? new Date(h.timestamp).toLocaleString('fr-FR') : ''
+                  const who = h.actorRole ? `${h.actorRole}` : h.actorId
+                  let line = ''
+                  if (h.action === 'status_changed') {
+                    line = `${who} a changé statut: ${translateStatus(h.from)} → ${translateStatus(h.to)}`
+                  } else if (h.action === 'assigned_changed') {
+                    line = `${who} a changé affectation: ${h.from ?? '—'} → ${h.to ?? '—'}`
+                  } else if (h.action === 'created') {
+                    line = `${who} a créé le ticket`
+                  } else {
+                    line = `${who} a mis à jour ${h.field ?? 'ticket'}: ${h.from ?? '—'} → ${h.to ?? '—'}`
+                  }
+                  return (
+                    <li key={i} className="text-white/80 text-xs">
+                      <span className="block">{line}</span>
+                      {when && <span className="text-white/40">{when}</span>}
+                    </li>
+                  )
+                })}
               </ul>
             </div>
           )}

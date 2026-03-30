@@ -100,11 +100,9 @@ export class TicketsNotificationsGateway
   }
 
   notifyTicketCreated(ticket: TicketResponse, actorUserId?: string): void {
-    const rooms = new Set<string>([
-      this.userRoom(ticket.userId),
-      this.roleRoom(UserRole.ADMIN),
-    ]);
-    this.emitToRooms(rooms, 'ticket.created', {
+    // Ne notifier que les administrateurs pour la création
+    const adminRoom = this.roleRoom(UserRole.ADMIN);
+    this.emitToRooms(new Set([adminRoom]), 'ticket.created', {
       ticket,
       actorUserId,
       timestamp: new Date().toISOString(),
@@ -116,12 +114,9 @@ export class TicketsNotificationsGateway
     previousAssignedTo: string | null,
     actorUserId?: string,
   ): void {
-    const rooms = new Set<string>([
-      this.userRoom(ticket.userId),
-      this.roleRoom(UserRole.ADMIN),
-    ]);
-    if (ticket.assignedTo) rooms.add(this.userRoom(ticket.assignedTo));
-    if (previousAssignedTo) rooms.add(this.userRoom(previousAssignedTo));
+    // Notifier uniquement le technicien nouvellement assigné (pas l'admin)
+    if (!ticket.assignedTo) return;
+    const rooms = new Set<string>([this.userRoom(ticket.assignedTo)]);
     this.emitToRooms(rooms, 'ticket.assigned', {
       ticket,
       actorUserId,
@@ -135,12 +130,9 @@ export class TicketsNotificationsGateway
     previousStatus: TicketStatus,
     actorUserId?: string,
   ): void {
-    const rooms = new Set<string>([
-      this.userRoom(ticket.userId),
-      this.roleRoom(UserRole.ADMIN),
-    ]);
-    if (ticket.assignedTo) rooms.add(this.userRoom(ticket.assignedTo));
-    this.emitToRooms(rooms, 'ticket.status_changed', {
+    // Ne notifier que les administrateurs pour les changements de statut
+    const adminRoom = this.roleRoom(UserRole.ADMIN);
+    this.emitToRooms(new Set([adminRoom]), 'ticket.status_changed', {
       ticket,
       actorUserId,
       previousStatus,

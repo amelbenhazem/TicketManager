@@ -11,6 +11,8 @@ import {
   LogOut,
 } from 'lucide-react'
 import { disconnectRealtime } from '@/lib/realtime'
+import { useEffect, useState } from 'react'
+import { api, type UserResponse } from '@/lib/api'
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -21,6 +23,22 @@ const navItems = [
 
 export function ClientSidebar() {
   const pathname = usePathname()
+  const [user, setUser] = useState<UserResponse | null>(null)
+
+  useEffect(() => {
+    let mounted = true
+    api.auth
+      .me()
+      .then((u) => {
+        if (mounted) setUser(u)
+      })
+      .catch(() => {
+        // silencieux
+      })
+    return () => {
+      mounted = false
+    }
+  }, [])
 
   return (
     <aside className="w-64 shrink-0 backdrop-blur-xl bg-white/[0.08] border-r border-white/[0.15] flex flex-col">
@@ -37,8 +55,8 @@ export function ClientSidebar() {
             className="block h-9 w-auto"
           />
         </div>
-        <p className="text-white/60 text-xs mt-2 font-medium">
-          TicketDesk Client
+        <p className="text-white/80 text-sm mt-2 font-medium">
+          {user ? `${user.lastName} ${user.firstName}` : ''}
         </p>
       </div>
 

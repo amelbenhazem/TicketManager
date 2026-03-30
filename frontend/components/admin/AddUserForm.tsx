@@ -112,11 +112,9 @@ export function AddUserForm({
     <div className="backdrop-blur-xl bg-white/[0.08] border border-white/[0.15] rounded-3xl shadow-2xl shadow-black/30 p-6 sm:p-8">
       <div className="flex items-center gap-2 mb-6">
         <UserPlus className="w-6 h-6 text-[#60A5FA]" />
-        <h2 className="text-xl font-bold text-white">Créer un compte</h2>
+        <h2 className="text-xl font-bold text-white">Ajouter un utilisateur</h2>
       </div>
-      <p className="text-white/50 text-sm mb-4">
-        Client ou Technicien — pour accéder à TicketDesk.
-      </p>
+    
 
       {error && (
         <div

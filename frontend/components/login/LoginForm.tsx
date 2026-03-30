@@ -52,7 +52,7 @@ export function LoginForm({
           <Image src="/Logo-RFC.png" alt="RFC" width={120} height={48} className="block h-12 w-auto" />
         </div>
         <h1 className="text-2xl font-bold text-white tracking-tight">
-          Ticket<span className="text-[#60A5FA]">Desk</span>
+          Ticket<span className="text-[#60A5FA]">Manager</span>
         </h1>
         <p className="text-white/40 text-sm mt-1">
           Portail de gestion des incidents
@@ -144,7 +144,6 @@ export function LoginForm({
           className="w-full flex items-center justify-center gap-2 font-semibold py-3.5 rounded-xl text-[15px] transition-all duration-300 mt-2 bg-[#0066FF] hover:bg-[#0052CC] text-white shadow-xl shadow-[#0066FF]/25 hover:shadow-[#0066FF]/40 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
         >
           {loading ? 'Connexion...' : 'Se connecter'}
-          <ArrowRight className="w-5 h-5" />
         </button>
       </form>
     </div>

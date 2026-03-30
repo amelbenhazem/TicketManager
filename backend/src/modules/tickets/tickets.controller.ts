@@ -24,6 +24,9 @@ import { CreateTicketDto } from './dto';
 import { UpdateTicketDto } from './dto';
 import { TicketOwnerOrAdminGuard } from './guards/ticket-owner-or-admin.guard';
 import { TicketsAttachmentsService } from './tickets-attachments.service';
+import { TicketCategory, TicketPriority, TicketStatus } from './schemas/ticket.schema';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { RolesGuard } from '../../common/guards/roles.guard';
 
 const MAX_UPLOAD_SIZE = 10 * 1024 * 1024;
 const DEFAULT_PAGE = 1;
@@ -47,6 +50,13 @@ export class TicketsController {
     @Request() req: RequestWithUser,
     @Query('page') pageStr?: string,
     @Query('limit') limitStr?: string,
+    @Query('status') status?: string,
+    @Query('priority') priority?: string,
+    @Query('category') category?: string,
+    @Query('createdFrom') createdFrom?: string,
+    @Query('createdTo') createdTo?: string,
+    @Query('assignedTo') assignedTo?: string,
+    @Query('search') search?: string,
   ): Promise<PaginatedTickets> {
     const page = Math.max(
       1,
@@ -59,14 +69,63 @@ export class TicketsController {
         parseInt(limitStr ?? String(DEFAULT_LIMIT), 10) || DEFAULT_LIMIT,
       ),
     );
+    // Casts sûrs vers les enums attendus par le service
+    const statusEnum =
+      status && Object.values(TicketStatus).includes(status as TicketStatus)
+        ? (status as TicketStatus)
+        : undefined;
+    const priorityEnum =
+      priority &&
+      Object.values(TicketPriority).includes(priority as TicketPriority)
+        ? (priority as TicketPriority)
+        : undefined;
+    const categoryEnum =
+      category &&
+      Object.values(TicketCategory).includes(category as TicketCategory)
+        ? (category as TicketCategory)
+        : undefined;
+
+    const filters: Partial<import('./tickets.service').TicketFilters> = {
+      status: statusEnum,
+      priority: priorityEnum,
+      category: categoryEnum,
+      createdFrom,
+      createdTo,
+      // assignedTo: admin uniquement; sinon ignoré dans le service d'appel
+      assignedTo:
+        req.user.role === UserRole.ADMIN
+          ? assignedTo === 'null'
+            ? null
+            : assignedTo
+          : undefined,
+      search,
+    };
+
     if (req.user.role === UserRole.ADMIN) {
-      return this.ticketsService.findAll(page, limit);
+      return this.ticketsService.findAll(page, limit, filters as any);
     }
     if (req.user.role === UserRole.TECHNICIAN) {
-      return this.ticketsService.findAllByAssignedTo(req.user.id, page, limit);
+      return this.ticketsService.findAllByAssignedTo(
+        req.user.id,
+        page,
+        limit,
+        filters as any,
+      );
     }
-    return this.ticketsService.findAllByUser(req.user.id, page, limit);
+    return this.ticketsService.findAllByUser(
+      req.user.id,
+      page,
+      limit,
+      filters as any,
+    );
   } // ← accolade fermante de findTickets
+
+  @Get('stats')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async getStats() {
+    return this.ticketsService.getStats();
+  }
 
   @Get(':id')
   async findOne(
