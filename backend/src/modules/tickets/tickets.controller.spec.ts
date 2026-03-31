@@ -41,25 +41,64 @@ describe('TicketsController (unit)', () => {
   });
 
   it('GET /tickets (admin) -> calls findAll', async () => {
-    ticketsService.findAll.mockResolvedValue({ items: [], total: 0, page: 1, limit: 20, totalPages: 1 });
+    ticketsService.findAll.mockResolvedValue({
+      items: [],
+      total: 0,
+      page: 1,
+      limit: 20,
+      totalPages: 1,
+    });
     const req = { user: { id: 'a1', email: 'a', role: UserRole.ADMIN } };
-    await controller.findTickets(req as any, '1', '20', 'open', undefined, undefined, undefined, undefined, undefined, 'x');
+    await controller.findTickets(
+      req as any,
+      '1',
+      '20',
+      'open',
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      'x',
+    );
     expect(ticketsService.findAll).toHaveBeenCalled();
     expect(ticketsService.findAllByUser).not.toHaveBeenCalled();
   });
 
   it('GET /tickets (technician) -> calls findAllByAssignedTo', async () => {
-    ticketsService.findAllByAssignedTo.mockResolvedValue({ items: [], total: 0, page: 1, limit: 20, totalPages: 1 });
+    ticketsService.findAllByAssignedTo.mockResolvedValue({
+      items: [],
+      total: 0,
+      page: 1,
+      limit: 20,
+      totalPages: 1,
+    });
     const req = { user: { id: 't1', email: 't', role: UserRole.TECHNICIAN } };
     await controller.findTickets(req as any, '1', '20');
-    expect(ticketsService.findAllByAssignedTo).toHaveBeenCalledWith('t1', 1, 20, expect.any(Object));
+    expect(ticketsService.findAllByAssignedTo).toHaveBeenCalledWith(
+      't1',
+      1,
+      20,
+      expect.any(Object),
+    );
   });
 
   it('GET /tickets (client) -> calls findAllByUser', async () => {
-    ticketsService.findAllByUser.mockResolvedValue({ items: [], total: 0, page: 1, limit: 20, totalPages: 1 });
+    ticketsService.findAllByUser.mockResolvedValue({
+      items: [],
+      total: 0,
+      page: 1,
+      limit: 20,
+      totalPages: 1,
+    });
     const req = { user: { id: 'c1', email: 'c', role: UserRole.CLIENT } };
     await controller.findTickets(req as any, '1', '20');
-    expect(ticketsService.findAllByUser).toHaveBeenCalledWith('c1', 1, 20, expect.any(Object));
+    expect(ticketsService.findAllByUser).toHaveBeenCalledWith(
+      'c1',
+      1,
+      20,
+      expect.any(Object),
+    );
   });
 
   it('POST /tickets -> calls create', async () => {
@@ -71,4 +110,3 @@ describe('TicketsController (unit)', () => {
     expect(res).toEqual({ id: 't1' });
   });
 });
-

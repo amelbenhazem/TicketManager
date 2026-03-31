@@ -15,6 +15,18 @@ export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
   eslintPluginPrettierRecommended,
+  // ✅ Tests: autoriser les mocks (sinon trop de no-unsafe-* sur jest/supertest)
+  {
+    files: ['**/*.spec.ts', '**/*.e2e-spec.ts', '**/*.int-spec.ts'],
+    rules: {
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/unbound-method': 'off',
+    },
+  },
   {
     languageOptions: {
       globals: {

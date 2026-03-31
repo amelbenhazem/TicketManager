@@ -27,4 +27,3 @@ describe('Security (e2e)', () => {
     await request(app.getHttpServer()).get('/users').expect(401);
   });
 });
-

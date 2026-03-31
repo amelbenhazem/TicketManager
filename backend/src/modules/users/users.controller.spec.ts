@@ -33,17 +33,32 @@ describe('UsersController (unit)', () => {
   });
 
   it('GET /users -> delegates to UsersService.findAll', async () => {
-    usersService.findAll.mockResolvedValue({ items: [], total: 0, page: 1, limit: 20, totalPages: 1 });
+    usersService.findAll.mockResolvedValue({
+      items: [],
+      total: 0,
+      page: 1,
+      limit: 20,
+      totalPages: 1,
+    });
     await controller.findAll(UserRole.TECHNICIAN, 'x', '1', '20');
-    expect(usersService.findAll).toHaveBeenCalledWith({ role: UserRole.TECHNICIAN, search: 'x' }, 1, 20);
+    expect(usersService.findAll).toHaveBeenCalledWith(
+      { role: UserRole.TECHNICIAN, search: 'x' },
+      1,
+      20,
+    );
   });
 
   it('POST /users -> delegates to UsersService.create', async () => {
     usersService.create.mockResolvedValue({ id: 'u1' });
-    const dto = { email: 'a@a.tn', password: 'x', firstName: 'A', lastName: 'B', role: UserRole.CLIENT };
+    const dto = {
+      email: 'a@a.tn',
+      password: 'x',
+      firstName: 'A',
+      lastName: 'B',
+      role: UserRole.CLIENT,
+    };
     const res = await controller.create(dto as any);
     expect(usersService.create).toHaveBeenCalledWith(dto);
     expect(res).toEqual({ id: 'u1' });
   });
 });
-

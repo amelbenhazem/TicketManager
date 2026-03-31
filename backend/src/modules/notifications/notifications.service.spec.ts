@@ -7,8 +7,20 @@ import { User } from '../users/schemas/user.schema';
 
 describe('NotificationsService (unit)', () => {
   let service: NotificationsService;
-  let notificationModel: any;
-  let userModel: any;
+  type ExecResult<T> = { exec: () => Promise<T> };
+  type NotificationModelMock = {
+    insertMany: jest.Mock<Promise<void>, unknown[]>;
+    find: jest.Mock<any, unknown[]>;
+    countDocuments: jest.Mock<ExecResult<number>, unknown[]>;
+    updateOne: jest.Mock<ExecResult<void>, unknown[]>;
+    updateMany: jest.Mock<ExecResult<void>, unknown[]>;
+  };
+  type UserModelMock = {
+    find: jest.Mock<any, unknown[]>;
+  };
+
+  let notificationModel: NotificationModelMock;
+  let userModel: UserModelMock;
 
   beforeEach(async () => {
     notificationModel = {
@@ -25,7 +37,10 @@ describe('NotificationsService (unit)', () => {
     const moduleRef = await Test.createTestingModule({
       providers: [
         NotificationsService,
-        { provide: getModelToken(Notification.name), useValue: notificationModel },
+        {
+          provide: getModelToken(Notification.name),
+          useValue: notificationModel,
+        },
         { provide: getModelToken(User.name), useValue: userModel },
       ],
     }).compile();
@@ -43,13 +58,17 @@ describe('NotificationsService (unit)', () => {
   });
 
   it('unreadCountForUser(): returns countDocuments', async () => {
-    notificationModel.countDocuments.mockReturnValue({ exec: jest.fn().mockResolvedValue(5) });
+    notificationModel.countDocuments.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(5),
+    });
     const res = await service.unreadCountForUser('507f1f77bcf86cd799439011');
     expect(res).toEqual({ count: 5 });
   });
 
   it('markAllRead(): updates many', async () => {
-    notificationModel.updateMany.mockReturnValue({ exec: jest.fn().mockResolvedValue(undefined) });
+    notificationModel.updateMany.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(undefined),
+    });
     await service.markAllRead('507f1f77bcf86cd799439011');
     expect(notificationModel.updateMany).toHaveBeenCalledWith(
       { userId: expect.any(Types.ObjectId), isRead: false },
@@ -58,12 +77,24 @@ describe('NotificationsService (unit)', () => {
   });
 
   it('createForAdmins(): finds admins then calls createMany', async () => {
-    const createManySpy = jest.spyOn(service, 'createMany').mockResolvedValue(undefined);
+    const createManySpy = jest
+      .spyOn(service, 'createMany')
+      .mockResolvedValue(undefined);
     userModel.find.mockReturnValue({
-      select: () => ({ lean: () => ({ exec: jest.fn().mockResolvedValue([{ _id: 'a1' }, { _id: 'a2' }]) }) }),
+      select: () => ({
+        lean: () => ({
+          exec: jest.fn().mockResolvedValue([{ _id: 'a1' }, { _id: 'a2' }]),
+        }),
+      }),
     });
-    await service.createForAdmins({ event: 'x', ticketId: '507f1f77bcf86cd799439012', title: 't' });
-    expect(createManySpy).toHaveBeenCalledWith(['a1', 'a2'], expect.any(Object));
+    await service.createForAdmins({
+      event: 'x',
+      ticketId: '507f1f77bcf86cd799439012',
+      title: 't',
+    });
+    expect(createManySpy).toHaveBeenCalledWith(
+      ['a1', 'a2'],
+      expect.any(Object),
+    );
   });
 });
-

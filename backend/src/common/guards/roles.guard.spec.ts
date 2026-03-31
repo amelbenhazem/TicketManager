@@ -11,7 +11,7 @@ describe('RolesGuard (unit)', () => {
       switchToHttp: () => ({
         getRequest: () => ({ user: role ? { role } : undefined }),
       }),
-    }) as any;
+    }) as unknown as Parameters<RolesGuard['canActivate']>[0];
 
   it('allows when no roles are required', () => {
     const reflector = {
@@ -34,7 +34,9 @@ describe('RolesGuard (unit)', () => {
       getAllAndOverride: jest.fn().mockReturnValue([UserRole.ADMIN]),
     } as unknown as Reflector;
     const guard = new RolesGuard(reflector);
-    expect(() => guard.canActivate(makeCtx(undefined))).toThrow(ForbiddenException);
+    expect(() => guard.canActivate(makeCtx(undefined))).toThrow(
+      ForbiddenException,
+    );
   });
 
   it('throws Forbidden when role not allowed', () => {
@@ -47,4 +49,3 @@ describe('RolesGuard (unit)', () => {
     );
   });
 });
-

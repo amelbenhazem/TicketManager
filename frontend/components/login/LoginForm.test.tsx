@@ -2,13 +2,14 @@ import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { LoginForm } from './LoginForm'
+import type React from 'react'
 
 describe('LoginForm (unit)', () => {
   it('calls onEmailChange/onPasswordChange and onSubmit', async () => {
     const user = userEvent.setup()
     const onEmailChange = vi.fn()
     const onPasswordChange = vi.fn()
-    const onSubmit = vi.fn((e: any) => e.preventDefault())
+    const onSubmit = vi.fn((e: React.FormEvent) => e.preventDefault())
 
     render(
       <LoginForm

@@ -43,4 +43,3 @@ describe('TicketsAttachmentsService (unit)', () => {
     ).rejects.toBeInstanceOf(BadRequestException);
   });
 });
-

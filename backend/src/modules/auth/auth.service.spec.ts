@@ -9,7 +9,7 @@ import { UserRole } from '../users/schemas/user.schema';
 describe('AuthService (unit)', () => {
   let service: AuthService;
   let jwtService: { sign: jest.Mock };
-  let config: { get: jest.Mock };
+  let config: { get: jest.Mock<unknown, [string, ...unknown[]]> };
   let usersService: {
     findByEmail: jest.Mock;
     validatePassword: jest.Mock;
@@ -47,11 +47,22 @@ describe('AuthService (unit)', () => {
       return fallback;
     });
 
-    const res = await service.login({ email: 'demo@rfc.tn', password: 'demo123' });
-    expect(res).toEqual({ access_token: 'jwt-token', expiresIn: '24h', role: UserRole.ADMIN });
+    const res = await service.login({
+      email: 'demo@rfc.tn',
+      password: 'demo123',
+    });
+    expect(res).toEqual({
+      access_token: 'jwt-token',
+      expiresIn: '24h',
+      role: UserRole.ADMIN,
+    });
     expect(jwtService.sign).toHaveBeenCalledTimes(1);
     const [payload, opts] = jwtService.sign.mock.calls[0];
-    expect(payload).toMatchObject({ sub: 'demo@rfc.tn', email: 'demo@rfc.tn', role: UserRole.ADMIN });
+    expect(payload).toMatchObject({
+      sub: 'demo@rfc.tn',
+      email: 'demo@rfc.tn',
+      role: UserRole.ADMIN,
+    });
     expect(opts).toMatchObject({ expiresIn: '24h' });
   });
 
@@ -62,7 +73,10 @@ describe('AuthService (unit)', () => {
       if (key === 'jwt.expiresIn') return '12h';
       return fallback;
     });
-    usersService.findByEmail.mockResolvedValue({ _id: 'u1', role: UserRole.CLIENT });
+    usersService.findByEmail.mockResolvedValue({
+      _id: 'u1',
+      role: UserRole.CLIENT,
+    });
     usersService.validatePassword.mockResolvedValue(true);
 
     await service.login({ email: 'c@ex.tn', password: 'p' });
@@ -80,14 +94,21 @@ describe('AuthService (unit)', () => {
       return fallback;
     });
 
-    usersService.findByEmail.mockResolvedValue({ _id: 'u1', role: UserRole.TECHNICIAN });
+    usersService.findByEmail.mockResolvedValue({
+      _id: 'u1',
+      role: UserRole.TECHNICIAN,
+    });
     usersService.validatePassword.mockResolvedValue(true);
 
     const res = await service.login({ email: 'tech@ex.tn', password: 'pass' });
     expect(res.role).toBe(UserRole.TECHNICIAN);
     expect(res.expiresIn).toBe('24h');
     expect(jwtService.sign).toHaveBeenCalledWith(
-      expect.objectContaining({ sub: 'u1', email: 'tech@ex.tn', role: UserRole.TECHNICIAN }),
+      expect.objectContaining({
+        sub: 'u1',
+        email: 'tech@ex.tn',
+        role: UserRole.TECHNICIAN,
+      }),
       expect.objectContaining({ expiresIn: '24h' }),
     );
   });
@@ -99,12 +120,14 @@ describe('AuthService (unit)', () => {
       return fallback;
     });
 
-    usersService.findByEmail.mockResolvedValue({ _id: 'u1', role: UserRole.CLIENT });
+    usersService.findByEmail.mockResolvedValue({
+      _id: 'u1',
+      role: UserRole.CLIENT,
+    });
     usersService.validatePassword.mockResolvedValue(false);
 
-    await expect(service.login({ email: 'c@ex.tn', password: 'wrong' })).rejects.toBeInstanceOf(
-      UnauthorizedException,
-    );
+    await expect(
+      service.login({ email: 'c@ex.tn', password: 'wrong' }),
+    ).rejects.toBeInstanceOf(UnauthorizedException);
   });
 });
-

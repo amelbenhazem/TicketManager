@@ -90,7 +90,10 @@ describe('TicketsService (unit)', () => {
     });
 
     expect(ticketModel.create).toHaveBeenCalled();
-    expect(createdDoc.populate).toHaveBeenCalledWith('userId', 'firstName lastName email');
+    expect(createdDoc.populate).toHaveBeenCalledWith(
+      'userId',
+      'firstName lastName email',
+    );
     expect(gateway.notifyTicketCreated).toHaveBeenCalledWith(
       expect.objectContaining({ title: 'Panne' }),
       '507f1f77bcf86cd799439011',
@@ -115,7 +118,9 @@ describe('TicketsService (unit)', () => {
       exec: jest.fn().mockResolvedValue([]),
     };
     ticketModel.find = jest.fn().mockReturnValue(chain);
-    ticketModel.countDocuments = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(0) });
+    ticketModel.countDocuments = jest
+      .fn()
+      .mockReturnValue({ exec: jest.fn().mockResolvedValue(0) });
 
     await service.findAllByUser('507f1f77bcf86cd799439011', 1, 20, {
       status: TicketStatus.OPEN,
@@ -141,7 +146,9 @@ describe('TicketsService (unit)', () => {
       assignedTo: new Types.ObjectId('507f1f77bcf86cd799439012'),
       history: [],
     });
-    ticketModel.findById.mockReturnValue({ exec: jest.fn().mockResolvedValue(doc) });
+    ticketModel.findById.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(doc),
+    });
 
     const updated = await service.update(
       String(doc._id),
@@ -165,7 +172,9 @@ describe('TicketsService (unit)', () => {
     const doc = makeTicketDoc({
       assignedTo: new Types.ObjectId('507f1f77bcf86cd799439099'),
     });
-    ticketModel.findById.mockReturnValue({ exec: jest.fn().mockResolvedValue(doc) });
+    ticketModel.findById.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(doc),
+    });
 
     await expect(
       service.update(
@@ -184,7 +193,9 @@ describe('TicketsService (unit)', () => {
       title: 'Ticket X',
     });
     // populate should resolve; toResponse uses populated values but for this unit test we only assert calls
-    ticketModel.findById.mockReturnValue({ exec: jest.fn().mockResolvedValue(doc) });
+    ticketModel.findById.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(doc),
+    });
 
     const res = await service.update(
       String(doc._id),
@@ -207,4 +218,3 @@ describe('TicketsService (unit)', () => {
     expect(res).not.toBeNull();
   });
 });
-

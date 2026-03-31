@@ -42,4 +42,3 @@ describe('AuthController (unit)', () => {
     expect(res).toEqual({ id: 'u1' });
   });
 });
-

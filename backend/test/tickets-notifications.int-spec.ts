@@ -10,8 +10,15 @@ import { UsersModule } from '../src/modules/users/users.module';
 import { TicketsService } from '../src/modules/tickets/tickets.service';
 import { NotificationsService } from '../src/modules/notifications/notifications.service';
 import { TicketsNotificationsGateway } from '../src/modules/tickets/tickets-notifications.gateway';
-import { Notification, NotificationDocument } from '../src/modules/notifications/notifications.schema';
-import { User, UserDocument, UserRole } from '../src/modules/users/schemas/user.schema';
+import {
+  Notification,
+  NotificationDocument,
+} from '../src/modules/notifications/notifications.schema';
+import {
+  User,
+  UserDocument,
+  UserRole,
+} from '../src/modules/users/schemas/user.schema';
 
 describe('Integration: TicketsService -> NotificationsService -> Gateway -> MongoDB', () => {
   let mongod: MongoMemoryServer;
@@ -173,4 +180,3 @@ describe('Integration: TicketsService -> NotificationsService -> Gateway -> Mong
     expect(count).toBeGreaterThanOrEqual(1);
   });
 });
-

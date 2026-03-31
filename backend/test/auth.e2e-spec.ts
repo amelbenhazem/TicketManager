@@ -34,4 +34,3 @@ describe('Auth (e2e)', () => {
     await request(app.getHttpServer()).get('/auth/me').expect(401);
   });
 });
-

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { StatsCards } from './StatsCards'
+import type { UsersStats } from '@/lib/api'
 
 describe('StatsCards (unit)', () => {
   it('renders values from stats', () => {
@@ -10,7 +11,7 @@ describe('StatsCards (unit)', () => {
         stats={{
           total: 10,
           byRole: { admin: 2, technician: 3, client: 5 },
-        } as any}
+        } as UsersStats}
       />,
     )
 

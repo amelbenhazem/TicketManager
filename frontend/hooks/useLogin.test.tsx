@@ -11,7 +11,7 @@ vi.mock('next/navigation', () => ({
 const loginMock = vi.fn()
 vi.mock('@/lib/api', () => ({
   api: {
-    auth: { login: (...args: any[]) => loginMock(...args) },
+    auth: { login: (...args: unknown[]) => loginMock(...args) },
   },
   ApiError: class ApiError extends Error {
     status = 400

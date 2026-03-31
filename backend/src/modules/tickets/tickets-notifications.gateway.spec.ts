@@ -5,7 +5,11 @@ import { TicketStatus } from './schemas/ticket.schema';
 
 describe('TicketsNotificationsGateway (unit)', () => {
   it('handleConnection joins rooms and emits ready when token valid', () => {
-    const jwt = { verify: jest.fn().mockReturnValue({ sub: 'u1', role: UserRole.ADMIN, email: 'a' }) } as unknown as JwtService;
+    const jwt = {
+      verify: jest
+        .fn()
+        .mockReturnValue({ sub: 'u1', role: UserRole.ADMIN, email: 'a' }),
+    } as unknown as JwtService;
     const gw = new TicketsNotificationsGateway(jwt);
     const join = jest.fn();
     const emit = jest.fn();
@@ -22,7 +26,10 @@ describe('TicketsNotificationsGateway (unit)', () => {
     expect(jwt.verify).toHaveBeenCalledWith('t');
     expect(join).toHaveBeenCalledWith('user:u1');
     expect(join).toHaveBeenCalledWith('role:admin');
-    expect(emit).toHaveBeenCalledWith('notifications.ready', expect.objectContaining({ userId: 'u1', role: UserRole.ADMIN }));
+    expect(emit).toHaveBeenCalledWith(
+      'notifications.ready',
+      expect.objectContaining({ userId: 'u1', role: UserRole.ADMIN }),
+    );
     expect(disconnect).not.toHaveBeenCalled();
   });
 
@@ -37,4 +44,3 @@ describe('TicketsNotificationsGateway (unit)', () => {
     expect(to).toHaveBeenCalledWith('role:admin');
   });
 });
-

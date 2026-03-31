@@ -43,30 +43,66 @@ describe('UsersService (unit)', () => {
   });
 
   it('create(): throws ConflictException if email exists', async () => {
-    userModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue({ _id: 'u1' }) });
+    userModel.findOne.mockReturnValue({
+      exec: jest.fn().mockResolvedValue({ _id: 'u1' }),
+    });
     await expect(
-      service.create({ email: 'x', password: 'p', firstName: 'a', lastName: 'b', role: UserRole.CLIENT } as any),
+      service.create({
+        email: 'x',
+        password: 'p',
+        firstName: 'a',
+        lastName: 'b',
+        role: UserRole.CLIENT,
+      } as any),
     ).rejects.toBeInstanceOf(ConflictException);
   });
 
   it('create(): hashes password and creates user', async () => {
-    userModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(null) });
-    userModel.create.mockResolvedValue({ _id: 'u1', email: 'x', role: UserRole.ADMIN, firstName: 'a', lastName: 'b' });
-    const res = await service.create({ email: 'x', password: 'p', firstName: 'a', lastName: 'b', role: UserRole.ADMIN } as any);
+    userModel.findOne.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(null),
+    });
+    userModel.create.mockResolvedValue({
+      _id: 'u1',
+      email: 'x',
+      role: UserRole.ADMIN,
+      firstName: 'a',
+      lastName: 'b',
+    });
+    const res = await service.create({
+      email: 'x',
+      password: 'p',
+      firstName: 'a',
+      lastName: 'b',
+      role: UserRole.ADMIN,
+    } as any);
     expect(bcrypt.hash).toHaveBeenCalledWith('p', 10);
-    expect(userModel.create).toHaveBeenCalledWith(expect.objectContaining({ password: 'hashed' }));
+    expect(userModel.create).toHaveBeenCalledWith(
+      expect.objectContaining({ password: 'hashed' }),
+    );
     expect(res).toMatchObject({ id: 'u1', email: 'x', role: UserRole.ADMIN });
   });
 
   it('findOne(): throws NotFoundException if missing', async () => {
-    userModel.findById.mockReturnValue({ exec: jest.fn().mockResolvedValue(null) });
-    await expect(service.findOne('nope')).rejects.toBeInstanceOf(NotFoundException);
+    userModel.findById.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(null),
+    });
+    await expect(service.findOne('nope')).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
   });
 
   it('remove(): technician with assigned tickets -> ConflictException', async () => {
-    userModel.findById.mockReturnValue({ exec: jest.fn().mockResolvedValue({ _id: 't1', role: UserRole.TECHNICIAN }) });
-    ticketModel.countDocuments.mockReturnValue({ exec: jest.fn().mockResolvedValue(2) });
-    await expect(service.remove('t1')).rejects.toBeInstanceOf(ConflictException);
+    userModel.findById.mockReturnValue({
+      exec: jest
+        .fn()
+        .mockResolvedValue({ _id: 't1', role: UserRole.TECHNICIAN }),
+    });
+    ticketModel.countDocuments.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(2),
+    });
+    await expect(service.remove('t1')).rejects.toBeInstanceOf(
+      ConflictException,
+    );
   });
 
   it('findAll(): builds search regex query', async () => {
@@ -74,10 +110,20 @@ describe('UsersService (unit)', () => {
       sort: jest.fn().mockReturnThis(),
       skip: jest.fn().mockReturnThis(),
       limit: jest.fn().mockReturnThis(),
-      exec: jest.fn().mockResolvedValue([{ _id: 'u1', email: 'a', role: UserRole.CLIENT, firstName: 'A', lastName: 'B' }]),
+      exec: jest.fn().mockResolvedValue([
+        {
+          _id: 'u1',
+          email: 'a',
+          role: UserRole.CLIENT,
+          firstName: 'A',
+          lastName: 'B',
+        },
+      ]),
     };
     userModel.find.mockReturnValue(chain);
-    userModel.countDocuments.mockReturnValue({ exec: jest.fn().mockResolvedValue(1) });
+    userModel.countDocuments.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(1),
+    });
     const res = await service.findAll({ search: 'abc' }, 1, 20);
     expect(userModel.find).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -91,4 +137,3 @@ describe('UsersService (unit)', () => {
     expect(res.total).toBe(1);
   });
 });
-
