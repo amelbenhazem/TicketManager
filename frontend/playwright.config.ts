@@ -4,10 +4,10 @@ export default defineConfig({
   testDir: './e2e',
   timeout: 30_000,
   expect: { timeout: 10_000 },
-  reporter: [['html', { open: 'never' }], ['list']],
+  reporter: process.env.CI ? 'list' : [['html', { open: 'never' }], ['list']],
   use: {
     baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000',
-    trace: 'on-first-retry',
+    trace: process.env.CI ? 'off' : 'on-first-retry',
   },
   webServer: [
     {

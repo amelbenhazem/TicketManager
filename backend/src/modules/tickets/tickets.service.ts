@@ -1,6 +1,6 @@
 import { Injectable, ForbiddenException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model, Types, Query } from 'mongoose';
 import {
   Ticket,
   TicketDocument,
@@ -332,7 +332,7 @@ export class TicketsService {
     const safeLimit = Math.min(Math.max(1, limit), MAX_LIMIT);
     const skip = (Math.max(1, page) - 1) * safeLimit;
 
-    let query = this.ticketModel
+    let query: Query<any, TicketDocument> = this.ticketModel
       .find(q)
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -344,11 +344,11 @@ export class TicketsService {
       query = query.select(options.projection);
     }
     if (options?.lean) {
-      query = query.lean();
+      query = query.lean<Ticket & { _id: Types.ObjectId }>();
     }
 
     const [rawTickets, total] = await Promise.all([
-      query.exec(),
+      query.exec() as Promise<TicketDocument[]>,
       this.ticketModel.countDocuments(q).exec(),
     ]);
     const tickets = rawTickets as TicketDocument[];

@@ -1,3 +1,5 @@
+frontend/playwright-report/
+**/playwright-report/
 # Dependencies
 node_modules/
 
