@@ -12,6 +12,17 @@ import { Request, Response } from 'express';
 export class AllExceptionsFilter implements ExceptionFilter {
   private readonly logger = new Logger(AllExceptionsFilter.name);
 
+  private formatMessage(rawMessage: unknown): string {
+    if (Array.isArray(rawMessage)) {
+      return rawMessage.map(String).join('. ');
+    }
+    if (typeof rawMessage === 'string') return rawMessage;
+    if (rawMessage != null && typeof rawMessage === 'object') {
+      return JSON.stringify(rawMessage);
+    }
+    return 'Erreur inconnue';
+  }
+
   catch(exception: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
@@ -38,14 +49,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
             ),
           };
 
-    const msg = body.message;
-    const message = Array.isArray(msg)
-      ? (msg as string[]).join('. ')
-      : typeof msg === 'string'
-        ? msg
-        : msg != null && typeof msg === 'object'
-          ? JSON.stringify(msg)
-          : 'Erreur inconnue';
+    const message = this.formatMessage(body.message);
 
     if (status >= 500) {
       this.logger.error(

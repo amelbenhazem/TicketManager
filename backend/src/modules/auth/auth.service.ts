@@ -66,9 +66,9 @@ export class AuthService {
     }
 
     const found = await this.usersService.findByEmail(email);
-    if (!found) return { user: null, role: '' };
+    if (found == null) return { user: null, role: '' };
     const valid = await this.usersService.validatePassword(found, password);
-    if (!valid) return { user: null, role: '' };
+    if (valid !== true) return { user: null, role: '' };
     const userId = found._id != null ? String(found._id) : null;
     return {
       user: userId,

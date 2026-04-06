@@ -34,7 +34,7 @@ describe('RolesGuard (unit)', () => {
       getAllAndOverride: jest.fn().mockReturnValue([UserRole.ADMIN]),
     } as unknown as Reflector;
     const guard = new RolesGuard(reflector);
-    expect(() => guard.canActivate(makeCtx(undefined))).toThrow(
+    expect(() => guard.canActivate(makeCtx())).toThrow(
       ForbiddenException,
     );
   });

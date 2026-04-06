@@ -96,13 +96,17 @@ export default function MesTicketsPage() {
 
   // Debounced fetch for search/filters
   useEffect(() => {
-    const t = window.setTimeout(() => fetchTickets(), search ? 250 : 0)
-    return () => window.clearTimeout(t)
+    const t = globalThis.window?.setTimeout(() => fetchTickets(), search ? 250 : 0)
+    return () => {
+      if (t !== undefined) {
+        globalThis.window?.clearTimeout(t)
+      }
+    }
   }, [page, status, priority, category, createdFrom, createdTo, search, fetchTickets])
 
   useEffect(() => {
     return subscribeTicketRealtime(() => {
-      void fetchTickets({ silent: true })
+      fetchTickets({ silent: true })
     })
   }, [fetchTickets])
 
@@ -112,7 +116,7 @@ export default function MesTicketsPage() {
     const poll = () => {
       // Refaire une synchro quand l’onglet redevient visible (le realtime peut être manqué pendant l’inactivité).
       if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return
-      void fetchTickets({ silent: true })
+      fetchTickets({ silent: true })
     }
 
     const id = setInterval(poll, POLL_MS)

@@ -20,8 +20,7 @@ import {
   TicketResponse,
   PaginatedTickets,
 } from './tickets.service';
-import { CreateTicketDto } from './dto';
-import { UpdateTicketDto } from './dto';
+import { CreateTicketDto, UpdateTicketDto } from './dto';
 import { TicketOwnerOrAdminGuard } from './guards/ticket-owner-or-admin.guard';
 import { TicketsAttachmentsService } from './tickets-attachments.service';
 import {
@@ -64,13 +63,13 @@ export class TicketsController {
   ): Promise<PaginatedTickets> {
     const page = Math.max(
       1,
-      parseInt(pageStr ?? String(DEFAULT_PAGE), 10) || DEFAULT_PAGE,
+      Number.parseInt(pageStr ?? String(DEFAULT_PAGE), 10) || DEFAULT_PAGE,
     );
     const limit = Math.min(
       MAX_LIMIT,
       Math.max(
         1,
-        parseInt(limitStr ?? String(DEFAULT_LIMIT), 10) || DEFAULT_LIMIT,
+        Number.parseInt(limitStr ?? String(DEFAULT_LIMIT), 10) || DEFAULT_LIMIT,
       ),
     );
     // Casts sûrs vers les enums attendus par le service
@@ -96,14 +95,13 @@ export class TicketsController {
       createdFrom,
       createdTo,
       // assignedTo: admin uniquement; sinon ignoré dans le service d'appel
-      assignedTo:
-        req.user.role === UserRole.ADMIN
-          ? assignedTo === 'null'
-            ? null
-            : assignedTo
-          : undefined,
+      assignedTo: undefined,
       search,
     };
+    if (req.user.role === UserRole.ADMIN) {
+      if (assignedTo === 'null') filters.assignedTo = null;
+      else if (assignedTo !== undefined) filters.assignedTo = assignedTo;
+    }
 
     if (req.user.role === UserRole.ADMIN) {
       return this.ticketsService.findAll(page, limit, filters);

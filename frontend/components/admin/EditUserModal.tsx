@@ -223,7 +223,10 @@ export function EditUserModal({
           />
 
           <div>
-            <label className="block text-[10px] font-semibold tracking-wider uppercase text-white/50 mb-2">
+            <label
+              htmlFor="edit-user-role"
+              className="block text-[10px] font-semibold tracking-wider uppercase text-white/50 mb-2"
+            >
               Rôle
             </label>
             <div className="flex gap-2 flex-wrap">
@@ -238,6 +241,7 @@ export function EditUserModal({
                 </button>
               ))}
             </div>
+            <input id="edit-user-role" value={role} readOnly type="hidden" />
           </div>
 
           <div className="flex gap-3 pt-2">

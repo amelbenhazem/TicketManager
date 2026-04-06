@@ -37,7 +37,7 @@ export class TicketsNotificationsGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
   @WebSocketServer()
-  private server!: Server;
+  private readonly server!: Server;
 
   private readonly logger = new Logger(TicketsNotificationsGateway.name);
   private readonly socketUsers = new Map<string, SocketUser>();

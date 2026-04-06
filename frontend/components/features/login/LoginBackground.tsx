@@ -75,7 +75,7 @@ export function LoginBackground() {
             />
             <animate
               attributeName="cy"
-              values={`${p.cy};${parseFloat(p.cy) - 2}%;${p.cy}`}
+              values={`${p.cy};${Number.parseFloat(p.cy) - 2}%;${p.cy}`}
               dur={p.dur}
               repeatCount="indefinite"
             />

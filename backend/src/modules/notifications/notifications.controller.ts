@@ -7,6 +7,12 @@ type RequestWithUser = Request & { user: { id: string } };
 export class NotificationsController {
   constructor(private readonly notifications: NotificationsService) {}
 
+  private parseBoolean(value?: string): boolean | undefined {
+    if (value === 'true') return true;
+    if (value === 'false') return false;
+    return undefined;
+  }
+
   @Get()
   async list(
     @Request() req: RequestWithUser,
@@ -14,16 +20,9 @@ export class NotificationsController {
     @Query('page') pageStr?: string,
     @Query('limit') limitStr?: string,
   ) {
-    const isRead =
-      isReadStr != null
-        ? isReadStr === 'true'
-          ? true
-          : isReadStr === 'false'
-            ? false
-            : undefined
-        : undefined;
-    const page = Math.max(1, parseInt(pageStr ?? '1', 10) || 1);
-    const limit = Math.max(1, parseInt(limitStr ?? '20', 10) || 20);
+    const isRead = this.parseBoolean(isReadStr);
+    const page = Math.max(1, Number.parseInt(pageStr ?? '1', 10) || 1);
+    const limit = Math.max(1, Number.parseInt(limitStr ?? '20', 10) || 20);
     return this.notifications.listForUser(req.user.id, { isRead, page, limit });
   }
 

@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { AppModule } from './../src/app.module';
+import { AppModule } from '../../src/app.module';
 
 describe('Security (e2e)', () => {
   let app: INestApplication;
@@ -27,3 +27,4 @@ describe('Security (e2e)', () => {
     await request(app.getHttpServer()).get('/users').expect(401);
   });
 });
+

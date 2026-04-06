@@ -2,7 +2,7 @@
  * Configuration centralisée et validation des variables d'environnement.
  * Ne jamais mettre de valeurs réelles (secrets) dans ce fichier.
  */
-export default () => {
+export default function configuration() {
   const nodeEnv = process.env.NODE_ENV ?? 'development';
   const jwtSecret = process.env.JWT_SECRET;
 
@@ -17,7 +17,7 @@ export default () => {
   }
 
   return {
-    port: parseInt(process.env.PORT ?? '3001', 10),
+    port: Number.parseInt(process.env.PORT ?? '3001', 10),
     nodeEnv,
     mongodb: {
       uri: process.env.MONGODB_URI ?? 'mongodb://localhost:27017/ticketmanager',
@@ -43,4 +43,4 @@ export default () => {
       apiSecret: process.env.CLOUDINARY_API_SECRET ?? '',
     },
   };
-};
+}

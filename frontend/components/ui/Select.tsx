@@ -17,6 +17,8 @@ export function Select({ value, onChange, options, placeholder = 'Sélectionner�
   const [open, setOpen] = useState(false)
   const btnRef = useRef<HTMLButtonElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
+  const [openUp, setOpenUp] = useState(false)
+  const [maxHeightPx, setMaxHeightPx] = useState<string>('60vh')
   // Si value === '' on considère que rien n'est sélectionné => afficher le placeholder
   const selected = value !== '' ? options.find((o) => o.value === value) : undefined
 
@@ -30,6 +32,37 @@ export function Select({ value, onChange, options, placeholder = 'Sélectionner�
     document.addEventListener('mousedown', onDoc)
     return () => document.removeEventListener('mousedown', onDoc)
   }, [])
+
+  useEffect(() => {
+    if (!open) return
+    const btn = btnRef.current
+    if (!btn) return
+    const rect = btn.getBoundingClientRect()
+    const viewportHeight = window.innerHeight
+    const spaceBelow = viewportHeight - rect.bottom
+    const spaceAbove = rect.top
+    const wantOpenUp = spaceBelow < 240 && spaceAbove > spaceBelow
+    setOpenUp(wantOpenUp)
+    const space = wantOpenUp ? spaceAbove : spaceBelow
+    const panelMaxH = Math.min(Math.max(space - 16, 200), Math.round(viewportHeight * 0.8))
+    setMaxHeightPx(`${panelMaxH}px`)
+    const onResize = () => {
+      const r = btn.getBoundingClientRect()
+      const vh = window.innerHeight
+      const below = vh - r.bottom
+      const above = r.top
+      const up = below < 240 && above > below
+      setOpenUp(up)
+      const maxH = Math.min(Math.max((up ? above : below) - 16, 200), Math.round(vh * 0.8))
+      setMaxHeightPx(`${maxH}px`)
+    }
+    window.addEventListener('resize', onResize)
+    window.addEventListener('scroll', onResize, true)
+    return () => {
+      window.removeEventListener('resize', onResize)
+      window.removeEventListener('scroll', onResize, true)
+    }
+  }, [open])
 
   return (
     <div className={`relative ${className ?? ''}`}>
@@ -48,7 +81,8 @@ export function Select({ value, onChange, options, placeholder = 'Sélectionner�
         <div
           ref={panelRef}
           role="listbox"
-          className="absolute z-50 mt-1 w-full max-h-56 overflow-auto rounded-xl bg-[#0A1628] border border-white/[0.15] shadow-xl p-1"
+          className={`absolute z-50 w-full rounded-xl bg-[#0A1628] border border-white/[0.15] shadow-xl p-1 overscroll-contain ${openUp ? 'bottom-full mb-1' : 'top-full mt-1'}`}
+          style={{ maxHeight: maxHeightPx }}
         >
           {options.map((opt) => (
             <button

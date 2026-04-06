@@ -12,9 +12,19 @@ export default defineConfig({
     setupFiles: ['./vitest.setup.ts'],
     globals: true,
     css: true,
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/.next/**',
+      '**/coverage/**',
+      'e2e/**',
+      '**/*.spec.ts',
+      '**/*.spec.tsx',
+    ],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'html'],
+      // SonarQube lit le LCOV via `frontend/coverage/lcov.info`
+      reporter: ['text', 'html', 'lcov'],
     },
   },
 })

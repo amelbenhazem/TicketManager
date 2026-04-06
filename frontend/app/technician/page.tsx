@@ -13,8 +13,7 @@ export default function TechnicianDashboardPage() {
               Tableau de bord <span className="text-[#60A5FA]">Technicien</span>
             </h1>
             <p className="text-white/50 text-sm mt-1">
-              Tickets qui vous sont assignés — déplacez le statut selon l’avancement.
-            </p>
+                          </p>
           </div>
           {/* Cloche affichée par le layout */}
         </div>

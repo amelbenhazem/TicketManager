@@ -86,7 +86,10 @@ export function AssignTicketModal({
           </div>
         )}
         <form onSubmit={handleSubmit}>
-          <label className="block text-[10px] font-semibold tracking-wider uppercase text-white/50 mb-2">
+          <label
+            htmlFor="assign-ticket-selected"
+            className="block text-[10px] font-semibold tracking-wider uppercase text-white/50 mb-2"
+          >
             Choisir un technicien
           </label>
           {/* Déclencheur du dropdown */}
@@ -105,8 +108,14 @@ export function AssignTicketModal({
               })()}
               <ChevronDown className="w-4 h-4 absolute right-2 top-1/2 -translate-y-1/2 text-white/60 pointer-events-none" />
             </button>
+            <input
+              id="assign-ticket-selected"
+              value={selectedId}
+              readOnly
+              type="hidden"
+            />
             {open && (
-              <div className="absolute z-20 mt-1 w-full rounded-xl bg-[#0A1628] border border-white/[0.15] shadow-xl p-2">
+              <div className="absolute z-50 mt-1 w-full rounded-xl bg-[#0A1628] border border-white/[0.15] shadow-xl p-2 max-h-[70vh] overflow-y-auto">
                 <div className="tm-input-wrap mb-2">
                   <input
                     type="text"
@@ -117,7 +126,7 @@ export function AssignTicketModal({
                     autoFocus
                   />
                 </div>
-                <div className="max-h-56 overflow-auto">
+                <div className="max-h-none">
                   <button
                     type="button"
                     onClick={() => {

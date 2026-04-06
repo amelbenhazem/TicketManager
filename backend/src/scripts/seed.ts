@@ -82,7 +82,7 @@ async function upsertUser(input: {
       role: input.role,
       password: hash,
     },
-    { upsert: true, new: true, setDefaultsOnInsert: true },
+    { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true },
   ).exec();
   if (!user) {
     throw new Error(`Cannot create or update user ${input.email}`);
@@ -90,123 +90,123 @@ async function upsertUser(input: {
   return user;
 }
 
-async function run(): Promise<void> {
-  await mongoose.connect(MONGODB_URI);
-  console.log(`Connected to MongoDB: ${MONGODB_URI}`);
+void (async () => {
+  try {
+    await mongoose.connect(MONGODB_URI);
+    console.log(`Connected to MongoDB: ${MONGODB_URI}`);
 
-  if (shouldReset) {
-    await Promise.all([
-      TicketModel.deleteMany({}).exec(),
-      UserModel.deleteMany({}).exec(),
-    ]);
-    console.log('Reset done: users and tickets collections cleared.');
-  }
+    if (shouldReset) {
+      await Promise.all([
+        TicketModel.deleteMany({}).exec(),
+        UserModel.deleteMany({}).exec(),
+      ]);
+      console.log('Reset done: users and tickets collections cleared.');
+    }
 
   const admin = await upsertUser({
-    firstName: 'Admin',
-    lastName: 'System',
-    email: 'admin@ticketmanager.local',
-    password: 'Admin123!',
-    role: UserRole.ADMIN,
-  });
+      firstName: 'Admin',
+      lastName: 'System',
+    email: 'admin@rfc.com',
+      password: 'Admin123!',
+      role: UserRole.ADMIN,
+    });
 
   const technician1 = await upsertUser({
-    firstName: 'Ali',
-    lastName: 'Tech',
-    email: 'tech1@ticketmanager.local',
-    password: 'Tech123!',
-    role: UserRole.TECHNICIAN,
-  });
+      firstName: 'Ali',
+      lastName: 'Tech',
+    email: 'tech1@rfc.com',
+      password: 'Tech123!',
+      role: UserRole.TECHNICIAN,
+    });
 
   const technician2 = await upsertUser({
-    firstName: 'Sara',
-    lastName: 'Ops',
-    email: 'tech2@ticketmanager.local',
-    password: 'Tech123!',
-    role: UserRole.TECHNICIAN,
-  });
+      firstName: 'Sara',
+      lastName: 'Ops',
+    email: 'tech2@rfc.com',
+      password: 'Tech123!',
+      role: UserRole.TECHNICIAN,
+    });
 
   const client1 = await upsertUser({
-    firstName: 'Amel',
-    lastName: 'Client',
-    email: 'client1@ticketmanager.local',
-    password: 'Client123!',
-    role: UserRole.CLIENT,
-  });
+      firstName: 'Amel',
+      lastName: 'Client',
+    email: 'client1@rfc.com',
+      password: 'Client123!',
+      role: UserRole.CLIENT,
+    });
 
   const client2 = await upsertUser({
-    firstName: 'Karim',
-    lastName: 'Client',
-    email: 'client2@ticketmanager.local',
-    password: 'Client123!',
-    role: UserRole.CLIENT,
-  });
+      firstName: 'Karim',
+      lastName: 'Client',
+    email: 'client2@rfc.com',
+      password: 'Client123!',
+      role: UserRole.CLIENT,
+    });
 
-  const ticketSeeds = [
-    {
-      title: 'Connexion VPN instable',
-      description: 'La connexion coupe toutes les 10 minutes.',
-      status: TicketStatus.OPEN,
-      category: TicketCategory.RESEAU,
-      priority: TicketPriority.HIGH,
-      userId: client1._id,
-      assignedTo: technician1._id,
-    },
-    {
-      title: 'Erreur impression PDF',
-      description: 'Impossible de générer le PDF depuis le CRM.',
-      status: TicketStatus.IN_PROGRESS,
-      category: TicketCategory.LOGICIEL,
-      priority: TicketPriority.MEDIUM,
-      userId: client2._id,
-      assignedTo: technician2._id,
-    },
-    {
-      title: 'PC ne démarre plus',
-      description: 'Ecran noir au démarrage, bip continu.',
-      status: TicketStatus.RESOLVED,
-      category: TicketCategory.MATERIEL,
-      priority: TicketPriority.HIGH,
-      userId: client1._id,
-      assignedTo: technician1._id,
-    },
-    {
-      title: 'Demande accès application RH',
-      description: 'Nouveau collaborateur sans accès RH.',
-      status: TicketStatus.OPEN,
-      category: TicketCategory.AUTRE,
-      priority: TicketPriority.LOW,
-      userId: client2._id,
-      assignedTo: null,
-    },
-  ];
+    const ticketSeeds = [
+      {
+        title: 'Connexion VPN instable',
+        description: 'La connexion coupe toutes les 10 minutes.',
+        status: TicketStatus.OPEN,
+        category: TicketCategory.RESEAU,
+        priority: TicketPriority.HIGH,
+        userId: client1._id,
+        assignedTo: technician1._id,
+      },
+      {
+        title: 'Erreur impression PDF',
+        description: 'Impossible de générer le PDF depuis le CRM.',
+        status: TicketStatus.IN_PROGRESS,
+        category: TicketCategory.LOGICIEL,
+        priority: TicketPriority.MEDIUM,
+        userId: client2._id,
+        assignedTo: technician2._id,
+      },
+      {
+        title: 'PC ne démarre plus',
+        description: 'Ecran noir au démarrage, bip continu.',
+        status: TicketStatus.RESOLVED,
+        category: TicketCategory.MATERIEL,
+        priority: TicketPriority.HIGH,
+        userId: client1._id,
+        assignedTo: technician1._id,
+      },
+      {
+        title: 'Demande accès application RH',
+        description: 'Nouveau collaborateur sans accès RH.',
+        status: TicketStatus.OPEN,
+        category: TicketCategory.AUTRE,
+        priority: TicketPriority.LOW,
+        userId: client2._id,
+        assignedTo: null,
+      },
+    ];
 
-  if (shouldReset) {
-    await TicketModel.insertMany(ticketSeeds);
-  } else {
-    const ticketCount = await TicketModel.countDocuments().exec();
-    if (ticketCount === 0) {
+    if (shouldReset) {
       await TicketModel.insertMany(ticketSeeds);
+    } else {
+      const ticketCount = await TicketModel.countDocuments().exec();
+      if (ticketCount === 0) {
+        await TicketModel.insertMany(ticketSeeds);
+      }
     }
+
+    const [usersCount, ticketsCount] = await Promise.all([
+      UserModel.countDocuments().exec(),
+      TicketModel.countDocuments().exec(),
+    ]);
+
+    console.log(`Seed complete: ${usersCount} users, ${ticketsCount} tickets.`);
+    console.log('Login test accounts:');
+    console.log('- admin@rfc.com / Admin123!');
+    console.log('- tech1@rfc.com / Tech123!');
+    console.log('- tech2@rfc.com / Tech123!');
+    console.log('- client1@rfc.com / Client123!');
+    console.log('- client2@rfc.com / Client123!');
+  } catch (error) {
+    console.error('Seed failed:', error);
+    process.exitCode = 1;
+  } finally {
+    await mongoose.disconnect();
   }
-
-  const [usersCount, ticketsCount] = await Promise.all([
-    UserModel.countDocuments().exec(),
-    TicketModel.countDocuments().exec(),
-  ]);
-
-  console.log(`Seed complete: ${usersCount} users, ${ticketsCount} tickets.`);
-  console.log('Login test accounts:');
-  console.log('- admin@ticketmanager.local / Admin123!');
-  console.log('- tech1@ticketmanager.local / Tech123!');
-  console.log('- client1@ticketmanager.local / Client123!');
-  console.log(`Demo admin (env): ${admin.email}`);
-
-  await mongoose.disconnect();
-}
-
-void run().catch(async (error) => {
-  console.error('Seed failed:', error);
-  await mongoose.disconnect();
-  process.exit(1);
-});
+})();

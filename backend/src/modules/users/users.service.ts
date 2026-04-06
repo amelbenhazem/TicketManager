@@ -7,8 +7,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { User, UserDocument, UserRole } from './schemas/user.schema';
-import { CreateUserDto } from './dto';
-import { UpdateUserDto } from './dto';
+import { CreateUserDto, UpdateUserDto } from './dto';
 import { Ticket, TicketDocument } from '../tickets/schemas/ticket.schema';
 
 export type UserResponse = {

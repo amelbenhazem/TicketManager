@@ -104,8 +104,8 @@ class ApiError extends Error {
 }
 
 function getAuthHeaders(): Record<string, string> {
-  if (typeof window === 'undefined') return {};
-  const token = localStorage.getItem('access_token');
+  if (typeof globalThis.window === 'undefined') return {};
+  const token = globalThis.localStorage?.getItem('access_token');
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
@@ -136,13 +136,13 @@ async function request<T>(
 
   if (!res.ok) {
     // Gestion des erreurs 401 (Non autorisé) - Token invalide ou expiré
-    if (res.status === 401 && authenticated && typeof window !== 'undefined') {
+    if (res.status === 401 && authenticated && typeof globalThis.window !== 'undefined') {
       disconnectRealtime();
       // Nettoyer le localStorage
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('user_role');
+      globalThis.localStorage?.removeItem('access_token');
+      globalThis.localStorage?.removeItem('user_role');
       // Rediriger vers la page de login
-      window.location.href = '/login';
+      globalThis.window.location.href = '/login';
     }
 
     let message: string

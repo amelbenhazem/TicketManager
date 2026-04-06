@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Readable } from 'stream';
+import { Readable } from 'node:stream';
 import { v2 as cloudinary } from 'cloudinary';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB

@@ -23,8 +23,8 @@ let socketToken: string | null = null
 let lastErrorToastAt = 0
 
 function getSocket(): Socket | null {
-  if (typeof window === 'undefined') return null
-  const token = localStorage.getItem('access_token')
+  if (typeof globalThis.window === 'undefined') return null
+  const token = globalThis.localStorage?.getItem('access_token')
   if (!token) {
     disconnectRealtime()
     return null
@@ -55,11 +55,11 @@ function getSocket(): Socket | null {
       message.toLowerCase().includes('authentication')
     ) {
       disconnectRealtime()
-      if (typeof window !== 'undefined') {
+      if (typeof globalThis.window !== 'undefined') {
         // Token expiré / invalide: on force une reconnexion.
-        localStorage.removeItem('access_token')
-        localStorage.removeItem('user_role')
-        window.location.href = '/login'
+        globalThis.localStorage?.removeItem('access_token')
+        globalThis.localStorage?.removeItem('user_role')
+        globalThis.window.location.href = '/login'
       }
       return
     }
@@ -136,5 +136,5 @@ export function disconnectRealtime(): void {
 
 function notifyWithSound(_message: string): void {
   // toast supprimé volontairement (on garde uniquement la cloche)
-  void _message
+  // intentionally no-op
 }

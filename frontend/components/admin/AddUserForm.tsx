@@ -180,7 +180,10 @@ export function AddUserForm({
         />
 
         <div>
-          <label className="block text-[10px] font-semibold tracking-wider uppercase text-white/50 mb-2">
+          <label
+            htmlFor="add-user-role"
+            className="block text-[10px] font-semibold tracking-wider uppercase text-white/50 mb-2"
+          >
             Rôle
           </label>
           <div className="flex gap-2">
@@ -195,6 +198,7 @@ export function AddUserForm({
               </button>
             ))}
           </div>
+          <input id="add-user-role" value={role} readOnly type="hidden" />
         </div>
 
         <button

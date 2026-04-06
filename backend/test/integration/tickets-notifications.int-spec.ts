@@ -3,22 +3,22 @@ import { MongooseModule, getModelToken } from '@nestjs/mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Model, Types } from 'mongoose';
 import { ConfigModule } from '@nestjs/config';
-import { configuration } from '../src/config';
-import { TicketsModule } from '../src/modules/tickets/tickets.module';
-import { NotificationsModule } from '../src/modules/notifications/notifications.module';
-import { UsersModule } from '../src/modules/users/users.module';
-import { TicketsService } from '../src/modules/tickets/tickets.service';
-import { NotificationsService } from '../src/modules/notifications/notifications.service';
-import { TicketsNotificationsGateway } from '../src/modules/tickets/tickets-notifications.gateway';
+import { configuration } from '../../src/config';
+import { TicketsModule } from '../../src/modules/tickets/tickets.module';
+import { NotificationsModule } from '../../src/modules/notifications/notifications.module';
+import { UsersModule } from '../../src/modules/users/users.module';
+import { TicketsService } from '../../src/modules/tickets/tickets.service';
+import { NotificationsService } from '../../src/modules/notifications/notifications.service';
+import { TicketsNotificationsGateway } from '../../src/modules/tickets/tickets-notifications.gateway';
 import {
   Notification,
   NotificationDocument,
-} from '../src/modules/notifications/notifications.schema';
+} from '../../src/modules/notifications/notifications.schema';
 import {
   User,
   UserDocument,
   UserRole,
-} from '../src/modules/users/schemas/user.schema';
+} from '../../src/modules/users/schemas/user.schema';
 
 describe('Integration: TicketsService -> NotificationsService -> Gateway -> MongoDB', () => {
   let mongod: MongoMemoryServer;
@@ -180,3 +180,4 @@ describe('Integration: TicketsService -> NotificationsService -> Gateway -> Mong
     expect(count).toBeGreaterThanOrEqual(1);
   });
 });
+

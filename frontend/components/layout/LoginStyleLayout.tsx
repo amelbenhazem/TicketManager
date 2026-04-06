@@ -70,7 +70,7 @@ export function LoginStyleLayout({ children, bgIndex = 0 }: LoginStyleLayoutProp
             />
             <animate
               attributeName="cy"
-              values={`${p.cy};${parseFloat(p.cy) - 2}%;${p.cy}`}
+              values={`${p.cy};${Number.parseFloat(p.cy) - 2}%;${p.cy}`}
               dur={p.dur}
               repeatCount="indefinite"
             />

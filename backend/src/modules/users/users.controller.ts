@@ -10,8 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UsersService, UserResponse, PaginatedUsers } from './users.service';
-import { CreateUserDto } from './dto';
-import { UpdateUserDto } from './dto';
+import { CreateUserDto, UpdateUserDto } from './dto';
 import { UserRole } from './schemas/user.schema';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -30,10 +29,10 @@ export class UsersController {
     @Query('page') pageStr?: string,
     @Query('limit') limitStr?: string,
   ): Promise<PaginatedUsers> {
-    const page = Math.max(1, parseInt(pageStr ?? '1', 10) || 1);
+    const page = Math.max(1, Number.parseInt(pageStr ?? '1', 10) || 1);
     const limit = Math.min(
       100,
-      Math.max(1, parseInt(limitStr ?? '20', 10) || 20),
+      Math.max(1, Number.parseInt(limitStr ?? '20', 10) || 20),
     );
     return this.usersService.findAll({ role, search }, page, limit);
   }

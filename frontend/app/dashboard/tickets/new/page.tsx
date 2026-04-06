@@ -6,6 +6,7 @@ import { Upload, X } from 'lucide-react'
 import { api, ApiError } from '@/lib/api'
 import type { TicketCategory, TicketPriority } from '@/lib/api'
 import { NotificationsBell } from '@/components/notifications/NotificationsBell'
+import { Select } from '@/components/ui/Select'
 
 const CATEGORIES: { value: TicketCategory; label: string }[] = [
   { value: 'reseau', label: 'Réseau' },
@@ -116,34 +117,26 @@ export default function NouveauTicketPage() {
           <label className="block text-[10px] font-semibold tracking-wider uppercase text-white/50 mb-2">
             Catégorie
           </label>
-          <select
+          <Select
             value={category}
-            onChange={(e) => setCategory(e.target.value as TicketCategory)}
-            className="w-full px-4 py-3 rounded-xl bg-white/[0.06] border border-white/[0.12] text-white focus:outline-none focus:border-[#0066FF] focus:ring-1 focus:ring-[#0066FF]"
-          >
-            {CATEGORIES.map((c) => (
-              <option key={c.value} value={c.value} className="bg-[#0A1628]">
-                {c.label}
-              </option>
-            ))}
-          </select>
+            onChange={(v) => setCategory(v as TicketCategory)}
+            options={CATEGORIES.map((c) => ({ value: c.value, label: c.label }))}
+            placeholder="Sélectionner une catégorie"
+            className="w-full"
+          />
         </div>
 
         <div>
           <label className="block text-[10px] font-semibold tracking-wider uppercase text-white/50 mb-2">
             Priorité
           </label>
-          <select
+          <Select
             value={priority}
-            onChange={(e) => setPriority(e.target.value as TicketPriority)}
-            className="w-full px-4 py-3 rounded-xl bg-white/[0.06] border border-white/[0.12] text-white focus:outline-none focus:border-[#0066FF] focus:ring-1 focus:ring-[#0066FF]"
-          >
-            {PRIORITIES.map((p) => (
-              <option key={p.value} value={p.value} className="bg-[#0A1628]">
-                {p.label}
-              </option>
-            ))}
-          </select>
+            onChange={(v) => setPriority(v as TicketPriority)}
+            options={PRIORITIES.map((p) => ({ value: p.value, label: p.label }))}
+            placeholder="Sélectionner une priorité"
+            className="w-full"
+          />
         </div>
 
         <div>
@@ -164,10 +157,12 @@ export default function NouveauTicketPage() {
         </div>
 
         <div>
-          <label className="block text-[10px] font-semibold tracking-wider uppercase text-white/50 mb-2">
+          <label htmlFor="attachments" className="block text-[10px] font-semibold tracking-wider uppercase text-white/50 mb-2">
             Pièces jointes (Optionnel)
           </label>
           <div
+            role="group"
+            aria-label="Zone de dépôt de fichiers"
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
             onDragOver={handleDrag}
@@ -184,6 +179,7 @@ export default function NouveauTicketPage() {
               onChange={handleFileInput}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               aria-label="Ajouter des fichiers"
+              id="attachments"
             />
             <Upload className="w-10 h-10 mx-auto text-white/40 mb-3" />
             <p className="text-white/70 text-sm">

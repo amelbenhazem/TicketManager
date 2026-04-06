@@ -132,11 +132,13 @@ export function TicketDetailModal({
           <div>
             <span className="text-[10px] font-semibold uppercase text-white/50">Créé par</span>
             <p className="text-white mt-1">
-              {ticket.createdBy
-                ? `${ticket.createdBy.firstName} ${ticket.createdBy.lastName} (${ticket.createdBy.email})`
-                : clientLabel
-                  ? clientLabel
-                  : ticket.userId || '—'}
+              {(() => {
+                if (ticket.createdBy) {
+                  const { firstName = '', lastName = '', email = '' } = ticket.createdBy
+                  return `${firstName} ${lastName} (${email})`
+                }
+                return clientLabel ?? ticket.userId ?? '—'
+              })()}
             </p>
           </div>
           {Array.isArray(ticket.attachments) && ticket.attachments.length > 0 && (

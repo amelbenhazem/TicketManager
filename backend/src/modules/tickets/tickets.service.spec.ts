@@ -139,6 +139,165 @@ describe('TicketsService (unit)', () => {
     );
   });
 
+  it('findAll(): uses base query and paginates (no projection/lean options)', async () => {
+    const chain = {
+      sort: jest.fn().mockReturnThis(),
+      skip: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockReturnThis(),
+      populate: jest.fn().mockReturnThis(),
+      exec: jest.fn().mockResolvedValue([]),
+    };
+    ticketModel.find = jest.fn().mockReturnValue(chain);
+    ticketModel.countDocuments = jest
+      .fn()
+      .mockReturnValue({ exec: jest.fn().mockResolvedValue(0) });
+
+    await service.findAll(1, 20, { search: 'abc' } as any);
+
+    expect(ticketModel.find).toHaveBeenCalledWith(
+      expect.objectContaining({
+        $or: [
+          { title: { $regex: 'abc', $options: 'i' } },
+          { description: { $regex: 'abc', $options: 'i' } },
+        ],
+      }),
+    );
+  });
+
+  it('findAll(): trims search and skips $or when blank after trim', async () => {
+    const chain = {
+      sort: jest.fn().mockReturnThis(),
+      skip: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockReturnThis(),
+      populate: jest.fn().mockReturnThis(),
+      exec: jest.fn().mockResolvedValue([]),
+    };
+    ticketModel.find = jest.fn().mockReturnValue(chain);
+    ticketModel.countDocuments = jest
+      .fn()
+      .mockReturnValue({ exec: jest.fn().mockResolvedValue(0) });
+
+    await service.findAll(1, 20, { search: '   ' } as any);
+
+    // Ensure called with a query object that does NOT contain $or
+    expect(ticketModel.find).toHaveBeenCalledWith(
+      expect.not.objectContaining({ $or: expect.anything() }),
+    );
+  });
+
+  it('findAllByUser(): builds date range when createdFrom/createdTo provided', async () => {
+    const chain = {
+      select: jest.fn().mockReturnThis(),
+      sort: jest.fn().mockReturnThis(),
+      skip: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockReturnThis(),
+      populate: jest.fn().mockReturnThis(),
+      lean: jest.fn().mockReturnThis(),
+      exec: jest.fn().mockResolvedValue([]),
+    };
+    ticketModel.find = jest.fn().mockReturnValue(chain);
+    ticketModel.countDocuments = jest
+      .fn()
+      .mockReturnValue({ exec: jest.fn().mockResolvedValue(0) });
+
+    await service.findAllByUser('507f1f77bcf86cd799439011', 1, 20, {
+      createdFrom: '2024-01-01',
+      createdTo: '2024-12-31',
+    } as any);
+
+    expect(ticketModel.find).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: expect.any(Types.ObjectId),
+        createdAt: expect.objectContaining({
+          $gte: expect.any(Date),
+          $lte: expect.any(Date),
+        }),
+      }),
+    );
+  });
+
+  it('findAll(): applies assignedTo filter when null (unassigned)', async () => {
+    const chain = {
+      sort: jest.fn().mockReturnThis(),
+      skip: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockReturnThis(),
+      populate: jest.fn().mockReturnThis(),
+      exec: jest.fn().mockResolvedValue([]),
+    };
+    ticketModel.find = jest.fn().mockReturnValue(chain);
+    ticketModel.countDocuments = jest
+      .fn()
+      .mockReturnValue({ exec: jest.fn().mockResolvedValue(0) });
+
+    await service.findAll(1, 20, { assignedTo: null } as any);
+
+    expect(ticketModel.find).toHaveBeenCalledWith(
+      expect.objectContaining({ assignedTo: null }),
+    );
+  });
+
+  it('findAll(): applies assignedTo filter when id provided', async () => {
+    const chain = {
+      sort: jest.fn().mockReturnThis(),
+      skip: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockReturnThis(),
+      populate: jest.fn().mockReturnThis(),
+      exec: jest.fn().mockResolvedValue([]),
+    };
+    ticketModel.find = jest.fn().mockReturnValue(chain);
+    ticketModel.countDocuments = jest
+      .fn()
+      .mockReturnValue({ exec: jest.fn().mockResolvedValue(0) });
+
+    await service.findAll(1, 20, { assignedTo: '507f1f77bcf86cd799439012' } as any);
+
+    expect(ticketModel.find).toHaveBeenCalledWith(
+      expect.objectContaining({ assignedTo: expect.any(Types.ObjectId) }),
+    );
+  });
+
+  it('findAllByUser(): uses projection and lean options', async () => {
+    const chain = {
+      select: jest.fn().mockReturnThis(),
+      sort: jest.fn().mockReturnThis(),
+      skip: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockReturnThis(),
+      populate: jest.fn().mockReturnThis(),
+      lean: jest.fn().mockReturnThis(),
+      exec: jest.fn().mockResolvedValue([]),
+    };
+    ticketModel.find = jest.fn().mockReturnValue(chain);
+    ticketModel.countDocuments = jest
+      .fn()
+      .mockReturnValue({ exec: jest.fn().mockResolvedValue(0) });
+
+    await service.findAllByUser('507f1f77bcf86cd799439011', 1, 20, {} as any);
+
+    expect(chain.select).toHaveBeenCalled();
+    expect(chain.lean).toHaveBeenCalled();
+  });
+
+  it('getTicketForGuard(): returns null when not found', async () => {
+    ticketModel.findById = jest.fn().mockReturnValue({
+      select: jest.fn().mockReturnThis(),
+      lean: jest.fn().mockReturnThis(),
+      exec: jest.fn().mockResolvedValue(null),
+    });
+    const res = await service.getTicketForGuard('missing');
+    expect(res).toBeNull();
+  });
+
+  it('getTicketForGuard(): returns assignedToId when found', async () => {
+    const doc = { assignedTo: new Types.ObjectId('507f1f77bcf86cd799439012') };
+    ticketModel.findById = jest.fn().mockReturnValue({
+      select: jest.fn().mockReturnThis(),
+      lean: jest.fn().mockReturnThis(),
+      exec: jest.fn().mockResolvedValue(doc),
+    });
+    const res = await service.getTicketForGuard('x');
+    expect(res).toEqual({ assignedToId: '507f1f77bcf86cd799439012' });
+  });
+
   it('update(): technician changes status -> notifies client + admins and emits realtime status_changed', async () => {
     const doc = makeTicketDoc({
       status: TicketStatus.OPEN,
