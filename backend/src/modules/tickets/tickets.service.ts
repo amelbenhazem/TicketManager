@@ -332,7 +332,7 @@ export class TicketsService {
     const safeLimit = Math.min(Math.max(1, limit), MAX_LIMIT);
     const skip = (Math.max(1, page) - 1) * safeLimit;
 
-    let query: any = this.ticketModel
+    let query = this.ticketModel
       .find(q)
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -341,17 +341,17 @@ export class TicketsService {
       .populate('assignedTo', 'firstName lastName email');
 
     if (options?.projection) {
-      query = (query as any).select(options.projection);
+      query = query.select(options.projection);
     }
     if (options?.lean) {
-      query = (query as any).lean();
+      query = query.lean();
     }
 
     const [rawTickets, total] = await Promise.all([
       query.exec(),
       this.ticketModel.countDocuments(q).exec(),
     ]);
-    const tickets = rawTickets as unknown as TicketDocument[];
+    const tickets = rawTickets as TicketDocument[];
 
     return {
       items: tickets.map((t) => this.toResponse(t)),

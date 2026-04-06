@@ -103,7 +103,7 @@ void (async () => {
       console.log('Reset done: users and tickets collections cleared.');
     }
 
-  const admin = await upsertUser({
+    await upsertUser({
       firstName: 'Admin',
       lastName: 'System',
     email: 'admin@rfc.com',
