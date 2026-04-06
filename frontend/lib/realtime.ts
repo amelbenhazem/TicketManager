@@ -90,9 +90,7 @@ export function subscribeTicketRealtime(
       event: 'ticket.created',
       fn: (payload) => {
         if (showToast) {
-          notifyWithSound(
-            `Nouveau ticket: ${payload?.ticket?.title ?? 'Sans titre'}`,
-          )
+          notifyWithSound()
         }
         onEvent()
       },
@@ -101,9 +99,7 @@ export function subscribeTicketRealtime(
       event: 'ticket.assigned',
       fn: (payload) => {
         if (showToast) {
-          notifyWithSound(
-            `Ticket affecte: ${payload?.ticket?.title ?? 'Sans titre'}`,
-          )
+          notifyWithSound()
         }
         onEvent()
       },
@@ -113,7 +109,7 @@ export function subscribeTicketRealtime(
       fn: (payload) => {
         const status = payload?.ticket?.status ?? 'mis a jour'
         if (showToast) {
-          notifyWithSound(`Statut ticket: ${status}`)
+          notifyWithSound()
         }
         onEvent()
       },
