@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 
 type Option = { value: string; label: string; disabled?: boolean }
@@ -33,7 +33,7 @@ export function Select({ value, onChange, options, placeholder = 'SÃ©lectionnerâ
     return () => document.removeEventListener('mousedown', onDoc)
   }, [])
 
-  const recalcPanel = () => {
+  const recalcPanel = useCallback(() => {
     const btn = btnRef.current
     if (!btn) return
     const rect = btn.getBoundingClientRect()
@@ -45,7 +45,7 @@ export function Select({ value, onChange, options, placeholder = 'SÃ©lectionnerâ
     const maxH = Math.min(Math.max((up ? above : below) - 16, 200), Math.round(vh * 0.8))
     const next = `${maxH}px`
     if (next !== maxHeightPx) setMaxHeightPx(next)
-  }
+  }, [openUp, maxHeightPx])
 
   useEffect(() => {
     if (!open) return
@@ -56,8 +56,8 @@ export function Select({ value, onChange, options, placeholder = 'SÃ©lectionnerâ
       window.removeEventListener('resize', onResize)
       window.removeEventListener('scroll', onResize, true)
     }
-  }, [open])
 
+  }, [open, recalcPanel])
   return (
     <div className={`relative ${className ?? ''}`}>
       <button
