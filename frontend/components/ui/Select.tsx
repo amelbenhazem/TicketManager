@@ -33,29 +33,23 @@ export function Select({ value, onChange, options, placeholder = 'SÃ©lectionnerâ
     return () => document.removeEventListener('mousedown', onDoc)
   }, [])
 
-  useEffect(() => {
-    if (!open) return
+  const recalcPanel = () => {
     const btn = btnRef.current
     if (!btn) return
     const rect = btn.getBoundingClientRect()
-    const viewportHeight = window.innerHeight
-    const spaceBelow = viewportHeight - rect.bottom
-    const spaceAbove = rect.top
-    const wantOpenUp = spaceBelow < 240 && spaceAbove > spaceBelow
-    setOpenUp(wantOpenUp)
-    const space = wantOpenUp ? spaceAbove : spaceBelow
-    const panelMaxH = Math.min(Math.max(space - 16, 200), Math.round(viewportHeight * 0.8))
-    setMaxHeightPx(`${panelMaxH}px`)
-    const onResize = () => {
-      const r = btn.getBoundingClientRect()
-      const vh = window.innerHeight
-      const below = vh - r.bottom
-      const above = r.top
-      const up = below < 240 && above > below
-      setOpenUp(up)
-      const maxH = Math.min(Math.max((up ? above : below) - 16, 200), Math.round(vh * 0.8))
-      setMaxHeightPx(`${maxH}px`)
-    }
+    const vh = window.innerHeight
+    const below = vh - rect.bottom
+    const above = rect.top
+    const up = below < 240 && above > below
+    if (up !== openUp) setOpenUp(up)
+    const maxH = Math.min(Math.max((up ? above : below) - 16, 200), Math.round(vh * 0.8))
+    const next = `${maxH}px`
+    if (next !== maxHeightPx) setMaxHeightPx(next)
+  }
+
+  useEffect(() => {
+    if (!open) return
+    const onResize = () => recalcPanel()
     window.addEventListener('resize', onResize)
     window.addEventListener('scroll', onResize, true)
     return () => {
@@ -72,7 +66,13 @@ export function Select({ value, onChange, options, placeholder = 'SÃ©lectionnerâ
         className="tm-select pr-8 text-left relative"
         aria-haspopup="listbox"
         aria-expanded={open}
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => {
+          setOpen((o) => {
+            const next = !o
+            if (next) recalcPanel()
+            return next
+          })
+        }}
       >
         {selected ? selected.label : <span className="text-white/50">{placeholder}</span>}
         <ChevronDown className="w-4 h-4 absolute right-2 top-1/2 -translate-y-1/2 text-white/60 pointer-events-none" />
