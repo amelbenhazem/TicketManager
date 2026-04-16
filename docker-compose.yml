@@ -8,7 +8,8 @@ services:
     volumes:
       - mongodb_data:/data/db
     healthcheck:
-      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      test:
+        ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -30,8 +31,9 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3001
+      HOST: 0.0.0.0
       MONGODB_URI: mongodb://mongodb:27017/ticketmanager
-      CORS_ORIGIN: http://localhost:3000,http://127.0.0.1:3000
+      CORS_ORIGIN: http://localhost:3000
       JWT_SECRET: ${JWT_SECRET}
 
   frontend:
@@ -39,7 +41,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: http://localhost:3001
+        NEXT_PUBLIC_API_URL: http://backend:3001
     container_name: ticketmanager-frontend
     restart: unless-stopped
     depends_on:
@@ -51,7 +53,8 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
-      NEXT_PUBLIC_API_URL: http://localhost:3001
+      HOSTNAME: 0.0.0.0
+      NEXT_PUBLIC_API_URL: http://backend:3001
 
 volumes:
   mongodb_data:
