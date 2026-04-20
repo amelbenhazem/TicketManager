@@ -1,32 +1,111 @@
 trigger:
   - main
+  - develop
 
 pool:
   name: ticketmanager-pool
 
-steps:
-  - task: NodeTool@0
-    inputs:
-      versionSpec: "22.x"
-    displayName: "Install Node"
+stages:
 
-  # Backend
-  - script: |
-      cd backend
-      npm ci
-      npm run build
-      npm run test
-    displayName: "Backend build + test"
+  - stage: Build
+    displayName: "Build"
+    jobs:
+      - job: BuildJob
+        steps:
 
-  # Frontend
-  - script: |
-      cd frontend
-      npm ci
-      npm run build
-    displayName: "Frontend build"
+          - task: UseNodeV1@1
+            inputs:
+              versionSpec: "22.x"
+            displayName: "Install Node.js 22"
 
-  # Docker build
-  - script: |
-      docker build -t ticket-backend ./backend
-      docker build -t ticket-frontend ./frontend
-    displayName: "Docker build"
+          - script: |
+              cd backend
+              npm ci
+              npm run build
+            displayName: "Backend build"
+
+          - script: |
+              cd frontend
+              npm ci
+              npm run build
+            displayName: "Frontend build"
+
+
+  - stage: Test
+    displayName: "Tests"
+    dependsOn: Build
+    jobs:
+      - job: UnitTests
+        displayName: "Unit Tests"
+        steps:
+
+          - task: UseNodeV1@1
+            inputs:
+              versionSpec: "22.x"
+            displayName: "Install Node.js 22"
+
+          - script: |
+              cd backend
+              npm ci
+              npm run test -- --forceExit
+            displayName: "Unit tests"
+
+          - script: |
+              cd backend
+              npm run test:cov -- --forceExit
+            displayName: "Coverage report"
+
+      - job: IntegrationTests
+        displayName: "Integration Tests"
+        steps:
+
+          - task: UseNodeV1@1
+            inputs:
+              versionSpec: "22.x"
+            displayName: "Install Node.js 22"
+
+          - script: |
+              cd backend
+              npm ci
+              npm run test:int -- --forceExit
+            displayName: "Integration tests"
+            continueOnError: true
+
+
+  - stage: Security
+    displayName: "Snyk Security"
+    dependsOn: Test
+    jobs:
+      - job: SnykJob
+        steps:
+
+          - task: UseNodeV1@1
+            inputs:
+              versionSpec: "22.x"
+            displayName: "Install Node.js 22"
+
+          - script: |
+              npm install -g snyk
+              snyk auth $(SNYK_TOKEN)
+              cd backend
+              snyk test --severity-threshold=high
+            displayName: "Snyk backend scan"
+            continueOnError: true
+
+          - script: |
+              cd frontend
+              snyk test --severity-threshold=high
+            displayName: "Snyk frontend scan"
+            continueOnError: true
+
+  - stage: Docker
+    displayName: "Docker Build"
+    dependsOn: Security
+    jobs:
+      - job: DockerJob
+        steps:
+
+          - script: |
+              docker build -t ticket-backend:$(Build.BuildId) ./backend
+              docker build -t ticket-frontend:$(Build.BuildId) ./frontend
+            displayName: "Docker build"
