@@ -13,7 +13,7 @@ stages:
       - job: BuildJob
         steps:
 
-          - task: UseNodeV1@1
+          - task: NodeTool@0
             inputs:
               versionSpec: "22.x"
             displayName: "Install Node.js 22"
@@ -39,7 +39,7 @@ stages:
         displayName: "Unit Tests"
         steps:
 
-          - task: UseNodeV1@1
+          - task: NodeTool@0
             inputs:
               versionSpec: "22.x"
             displayName: "Install Node.js 22"
@@ -59,7 +59,7 @@ stages:
         displayName: "Integration Tests"
         steps:
 
-          - task: UseNodeV1@1
+          - task: NodeTool@0
             inputs:
               versionSpec: "22.x"
             displayName: "Install Node.js 22"
@@ -79,7 +79,7 @@ stages:
       - job: SnykJob
         steps:
 
-          - task: UseNodeV1@1
+          - task: NodeTool@0
             inputs:
               versionSpec: "22.x"
             displayName: "Install Node.js 22"
