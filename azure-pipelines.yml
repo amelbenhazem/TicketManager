@@ -30,7 +30,6 @@ stages:
               npm run build
             displayName: "Frontend build"
 
-
   - stage: Test
     displayName: "Tests"
     dependsOn: Build
@@ -72,6 +71,32 @@ stages:
             continueOnError: true
 
 
+  - stage: CodeQuality
+    displayName: "SonarQube"
+    dependsOn: Test
+    jobs:
+      - job: SonarJob
+        steps:
+
+          - task: SonarQubePrepare@7
+            inputs:
+              SonarQube: 'SonarQubeConnection'
+              scannerMode: 'CLI'
+              configMode: 'manual'
+              cliProjectKey: 'ticket-manager'
+              cliProjectName: 'TicketManager'
+              cliSources: '.'
+            displayName: "Prepare SonarQube"
+
+          - task: SonarQubeAnalyze@7
+            displayName: "Run SonarQube Analysis"
+
+          - task: SonarQubePublish@7
+            inputs:
+              pollingTimeoutSec: '300'
+            displayName: "Publish Quality Gate"
+
+
   - stage: Security
     displayName: "Snyk Security"
     dependsOn: Test
@@ -98,9 +123,12 @@ stages:
             displayName: "Snyk frontend scan"
             continueOnError: true
 
+
   - stage: Docker
     displayName: "Docker Build"
-    dependsOn: Security
+    dependsOn:
+      - CodeQuality
+      - Security
     jobs:
       - job: DockerJob
         steps:
