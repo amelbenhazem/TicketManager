@@ -14,6 +14,7 @@ stages:
     displayName: "Build"
     jobs:
       - job: BuildJob
+        displayName: "Build Backend & Frontend"
         steps:
 
           - task: NodeTool@0
@@ -22,15 +23,11 @@ stages:
             displayName: "Install Node.js 22"
 
           - script: |
-              cd backend
-              npm ci
-              npm run build
+              cd backend && npm ci && npm run build
             displayName: "Backend build"
 
           - script: |
-              cd frontend
-              npm ci
-              npm run build
+              cd frontend && npm ci && npm run build
             displayName: "Frontend build"
 
   # =========================
@@ -78,14 +75,14 @@ stages:
             continueOnError: true
 
   # =========================
-  # SONARQUBE (DOCKER)
+  # CODE QUALITY
   # =========================
   - stage: CodeQuality
-    displayName: "SonarQube (Docker)"
+    displayName: "Code Quality"
     dependsOn: Test
     jobs:
       - job: SonarJob
-        continueOnError: true
+        displayName: "SonarQube Analysis"
         steps:
 
           - script: |
@@ -96,18 +93,20 @@ stages:
                 sonarsource/sonar-scanner-cli \
                 -Dsonar.projectKey=ticket-manager \
                 -Dsonar.projectName=TicketManager \
-                -Dsonar.sources=. \
+                -Dsonar.sources=backend/src,frontend \
+                -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/.next/**,**/coverage/** \
                 -Dsonar.javascript.lcov.reportPaths=backend/coverage/lcov.info
             displayName: "Run SonarQube Analysis"
 
   # =========================
-  # SECURITY (SNYK)
+  # SECURITY
   # =========================
   - stage: Security
-    displayName: "Snyk Security"
+    displayName: "Security Scan"
     dependsOn: Test
     jobs:
       - job: SnykJob
+        displayName: "Snyk Vulnerability Scan"
         steps:
 
           - task: NodeTool@0
@@ -118,14 +117,14 @@ stages:
           - script: |
               npm install -g snyk
               snyk auth $(SNYK_TOKEN)
-              cd backend
-              snyk test --severity-threshold=high
-            displayName: "Snyk backend scan"
-            continueOnError: true
+            displayName: "Authenticate Snyk"
 
           - script: |
-              cd frontend
-              snyk test --severity-threshold=high
+              cd backend && snyk test --severity-threshold=high
+            displayName: "Snyk backend scan"
+
+          - script: |
+              cd frontend && snyk test --severity-threshold=high
             displayName: "Snyk frontend scan"
             continueOnError: true
 
@@ -139,9 +138,10 @@ stages:
       - Security
     jobs:
       - job: DockerJob
+        displayName: "Build Docker Images"
         steps:
 
           - script: |
               docker build -t ticket-backend:$(Build.BuildId) ./backend
               docker build -t ticket-frontend:$(Build.BuildId) ./frontend
-            displayName: "Docker build"
+            displayName: "Build images"
