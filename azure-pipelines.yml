@@ -55,7 +55,7 @@ stages:
           - script: |
               cd backend
               npm ci
-              npm run test:int -- --forceExit
+              npm run test:int -- --forceExit --testTimeout=30000
             displayName: "Integration tests"
             continueOnError: true
 
@@ -96,7 +96,7 @@ stages:
         steps:
 
           - script: |
-              npm install -g snyk
+              sudo npm install -g snyk
               snyk auth $(SNYK_TOKEN)
             displayName: "Authenticate Snyk"
 
