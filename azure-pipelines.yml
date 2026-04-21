@@ -84,8 +84,7 @@ stages:
               scannerMode: 'CLI'
               configMode: 'file'
               extraProperties: |
-                sonar.host.url=$(SONAR_HOST_URL)
-                sonar.token=$(SONAR_TOKEN)
+                sonar.branch.name=
             displayName: "Prepare SonarQube"
 
           - task: SonarQubeAnalyze@7
