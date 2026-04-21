@@ -75,17 +75,17 @@ stages:
     dependsOn: Test
     jobs:
       - job: SonarJob
-        continueOnError: true  
+        continueOnError: true
         steps:
 
           - task: SonarQubePrepare@7
             inputs:
               SonarQube: 'SonarQubeConnection'
               scannerMode: 'CLI'
-              configMode: 'manual'
-              cliProjectKey: 'ticket-manager'
-              cliProjectName: 'TicketManager'
-              cliSources: '.'
+              configMode: 'file'
+              extraProperties: |
+                sonar.host.url=$(SONAR_HOST_URL)
+                sonar.token=$(SONAR_TOKEN)
             displayName: "Prepare SonarQube"
 
           - task: SonarQubeAnalyze@7
@@ -95,6 +95,7 @@ stages:
             inputs:
               pollingTimeoutSec: '300'
             displayName: "Publish Quality Gate"
+
   - stage: Security
     displayName: "Snyk Security"
     dependsOn: Test
@@ -120,7 +121,6 @@ stages:
               snyk test --severity-threshold=high
             displayName: "Snyk frontend scan"
             continueOnError: true
-
 
   - stage: Docker
     displayName: "Docker Build"
