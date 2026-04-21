@@ -82,9 +82,10 @@ stages:
             inputs:
               SonarQube: 'SonarQubeConnection'
               scannerMode: 'CLI'
-              configMode: 'file'
-              extraProperties: |
-                sonar.branch.name=
+              configMode: 'manual'
+              cliProjectKey: 'ticket-manager'
+              cliProjectName: 'TicketManager'
+              cliSources: '.'
             displayName: "Prepare SonarQube"
 
           - task: SonarQubeAnalyze@7
