@@ -17,11 +17,6 @@ stages:
         displayName: "Build Backend & Frontend"
         steps:
 
-          - task: UseNode@1
-            inputs:
-              versionSpec: "22.x"
-            displayName: "Install Node.js 22"
-
           - script: |
               cd backend && npm ci && npm run build
             displayName: "Backend build"
@@ -42,11 +37,6 @@ stages:
         displayName: "Unit Tests"
         steps:
 
-          - task: UseNode@1
-            inputs:
-              versionSpec: "22.x"
-            displayName: "Install Node.js 22"
-
           - script: |
               cd backend
               npm ci
@@ -61,11 +51,6 @@ stages:
       - job: IntegrationTests
         displayName: "Integration Tests"
         steps:
-
-          - task: UseNode@1
-            inputs:
-              versionSpec: "22.x"
-            displayName: "Install Node.js 22"
 
           - script: |
               cd backend
@@ -109,11 +94,6 @@ stages:
       - job: SnykJob
         displayName: "Snyk Vulnerability Scan"
         steps:
-
-          - task: UseNode@1
-            inputs:
-              versionSpec: "22.x"
-            displayName: "Install Node.js 22"
 
           - script: |
               npm install -g snyk
