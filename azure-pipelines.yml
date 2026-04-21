@@ -7,6 +7,9 @@ pool:
 
 stages:
 
+  # =========================
+  # BUILD
+  # =========================
   - stage: Build
     displayName: "Build"
     jobs:
@@ -30,10 +33,14 @@ stages:
               npm run build
             displayName: "Frontend build"
 
+  # =========================
+  # TEST
+  # =========================
   - stage: Test
     displayName: "Tests"
     dependsOn: Build
     jobs:
+
       - job: UnitTests
         displayName: "Unit Tests"
         steps:
@@ -70,32 +77,32 @@ stages:
             displayName: "Integration tests"
             continueOnError: true
 
+  # =========================
+  # SONARQUBE (DOCKER)
+  # =========================
   - stage: CodeQuality
-    displayName: "SonarQube"
+    displayName: "SonarQube (Docker)"
     dependsOn: Test
     jobs:
       - job: SonarJob
         continueOnError: true
         steps:
 
-          - task: SonarQubePrepare@7
-            inputs:
-              SonarQube: 'SonarQubeConnection'
-              scannerMode: 'CLI'
-              configMode: 'manual'
-              cliProjectKey: 'ticket-manager'
-              cliProjectName: 'TicketManager'
-              cliSources: '.'
-            displayName: "Prepare SonarQube"
-
-          - task: SonarQubeAnalyze@7
+          - script: |
+              docker run --rm \
+                -e SONAR_HOST_URL=$(SONAR_HOST_URL) \
+                -e SONAR_TOKEN=$(SONAR_TOKEN) \
+                -v "$(System.DefaultWorkingDirectory):/usr/src" \
+                sonarsource/sonar-scanner-cli \
+                -Dsonar.projectKey=ticket-manager \
+                -Dsonar.projectName=TicketManager \
+                -Dsonar.sources=. \
+                -Dsonar.javascript.lcov.reportPaths=backend/coverage/lcov.info
             displayName: "Run SonarQube Analysis"
 
-          - task: SonarQubePublish@7
-            inputs:
-              pollingTimeoutSec: '300'
-            displayName: "Publish Quality Gate"
-
+  # =========================
+  # SECURITY (SNYK)
+  # =========================
   - stage: Security
     displayName: "Snyk Security"
     dependsOn: Test
@@ -122,6 +129,9 @@ stages:
             displayName: "Snyk frontend scan"
             continueOnError: true
 
+  # =========================
+  # DOCKER BUILD
+  # =========================
   - stage: Docker
     displayName: "Docker Build"
     dependsOn:
