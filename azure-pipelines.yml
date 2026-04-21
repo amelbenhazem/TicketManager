@@ -17,7 +17,7 @@ stages:
         displayName: "Build Backend & Frontend"
         steps:
 
-          - task: NodeTool@0
+          - task: UseNode@1
             inputs:
               versionSpec: "22.x"
             displayName: "Install Node.js 22"
@@ -42,7 +42,7 @@ stages:
         displayName: "Unit Tests"
         steps:
 
-          - task: NodeTool@0
+          - task: UseNode@1
             inputs:
               versionSpec: "22.x"
             displayName: "Install Node.js 22"
@@ -62,7 +62,7 @@ stages:
         displayName: "Integration Tests"
         steps:
 
-          - task: NodeTool@0
+          - task: UseNode@1
             inputs:
               versionSpec: "22.x"
             displayName: "Install Node.js 22"
@@ -110,7 +110,7 @@ stages:
         displayName: "Snyk Vulnerability Scan"
         steps:
 
-          - task: NodeTool@0
+          - task: UseNode@1
             inputs:
               versionSpec: "22.x"
             displayName: "Install Node.js 22"
@@ -146,3 +146,36 @@ stages:
               docker build -t ticket-backend:$(Build.BuildId) ./backend
               docker build -t ticket-frontend:$(Build.BuildId) ./frontend
             displayName: "Build images"
+
+  # =========================
+  # TRIVY SCAN
+  # =========================
+  - stage: TrivyScan
+    displayName: "Trivy Security Scan"
+    dependsOn: Docker
+    jobs:
+      - job: TrivyJob
+        displayName: "Scan Docker Images"
+        steps:
+
+          - script: |
+              docker run --rm \
+                -v /var/run/docker.sock:/var/run/docker.sock \
+                aquasec/trivy:latest image \
+                --exit-code 1 \
+                --severity HIGH,CRITICAL \
+                --no-progress \
+                ticket-backend:$(Build.BuildId)
+            displayName: "Trivy scan backend image"
+            continueOnError: true
+
+          - script: |
+              docker run --rm \
+                -v /var/run/docker.sock:/var/run/docker.sock \
+                aquasec/trivy:latest image \
+                --exit-code 1 \
+                --severity HIGH,CRITICAL \
+                --no-progress \
+                ticket-frontend:$(Build.BuildId)
+            displayName: "Trivy scan frontend image"
+            continueOnError: true
