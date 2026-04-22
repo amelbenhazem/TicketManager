@@ -159,3 +159,33 @@ stages:
                 ticket-frontend:$(Build.BuildId)
             displayName: "Trivy scan frontend image"
             continueOnError: true
+
+  # =========================
+  # PUSH TO NEXUS
+  # =========================
+  - stage: Push
+    displayName: "Push to Nexus"
+    dependsOn: TrivyScan
+    jobs:
+      - job: PushJob
+        displayName: "Push Docker Images"
+        steps:
+
+          - script: |
+              echo "$(NEXUS_PASSWORD)" | docker login $(NEXUS_URL) \
+                -u $(NEXUS_USER) --password-stdin
+            displayName: "Login to Nexus"
+
+          - script: |
+              docker tag ticket-backend:$(Build.BuildId) $(NEXUS_URL)/ticket-backend:$(Build.BuildId)
+              docker tag ticket-backend:$(Build.BuildId) $(NEXUS_URL)/ticket-backend:latest
+              docker push $(NEXUS_URL)/ticket-backend:$(Build.BuildId)
+              docker push $(NEXUS_URL)/ticket-backend:latest
+            displayName: "Push backend image"
+
+          - script: |
+              docker tag ticket-frontend:$(Build.BuildId) $(NEXUS_URL)/ticket-frontend:$(Build.BuildId)
+              docker tag ticket-frontend:$(Build.BuildId) $(NEXUS_URL)/ticket-frontend:latest
+              docker push $(NEXUS_URL)/ticket-frontend:$(Build.BuildId)
+              docker push $(NEXUS_URL)/ticket-frontend:latest
+            displayName: "Push frontend image"
