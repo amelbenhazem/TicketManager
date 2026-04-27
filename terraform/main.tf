@@ -1,10 +1,9 @@
 terraform {
   required_version = ">= 1.5.0"
-
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 4.0"
+      version = "~> 3.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -19,18 +18,13 @@ provider "azurerm" {
       prevent_deletion_if_contains_resources = false
     }
   }
+  environment   = "stack"
+  metadata_host = "management.dc2.xpressazure.com"
 }
 
 locals {
-  name_prefix = "${var.project_name}-${var.environment}"
-  common_tags = merge(
-    var.tags,
-    {
-      project     = var.project_name
-      environment = var.environment
-    },
-  )
-  # dns_prefix : lettres minuscules et chiffres uniquement, unique par région
+  name_prefix    = "${var.project_name}-${var.environment}"
+  common_tags    = merge(var.tags, { project = var.project_name, environment = var.environment })
   aks_dns_prefix = "${var.project_name}${var.environment}${random_id.aks_dns.hex}"
 }
 
@@ -38,19 +32,11 @@ resource "random_id" "aks_dns" {
   byte_length = 2
 }
 
-# -----------------------------------------------------------------------------
-# Resource Group
-# -----------------------------------------------------------------------------
-
 resource "azurerm_resource_group" "main" {
   name     = var.resource_group_name
   location = var.location
   tags     = local.common_tags
 }
-
-# -----------------------------------------------------------------------------
-# VNet + Subnet (AKS)
-# -----------------------------------------------------------------------------
 
 resource "azurerm_virtual_network" "main" {
   name                = "${local.name_prefix}-vnet"
@@ -66,12 +52,6 @@ resource "azurerm_subnet" "aks" {
   virtual_network_name = azurerm_virtual_network.main.name
   address_prefixes     = var.aks_subnet_address_prefixes
 }
-
-# -----------------------------------------------------------------------------
-# NSG + association au sous-réseau AKS
-# Règles minimales : sortie HTTPS (images, API), DNS UDP — le sous-réseau garde
-# les règles de plateforme Azure en complément.
-# -----------------------------------------------------------------------------
 
 resource "azurerm_network_security_group" "aks" {
   name                = "${local.name_prefix}-aks-nsg"
@@ -127,10 +107,6 @@ resource "azurerm_subnet_network_security_group_association" "aks" {
   network_security_group_id = azurerm_network_security_group.aks.id
 }
 
-# -----------------------------------------------------------------------------
-# AKS
-# -----------------------------------------------------------------------------
-
 resource "azurerm_kubernetes_cluster" "main" {
   name                = "${local.name_prefix}-aks"
   location            = azurerm_resource_group.main.location
@@ -157,12 +133,5 @@ resource "azurerm_kubernetes_cluster" "main" {
   }
 
   role_based_access_control_enabled = true
-
-  tags = local.common_tags
-
-  lifecycle {
-    ignore_changes = [
-      default_node_pool[0].temporary_name_for_rotation,
-    ]
-  }
+  tags                              = local.common_tags
 }
