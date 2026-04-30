@@ -199,6 +199,9 @@ stages:
     jobs:
       - job: TerraformInitValidatePlan
         displayName: "Terraform init/validate/plan"
+        variables:
+          ARM_ENVIRONMENT: $(STACK_ARM_ENVIRONMENT_NAME)
+          ARM_METADATA_HOST: management.dc2.xpressazure.com
         steps:
           - script: |
               cd terraform
@@ -206,7 +209,8 @@ stages:
                 -backend-config="resource_group_name=$(TFSTATE_RESOURCE_GROUP)" \
                 -backend-config="storage_account_name=$(TFSTATE_STORAGE_ACCOUNT)" \
                 -backend-config="container_name=$(TFSTATE_CONTAINER)" \
-                -backend-config="key=$(TFSTATE_KEY)"
+                -backend-config="key=$(TFSTATE_KEY)" \
+                -backend-config="access_key=$(TFSTATE_ACCESS_KEY)"
             displayName: "Terraform init (remote backend)"
 
           - script: |
@@ -219,6 +223,7 @@ stages:
               terraform plan -input=false -out=tfplan \
                 -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
                 -var="tenant_id=$(ARM_TENANT_ID)" \
+                -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
                 -var="ssh_public_key=$(SSH_PUBLIC_KEY)"
             displayName: "Terraform plan"
 
@@ -239,6 +244,9 @@ stages:
         displayName: "Terraform apply (main only)"
         dependsOn: TerraformManualApproval
         condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+        variables:
+          ARM_ENVIRONMENT: $(STACK_ARM_ENVIRONMENT_NAME)
+          ARM_METADATA_HOST: management.dc2.xpressazure.com
         steps:
           - script: |
               cd terraform
@@ -246,9 +254,11 @@ stages:
                 -backend-config="resource_group_name=$(TFSTATE_RESOURCE_GROUP)" \
                 -backend-config="storage_account_name=$(TFSTATE_STORAGE_ACCOUNT)" \
                 -backend-config="container_name=$(TFSTATE_CONTAINER)" \
-                -backend-config="key=$(TFSTATE_KEY)"
+                -backend-config="key=$(TFSTATE_KEY)" \
+                -backend-config="access_key=$(TFSTATE_ACCESS_KEY)"
               terraform apply -input=false -auto-approve \
                 -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
                 -var="tenant_id=$(ARM_TENANT_ID)" \
+                -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
                 -var="ssh_public_key=$(SSH_PUBLIC_KEY)"
             displayName: "Terraform apply"
