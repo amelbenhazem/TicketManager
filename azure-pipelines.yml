@@ -216,7 +216,10 @@ stages:
 
           - script: |
               cd terraform
-              terraform plan -input=false -out=tfplan -var="ssh_public_key=$(SSH_PUBLIC_KEY)"
+              terraform plan -input=false -out=tfplan \
+                -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
+                -var="tenant_id=$(ARM_TENANT_ID)" \
+                -var="ssh_public_key=$(SSH_PUBLIC_KEY)"
             displayName: "Terraform plan"
 
       - job: TerraformManualApproval
@@ -244,5 +247,8 @@ stages:
                 -backend-config="storage_account_name=$(TFSTATE_STORAGE_ACCOUNT)" \
                 -backend-config="container_name=$(TFSTATE_CONTAINER)" \
                 -backend-config="key=$(TFSTATE_KEY)"
-              terraform apply -input=false -auto-approve -var="ssh_public_key=$(SSH_PUBLIC_KEY)"
+              terraform apply -input=false -auto-approve \
+                -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
+                -var="tenant_id=$(ARM_TENANT_ID)" \
+                -var="ssh_public_key=$(SSH_PUBLIC_KEY)"
             displayName: "Terraform apply"
