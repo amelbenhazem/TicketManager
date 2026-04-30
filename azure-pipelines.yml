@@ -204,6 +204,20 @@ stages:
           ARM_METADATA_HOST: management.dc2.xpressazure.com
         steps:
           - script: |
+              az cloud register --name XpressAzureDC2 \
+                --endpoint-resource-manager "https://management.dc2.xpressazure.com" \
+                --suffix-storage-endpoint "dc2.xpressazure.com" \
+                --suffix-keyvault-dns ".vault.dc2.xpressazure.com" \
+                --profile 2020-09-01-hybrid || true
+
+              az cloud set --name XpressAzureDC2
+              az login --tenant $(ARM_TENANT_ID) --allow-no-subscriptions
+              az account set --subscription "$(ARM_SUBSCRIPTION_ID)"
+              az account show
+              az group show --name AmalBH
+            displayName: "Azure Stack CLI login "
+
+          - script: |
               cd terraform
               terraform init \
                 -backend-config="resource_group_name=$(TFSTATE_RESOURCE_GROUP)" \
@@ -248,6 +262,20 @@ stages:
           ARM_ENVIRONMENT: $(STACK_ARM_ENVIRONMENT_NAME)
           ARM_METADATA_HOST: management.dc2.xpressazure.com
         steps:
+          - script: |
+              az cloud register --name XpressAzureDC2 \
+                --endpoint-resource-manager "https://management.dc2.xpressazure.com" \
+                --suffix-storage-endpoint "dc2.xpressazure.com" \
+                --suffix-keyvault-dns ".vault.dc2.xpressazure.com" \
+                --profile 2020-09-01-hybrid || true
+
+              az cloud set --name XpressAzureDC2
+              az login --tenant $(ARM_TENANT_ID) --allow-no-subscriptions
+              az account set --subscription "$(ARM_SUBSCRIPTION_ID)"
+              az account show
+              az group show --name AmalBH
+            displayName: "Azure Stack CLI login"
+
           - script: |
               cd terraform
               terraform init \
