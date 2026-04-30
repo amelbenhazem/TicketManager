@@ -1,77 +1,92 @@
-variable "location" {
-  type    = string
-  default = "westeurope"
+variable "subscription_id" {
+  description = "Azure Stack subscription ID."
+  type        = string
 }
 
-variable "environment" {
-  type = string
-  default = "dev"
-  validation {
-    condition     = can(regex("^[a-z0-9-]+$", var.environment))
-    error_message = "environment: minuscules, chiffres et tirets uniquement."
-  }
+variable "tenant_id" {
+  description = "Azure AD tenant ID."
+  type        = string
 }
 
-variable "project_name" {
-  type    = string
-  default = "ticketmanager"
-  validation {
-    condition     = can(regex("^[a-z][a-z0-9-]{1,30}$", var.project_name))
-    error_message = "project_name: lettre minuscule puis lettres/chiffres/tirets."
-  }
+variable "stack_metadata_host" {
+  description = "Azure Stack metadata host without protocol."
+  type        = string
+  default     = "management.dc2.xpressazure.com"
 }
 
-variable "tags" {
-  type    = map(string)
-  default = {}
+variable "stack_arm_environment_name" {
+  description = "Environment name returned by Stack metadata endpoint (2020-06-01)."
+  type        = string
+  default     = "AzureStack-User-ee8e5b2b-3e31-4a83-93b6-28f3739efd6d"
 }
 
 variable "resource_group_name" {
-  type = string
+  description = "Existing resource group name."
+  type        = string
+  default     = "AmalBH"
 }
 
-variable "vnet_address_space" {
-  type    = list(string)
-  default = ["10.0.0.0/16"]
+variable "location" {
+  description = "Azure Stack location."
+  type        = string
+  default     = "dc2"
 }
 
-variable "aks_subnet_address_prefixes" {
-  type    = list(string)
-  default = ["10.0.1.0/24"]
+variable "existing_vnet_name" {
+  description = "Existing virtual network name."
+  type        = string
+  default     = "ticketmanager-vnet"
 }
 
-variable "aks_node_count" {
-  type    = number
-  default = 2
-  validation {
-    condition     = var.aks_node_count >= 1 && var.aks_node_count <= 10
-    error_message = "aks_node_count entre 1 et 10."
-  }
+variable "existing_subnet_name" {
+  description = "Existing subnet name in the existing VNet."
+  type        = string
+  default     = "default"
 }
 
-variable "aks_vm_size" {
-  type    = string
-  default = "Standard_B2s"
+variable "admin_username" {
+  description = "Admin username for Linux virtual machines."
+  type        = string
+  default     = "azureuser"
 }
 
-variable "aks_kubernetes_version" {
-  type = string
+variable "ssh_public_key" {
+  description = "SSH public key for VM admin access."
+  type        = string
 }
 
-variable "mongodb_uri" {
-  type      = string
-  sensitive = true
+variable "vm_size_gestion" {
+  description = "VM size for vm-gestion."
+  type        = string
+  default     = "Standard_D2s_v3"
 }
 
-variable "jwt_secret" {
-  type      = string
-  sensitive = true
+variable "vm_size_db" {
+  description = "VM size for vm-db."
+  type        = string
+  default     = "Standard_D2s_v3"
 }
 
-variable "cors_origin" {
-  type = string
+variable "image_publisher" {
+  description = "Image publisher."
+  type        = string
+  default     = "Canonical"
 }
 
-variable "next_public_api_url" {
-  type = string
+variable "image_offer" {
+  description = "Image offer."
+  type        = string
+  default     = "UbuntuServer"
+}
+
+variable "image_sku" {
+  description = "Image SKU."
+  type        = string
+  default     = "20.04-LTS"
+}
+
+variable "image_version" {
+  description = "Image version."
+  type        = string
+  default     = "latest"
 }

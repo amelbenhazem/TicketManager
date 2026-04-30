@@ -189,3 +189,60 @@ stages:
               docker push $(NEXUS_URL)/ticket-frontend:$(Build.BuildId)
               docker push $(NEXUS_URL)/ticket-frontend:latest
             displayName: "Push frontend image"
+
+  # =========================
+  # TERRAFORM
+  # =========================
+  - stage: Terraform
+    displayName: "Terraform IaC"
+    dependsOn: Push
+    jobs:
+      - job: TerraformInitValidatePlan
+        displayName: "Terraform init/validate/plan"
+        steps:
+          - script: |
+              cd terraform
+              terraform init \
+                -backend-config="resource_group_name=$(TFSTATE_RESOURCE_GROUP)" \
+                -backend-config="storage_account_name=$(TFSTATE_STORAGE_ACCOUNT)" \
+                -backend-config="container_name=$(TFSTATE_CONTAINER)" \
+                -backend-config="key=$(TFSTATE_KEY)"
+            displayName: "Terraform init (remote backend)"
+
+          - script: |
+              cd terraform
+              terraform validate
+            displayName: "Terraform validate"
+
+          - script: |
+              cd terraform
+              terraform plan -out=tfplan
+            displayName: "Terraform plan"
+
+      - job: TerraformManualApproval
+        displayName: "Approval gate"
+        dependsOn: TerraformInitValidatePlan
+        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+        pool: server
+        steps:
+          - task: ManualValidation@0
+            inputs:
+              instructions: "Review Terraform plan output, then approve to continue with terraform apply."
+              notifyUsers: "$(TF_APPROVERS)"
+              onTimeout: "reject"
+            timeoutInMinutes: 1440
+
+      - job: TerraformApply
+        displayName: "Terraform apply (main only)"
+        dependsOn: TerraformManualApproval
+        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+        steps:
+          - script: |
+              cd terraform
+              terraform init \
+                -backend-config="resource_group_name=$(TFSTATE_RESOURCE_GROUP)" \
+                -backend-config="storage_account_name=$(TFSTATE_STORAGE_ACCOUNT)" \
+                -backend-config="container_name=$(TFSTATE_CONTAINER)" \
+                -backend-config="key=$(TFSTATE_KEY)"
+              terraform apply -auto-approve
+            displayName: "Terraform apply"

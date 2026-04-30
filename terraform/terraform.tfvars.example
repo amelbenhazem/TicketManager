@@ -1,0 +1,20 @@
+subscription_id           = "b55f73e9-9312-4a0a-b46b-44d350cf1fcc"
+tenant_id                 = "83815bfb-2605-4d45-be53-8066974eb65f"
+stack_metadata_host       = "management.dc2.xpressazure.com"
+stack_arm_environment_name = "AzureStack-User-ee8e5b2b-3e31-4a83-93b6-28f3739efd6d"
+
+resource_group_name  = "AmalBH"
+location             = "dc2"
+existing_vnet_name   = "ticketmanager-vnet"
+existing_subnet_name = "default"
+
+admin_username = "azureuser"
+ssh_public_key = "ssh-rsa YOUR_PUBLIC_KEY"
+
+vm_size_gestion = "Standard_D2s_v3"
+vm_size_db      = "Standard_D2s_v3"
+
+image_publisher = "Canonical"
+image_offer     = "UbuntuServer"
+image_sku       = "20.04-LTS"
+image_version   = "latest"

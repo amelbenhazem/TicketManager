@@ -1,64 +1,34 @@
 output "resource_group_name" {
-  value = azurerm_resource_group.main.name
+  description = "Resolved existing resource group."
+  value       = data.azurestack_resource_group.main.name
 }
 
-output "resource_group_id" {
-  value = azurerm_resource_group.main.id
+output "vnet_name" {
+  description = "Resolved existing virtual network."
+  value       = data.azurestack_virtual_network.existing.name
 }
 
-output "location" {
-  value = azurerm_resource_group.main.location
+output "subnet_name" {
+  description = "Resolved existing subnet."
+  value       = data.azurestack_subnet.existing.name
 }
 
-output "virtual_network_name" {
-  value = azurerm_virtual_network.main.name
+output "subnet_id" {
+  description = "Resolved existing subnet ID."
+  value       = data.azurestack_subnet.existing.id
 }
 
-output "virtual_network_id" {
-  value = azurerm_virtual_network.main.id
+output "vm_gestion_public_ip" {
+  description = "Public IP assigned to vm-gestion."
+  value       = azurestack_public_ip.vm_gestion.ip_address
 }
 
-output "aks_subnet_name" {
-  value = azurerm_subnet.aks.name
+output "vm_gestion_private_ip" {
+  description = "Private IP assigned to vm-gestion."
+  value       = azurestack_network_interface.vm_gestion.private_ip_address
 }
 
-output "aks_subnet_id" {
-  value = azurerm_subnet.aks.id
-}
-
-output "network_security_group_name" {
-  value = azurerm_network_security_group.aks.name
-}
-
-output "network_security_group_id" {
-  value = azurerm_network_security_group.aks.id
-}
-
-output "aks_cluster_name" {
-  value = azurerm_kubernetes_cluster.main.name
-}
-
-output "aks_cluster_id" {
-  value = azurerm_kubernetes_cluster.main.id
-}
-
-output "aks_fqdn" {
-  value = azurerm_kubernetes_cluster.main.fqdn
-}
-
-output "aks_kubernetes_version" {
-  value = azurerm_kubernetes_cluster.main.kubernetes_version
-}
-
-output "aks_node_resource_group" {
-  value = azurerm_kubernetes_cluster.main.node_resource_group
-}
-
-output "aks_identity_principal_id" {
-  value = azurerm_kubernetes_cluster.main.identity[0].principal_id
-}
-
-output "kube_config_raw" {
-  value     = azurerm_kubernetes_cluster.main.kube_config_raw
-  sensitive = true
+output "vm_db_private_ip" {
+  description = "Private IP assigned to vm-db."
+  value       = azurestack_network_interface.vm_db.private_ip_address
 }
