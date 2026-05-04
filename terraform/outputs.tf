@@ -1,34 +1,45 @@
+# =============================================================================
+# 99 — Sorties
+# =============================================================================
+
 output "resource_group_name" {
-  description = "Resolved existing resource group."
+  description = "Groupe de ressources cible."
   value       = data.azurestack_resource_group.main.name
 }
 
-output "vnet_name" {
-  description = "Resolved existing virtual network."
-  value       = data.azurestack_virtual_network.existing.name
+output "virtual_network_name" {
+  description = "Nom du réseau virtuel créé."
+  value       = azurestack_virtual_network.main.name
 }
 
-output "subnet_name" {
-  description = "Resolved existing subnet."
-  value       = data.azurestack_subnet.existing.name
+output "virtual_network_id" {
+  value = azurestack_virtual_network.main.id
 }
 
-output "subnet_id" {
-  description = "Resolved existing subnet ID."
-  value       = data.azurestack_subnet.existing.id
+output "subnet_mgmt_id" {
+  value = azurestack_subnet.mgmt.id
+}
+
+output "subnet_db_id" {
+  value = azurestack_subnet.db.id
+}
+
+output "subnet_aks_id" {
+  value = azurestack_subnet.aks.id
 }
 
 output "vm_gestion_public_ip" {
-  description = "Public IP assigned to vm-gestion."
-  value       = azurestack_public_ip.vm_gestion.ip_address
+  value = azurestack_public_ip.gestion.ip_address
 }
 
 output "vm_gestion_private_ip" {
-  description = "Private IP assigned to vm-gestion."
-  value       = azurestack_network_interface.vm_gestion.private_ip_address
+  value = azurestack_network_interface.gestion.private_ip_address
 }
 
 output "vm_db_private_ip" {
-  description = "Private IP assigned to vm-db."
-  value       = azurestack_network_interface.vm_db.private_ip_address
+  value = azurestack_network_interface.db.private_ip_address
+}
+
+output "mongodb_connection_hint" {
+  value = "mongodb://${azurestack_network_interface.db.private_ip_address}:27017/ticketmanager"
 }

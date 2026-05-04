@@ -1,245 +1,70 @@
-trigger:
-  - main
-  - develop
-
-pool:
-  name: ticketmanager-pool
-
-stages:
-
-  # =========================
-  # BUILD
-  # =========================
-  - stage: Build
-    displayName: "Build"
-    jobs:
-      - job: BuildJob
-        displayName: "Build Backend & Frontend"
-        steps:
-
-          - script: |
-              cd backend && npm ci && npm run build
-            displayName: "Backend build"
-
-          - script: |
-              cd frontend && npm ci && npm run build
-            displayName: "Frontend build"
-
-  # =========================
-  # TEST
-  # =========================
-  - stage: Test
-    displayName: "Tests"
-    dependsOn: Build
-    jobs:
-
-      - job: UnitTests
-        displayName: "Unit Tests"
-        steps:
-
-          - script: |
-              cd backend
-              npm ci
-              npm run test -- --forceExit
-            displayName: "Unit tests"
-
-          - script: |
-              cd backend
-              npm run test:cov -- --forceExit
-            displayName: "Coverage report"
-
-      - job: IntegrationTests
-        displayName: "Integration Tests"
-        steps:
-
-          - script: |
-              cd backend
-              npm ci
-              npm run test:int -- --forceExit --testTimeout=30000
-            displayName: "Integration tests"
-            continueOnError: true
-
-  # =========================
-  # CODE QUALITY
-  # =========================
-  - stage: CodeQuality
-    displayName: "Code Quality"
-    dependsOn: Test
-    jobs:
-      - job: SonarJob
-        displayName: "SonarQube Analysis"
-        steps:
-
-          - script: |
-              docker run --rm \
-                --network host \
-                -e SONAR_HOST_URL=http://localhost:9000 \
-                -e SONAR_TOKEN=$(SONAR_TOKEN) \
-                -v "$(System.DefaultWorkingDirectory):/usr/src" \
-                sonarsource/sonar-scanner-cli \
-                -Dsonar.projectKey=ticket-manager \
-                -Dsonar.projectName=TicketManager \
-                -Dsonar.sources=backend/src,frontend \
-                -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/.next/**,**/coverage/** \
-                -Dsonar.javascript.lcov.reportPaths=backend/coverage/lcov.info
-            displayName: "Run SonarQube Analysis"
-
-  # =========================
-  # SECURITY
-  # =========================
-  - stage: Security
-    displayName: "Security Scan"
-    dependsOn: Test
-    jobs:
-      - job: SnykJob
-        displayName: "Snyk Vulnerability Scan"
-        steps:
-
-          - script: |
-              sudo npm install -g snyk
-              snyk auth $(SNYK_TOKEN)
-            displayName: "Authenticate Snyk"
-
-          - script: |
-              cd backend && snyk test --severity-threshold=high
-            displayName: "Snyk backend scan"
-
-          - script: |
-              cd frontend && snyk test --severity-threshold=high
-            displayName: "Snyk frontend scan"
-            continueOnError: true
-
-  # =========================
-  # DOCKER BUILD
-  # =========================
-  - stage: Docker
-    displayName: "Docker Build"
-    dependsOn:
-      - CodeQuality
-      - Security
-    jobs:
-      - job: DockerJob
-        displayName: "Build Docker Images"
-        steps:
-
-          - script: |
-              docker build -t ticket-backend:$(Build.BuildId) ./backend
-              docker build -t ticket-frontend:$(Build.BuildId) ./frontend
-            displayName: "Build images"
-
-  # =========================
-  # TRIVY SCAN
-  # =========================
-  - stage: TrivyScan
-    displayName: "Trivy Security Scan"
-    dependsOn: Docker
-    jobs:
-      - job: TrivyJob
-        displayName: "Scan Docker Images"
-        steps:
-
-          - script: |
-              docker run --rm \
-                -v /var/run/docker.sock:/var/run/docker.sock \
-                aquasec/trivy:latest image \
-                --exit-code 1 \
-                --severity HIGH,CRITICAL \
-                --no-progress \
-                ticket-backend:$(Build.BuildId)
-            displayName: "Trivy scan backend image"
-            continueOnError: true
-
-          - script: |
-              docker run --rm \
-                -v /var/run/docker.sock:/var/run/docker.sock \
-                aquasec/trivy:latest image \
-                --exit-code 1 \
-                --severity HIGH,CRITICAL \
-                --no-progress \
-                ticket-frontend:$(Build.BuildId)
-            displayName: "Trivy scan frontend image"
-            continueOnError: true
-
-  # =========================
-  # PUSH TO NEXUS
-  # =========================
-  - stage: Push
-    displayName: "Push to Nexus"
-    dependsOn: TrivyScan
-    jobs:
-      - job: PushJob
-        displayName: "Push Docker Images"
-        steps:
-
-          - script: |
-              echo "$(NEXUS_PASSWORD)" | docker login $(NEXUS_URL) \
-                -u $(NEXUS_USER) --password-stdin
-            displayName: "Login to Nexus"
-
-          - script: |
-              docker tag ticket-backend:$(Build.BuildId) $(NEXUS_URL)/ticket-backend:$(Build.BuildId)
-              docker tag ticket-backend:$(Build.BuildId) $(NEXUS_URL)/ticket-backend:latest
-              docker push $(NEXUS_URL)/ticket-backend:$(Build.BuildId)
-              docker push $(NEXUS_URL)/ticket-backend:latest
-            displayName: "Push backend image"
-
-          - script: |
-              docker tag ticket-frontend:$(Build.BuildId) $(NEXUS_URL)/ticket-frontend:$(Build.BuildId)
-              docker tag ticket-frontend:$(Build.BuildId) $(NEXUS_URL)/ticket-frontend:latest
-              docker push $(NEXUS_URL)/ticket-frontend:$(Build.BuildId)
-              docker push $(NEXUS_URL)/ticket-frontend:latest
-            displayName: "Push frontend image"
-
-  # =========================
+# =========================
   # TERRAFORM
   # =========================
   - stage: Terraform
     displayName: "Terraform IaC"
     dependsOn: Push
+    variables:
+      - group: terraform-secrets
     jobs:
+
       - job: TerraformInitValidatePlan
         displayName: "Terraform init/validate/plan"
-        variables:
-          ARM_ENVIRONMENT: $(STACK_ARM_ENVIRONMENT_NAME)
-          ARM_METADATA_HOST: management.dc2.xpressazure.com
+        pool:
+          name: ticketmanager-pool
         steps:
+
           - script: |
               az cloud register --name XpressAzureDC2 \
                 --endpoint-resource-manager "https://management.dc2.xpressazure.com" \
                 --suffix-storage-endpoint "dc2.xpressazure.com" \
                 --suffix-keyvault-dns ".vault.dc2.xpressazure.com" \
+                --endpoint-active-directory "https://login.microsoftonline.com/" \
+                --endpoint-active-directory-graph-resource-id "https://graph.windows.net/" \
+                --endpoint-active-directory-resource-id "https://management.dc2.xpressazure.com/" \
                 --profile 2020-09-01-hybrid || true
 
               az cloud set --name XpressAzureDC2
-              az login --tenant $(ARM_TENANT_ID) --allow-no-subscriptions
+
+              az login --service-principal \
+                -u "$(ARM_CLIENT_ID)" \
+                -p "$(ARM_CLIENT_SECRET)" \
+                --tenant "$(ARM_TENANT_ID)"
+
               az account set --subscription "$(ARM_SUBSCRIPTION_ID)"
               az account show
-              az group show --name AmalBH
-            displayName: "Azure Stack CLI login "
+            displayName: "Azure Stack CLI login avec SP"
 
           - script: |
               cd terraform
               terraform init \
-                -backend-config="resource_group_name=$(TFSTATE_RESOURCE_GROUP)" \
-                -backend-config="storage_account_name=$(TFSTATE_STORAGE_ACCOUNT)" \
-                -backend-config="container_name=$(TFSTATE_CONTAINER)" \
-                -backend-config="key=$(TFSTATE_KEY)" \
-                -backend-config="access_key=$(TFSTATE_ACCESS_KEY)"
-            displayName: "Terraform init (remote backend)"
+                -backend-config="environment=$(STACK_ARM_ENVIRONMENT_NAME)" \
+                -backend-config="arm_endpoint=https://management.dc2.xpressazure.com" \
+                -backend-config="resource_group_name=AmalBH" \
+                -backend-config="storage_account_name=amalbhtfstate01" \
+                -backend-config="container_name=tfstate" \
+                -backend-config="key=terraform.tfstate" \
+                -backend-config="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
+                -backend-config="tenant_id=$(ARM_TENANT_ID)" \
+                -backend-config="client_id=$(ARM_CLIENT_ID)" \
+                -backend-config="client_secret=$(ARM_CLIENT_SECRET)"
+            displayName: "Terraform Init"
 
           - script: |
               cd terraform
               terraform validate
-            displayName: "Terraform validate"
+            displayName: "Terraform Validate"
 
           - script: |
               cd terraform
               terraform plan -input=false -out=tfplan \
                 -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
                 -var="tenant_id=$(ARM_TENANT_ID)" \
+                -var="client_id=$(ARM_CLIENT_ID)" \
+                -var="client_secret=$(ARM_CLIENT_SECRET)" \
                 -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
                 -var="ssh_public_key=$(SSH_PUBLIC_KEY)"
-            displayName: "Terraform plan"
+            displayName: "Terraform Plan"
 
       - job: TerraformManualApproval
         displayName: "Approval gate"
@@ -249,7 +74,7 @@ stages:
         steps:
           - task: ManualValidation@0
             inputs:
-              instructions: "Review Terraform plan output, then approve to continue with terraform apply."
+              instructions: "Vérifiez le plan Terraform et approuvez pour continuer."
               notifyUsers: "$(TF_APPROVERS)"
               onTimeout: "reject"
             timeoutInMinutes: 1440
@@ -258,35 +83,40 @@ stages:
         displayName: "Terraform apply (main only)"
         dependsOn: TerraformManualApproval
         condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
-        variables:
-          ARM_ENVIRONMENT: $(STACK_ARM_ENVIRONMENT_NAME)
-          ARM_METADATA_HOST: management.dc2.xpressazure.com
+        pool:
+          name: ticketmanager-pool
         steps:
-          - script: |
-              az cloud register --name XpressAzureDC2 \
-                --endpoint-resource-manager "https://management.dc2.xpressazure.com" \
-                --suffix-storage-endpoint "dc2.xpressazure.com" \
-                --suffix-keyvault-dns ".vault.dc2.xpressazure.com" \
-                --profile 2020-09-01-hybrid || true
 
+          - script: |
               az cloud set --name XpressAzureDC2
-              az login --tenant $(ARM_TENANT_ID) --allow-no-subscriptions
+
+              az login --service-principal \
+                -u "$(ARM_CLIENT_ID)" \
+                -p "$(ARM_CLIENT_SECRET)" \
+                --tenant "$(ARM_TENANT_ID)"
+
               az account set --subscription "$(ARM_SUBSCRIPTION_ID)"
-              az account show
-              az group show --name AmalBH
-            displayName: "Azure Stack CLI login"
+            displayName: "Azure Stack CLI login avec SP"
 
           - script: |
               cd terraform
               terraform init \
-                -backend-config="resource_group_name=$(TFSTATE_RESOURCE_GROUP)" \
-                -backend-config="storage_account_name=$(TFSTATE_STORAGE_ACCOUNT)" \
-                -backend-config="container_name=$(TFSTATE_CONTAINER)" \
-                -backend-config="key=$(TFSTATE_KEY)" \
-                -backend-config="access_key=$(TFSTATE_ACCESS_KEY)"
+                -backend-config="environment=$(STACK_ARM_ENVIRONMENT_NAME)" \
+                -backend-config="arm_endpoint=https://management.dc2.xpressazure.com" \
+                -backend-config="resource_group_name=AmalBH" \
+                -backend-config="storage_account_name=amalbhtfstate01" \
+                -backend-config="container_name=tfstate" \
+                -backend-config="key=terraform.tfstate" \
+                -backend-config="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
+                -backend-config="tenant_id=$(ARM_TENANT_ID)" \
+                -backend-config="client_id=$(ARM_CLIENT_ID)" \
+                -backend-config="client_secret=$(ARM_CLIENT_SECRET)"
+
               terraform apply -input=false -auto-approve \
                 -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
                 -var="tenant_id=$(ARM_TENANT_ID)" \
+                -var="client_id=$(ARM_CLIENT_ID)" \
+                -var="client_secret=$(ARM_CLIENT_SECRET)" \
                 -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
                 -var="ssh_public_key=$(SSH_PUBLIC_KEY)"
-            displayName: "Terraform apply"
+            displayName: "Terraform Apply"

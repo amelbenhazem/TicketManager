@@ -1,22 +1,26 @@
-resource "azurestack_network_interface" "vm_db" {
+# =============================================================================
+# 06 — VM-DB : MongoDB (pas d'IP publique — exposition réseau interne uniquement)
+# =============================================================================
+
+resource "azurestack_network_interface" "db" {
   name                = "${local.vm_db_name}-nic"
   location            = var.location
   resource_group_name = data.azurestack_resource_group.main.name
 
   ip_configuration {
-    name                          = "ipconfig1"
-    subnet_id                     = data.azurestack_subnet.existing.id
+    name                          = "primary"
+    subnet_id                     = azurestack_subnet.db.id
     private_ip_address_allocation = "Dynamic"
   }
 
-  tags = local.base_tags
+  tags = local.tags
 }
 
-resource "azurestack_virtual_machine" "vm_db" {
+resource "azurestack_virtual_machine" "db" {
   name                  = local.vm_db_name
   location              = var.location
   resource_group_name   = data.azurestack_resource_group.main.name
-  network_interface_ids = [azurestack_network_interface.vm_db.id]
+  network_interface_ids = [azurestack_network_interface.db.id]
   vm_size               = var.vm_size_db
 
   storage_image_reference {
@@ -27,7 +31,7 @@ resource "azurestack_virtual_machine" "vm_db" {
   }
 
   storage_os_disk {
-    name              = "${local.vm_db_name}-osdisk"
+    name              = "${local.vm_db_name}-os"
     caching           = "ReadWrite"
     create_option     = "FromImage"
     managed_disk_type = "Standard_LRS"
@@ -40,12 +44,11 @@ resource "azurestack_virtual_machine" "vm_db" {
 
   os_profile_linux_config {
     disable_password_authentication = true
-
     ssh_keys {
       path     = "/home/${var.admin_username}/.ssh/authorized_keys"
       key_data = var.ssh_public_key
     }
   }
 
-  tags = local.base_tags
+  tags = local.tags
 }

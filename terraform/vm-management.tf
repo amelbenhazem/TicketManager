@@ -1,31 +1,37 @@
-resource "azurestack_public_ip" "vm_gestion" {
+# =============================================================================
+# 05 — VM-gestion : administration, Ansible, supervision du cluster
+# =============================================================================
+# IP publique pour accès SSH opérateur ; la VM reste dans snet-mgmt.
+# =============================================================================
+
+resource "azurestack_public_ip" "gestion" {
   name                = "${local.vm_gestion_name}-pip"
   location            = var.location
   resource_group_name = data.azurestack_resource_group.main.name
   allocation_method   = "Dynamic"
-  tags                = local.base_tags
+  tags                = local.tags
 }
 
-resource "azurestack_network_interface" "vm_gestion" {
+resource "azurestack_network_interface" "gestion" {
   name                = "${local.vm_gestion_name}-nic"
   location            = var.location
   resource_group_name = data.azurestack_resource_group.main.name
 
   ip_configuration {
-    name                          = "ipconfig1"
-    subnet_id                     = data.azurestack_subnet.existing.id
+    name                          = "primary"
+    subnet_id                     = azurestack_subnet.mgmt.id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurestack_public_ip.vm_gestion.id
+    public_ip_address_id          = azurestack_public_ip.gestion.id
   }
 
-  tags = local.base_tags
+  tags = local.tags
 }
 
-resource "azurestack_virtual_machine" "vm_gestion" {
+resource "azurestack_virtual_machine" "gestion" {
   name                  = local.vm_gestion_name
   location              = var.location
   resource_group_name   = data.azurestack_resource_group.main.name
-  network_interface_ids = [azurestack_network_interface.vm_gestion.id]
+  network_interface_ids = [azurestack_network_interface.gestion.id]
   vm_size               = var.vm_size_gestion
 
   storage_image_reference {
@@ -36,7 +42,7 @@ resource "azurestack_virtual_machine" "vm_gestion" {
   }
 
   storage_os_disk {
-    name              = "${local.vm_gestion_name}-osdisk"
+    name              = "${local.vm_gestion_name}-os"
     caching           = "ReadWrite"
     create_option     = "FromImage"
     managed_disk_type = "Standard_LRS"
@@ -49,12 +55,11 @@ resource "azurestack_virtual_machine" "vm_gestion" {
 
   os_profile_linux_config {
     disable_password_authentication = true
-
     ssh_keys {
       path     = "/home/${var.admin_username}/.ssh/authorized_keys"
       key_data = var.ssh_public_key
     }
   }
 
-  tags = local.base_tags
+  tags = local.tags
 }

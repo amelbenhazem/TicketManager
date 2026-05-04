@@ -1,92 +1,127 @@
+# =============================================================================
+# 02 — Variables d'entrée (valeurs sensibles : tfvars local + variables pipeline)
+# =============================================================================
+
 variable "subscription_id" {
-  description = "Azure Stack subscription ID."
+  description = "ID d'abonnement Azure Stack Hub."
   type        = string
 }
 
 variable "tenant_id" {
-  description = "Azure AD tenant ID."
+  description = "ID du tenant Azure AD."
   type        = string
 }
 
+variable "client_id" {
+  description = "Client ID du Service Principal Azure AD."
+  type        = string
+  sensitive   = true
+}
+
+variable "client_secret" {
+  description = "Secret du Service Principal Azure AD."
+  type        = string
+  sensitive   = true
+}
+
 variable "stack_metadata_host" {
-  description = "Azure Stack metadata host without protocol."
+  description = "Hôte des métadonnées Stack (sans https), ex. management.<location>.xpressazure.com"
   type        = string
   default     = "management.dc2.xpressazure.com"
 }
 
 variable "stack_arm_environment_name" {
-  description = "Environment name returned by Stack metadata endpoint (2020-06-01)."
+  description = "Champ \"name\" retourné par /metadata/endpoints?api-version=2020-06-01"
   type        = string
-  default     = "AzureStack-User-ee8e5b2b-3e31-4a83-93b6-28f3739efd6d"
 }
 
 variable "resource_group_name" {
-  description = "Existing resource group name."
+  description = "Groupe de ressources existant où déployer l'infrastructure (ex. AmalBH)."
   type        = string
   default     = "AmalBH"
 }
 
 variable "location" {
-  description = "Azure Stack location."
+  description = "Région / emplacement Azure Stack Hub (ex. dc2)."
   type        = string
   default     = "dc2"
 }
 
-variable "existing_vnet_name" {
-  description = "Existing virtual network name."
+variable "project_prefix" {
+  description = "Préfixe de nommage pour éviter les collisions avec des ressources déjà présentes."
   type        = string
-  default     = "ticketmanager-vnet"
+  default     = "ticketmanager-iac"
 }
 
-variable "existing_subnet_name" {
-  description = "Existing subnet name in the existing VNet."
+variable "vnet_address_space" {
+  description = "Espace d'adressage du réseau virtuel dédié à ce module."
+  type        = list(string)
+  default     = ["10.1.0.0/16"]
+}
+
+variable "subnet_mgmt_cidr" {
+  description = "CIDR du sous-réseau administration (VM-gestion, Ansible, supervision)."
   type        = string
-  default     = "default"
+  default     = "10.1.1.0/24"
+}
+
+variable "subnet_db_cidr" {
+  description = "CIDR du sous-réseau base de données (MongoDB, sans exposition Internet)."
+  type        = string
+  default     = "10.1.2.0/24"
+}
+
+variable "subnet_aks_cidr" {
+  description = "CIDR du sous-réseau réservé au futur cluster Kubernetes (AKS Engine / nœuds)."
+  type        = string
+  default     = "10.1.3.0/24"
 }
 
 variable "admin_username" {
-  description = "Admin username for Linux virtual machines."
+  description = "Compte administrateur Linux sur les VM."
   type        = string
   default     = "azureuser"
 }
 
 variable "ssh_public_key" {
-  description = "SSH public key for VM admin access."
+  description = "Clé publique SSH (ligne complète ssh-rsa / ssh-ed25519)."
   type        = string
 }
 
 variable "vm_size_gestion" {
-  description = "VM size for vm-gestion."
+  description = "Taille de la VM d'administration."
   type        = string
   default     = "Standard_D2s_v3"
 }
 
 variable "vm_size_db" {
-  description = "VM size for vm-db."
+  description = "Taille de la VM base de données."
   type        = string
   default     = "Standard_D2s_v3"
 }
 
-variable "image_publisher" {
-  description = "Image publisher."
+variable "ssh_source_address_prefix" {
+  description = "Source autorisée pour SSH sur la VM-gestion (ex. * pour démonstration académique)."
   type        = string
-  default     = "Canonical"
+  default     = "*"
+}
+
+variable "image_publisher" {
+  type    = string
+  default = "Canonical"
 }
 
 variable "image_offer" {
-  description = "Image offer."
-  type        = string
-  default     = "UbuntuServer"
+  type    = string
+  default = "UbuntuServer"
 }
 
 variable "image_sku" {
-  description = "Image SKU."
-  type        = string
-  default     = "20.04-LTS"
+  type    = string
+  default = "20.04-LTS"
 }
 
 variable "image_version" {
-  description = "Image version."
-  type        = string
-  default     = "latest"
+  type    = string
+  default = "latest"
 }
