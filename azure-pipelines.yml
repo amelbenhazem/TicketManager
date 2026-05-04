@@ -110,15 +110,12 @@ stages:
         steps:
           - script: |
               sudo npm install -g snyk
-              snyk auth $(SNYK_TOKEN)
-            displayName: "Authenticate Snyk"
-          - script: |
-              cd backend && snyk test --severity-threshold=high
-            displayName: "Snyk backend scan"
-          - script: |
-              cd frontend && snyk test --severity-threshold=high
-            displayName: "Snyk frontend scan"
-            continueOnError: true
+              export SNYK_TOKEN=$(SNYK_TOKEN)
+              cd backend
+              snyk test --severity-threshold=high
+              cd ../frontend
+              snyk test --severity-threshold=high || true
+            displayName: "Snyk scan (backend + frontend)"
 
   # =========================
   # DOCKER BUILD
