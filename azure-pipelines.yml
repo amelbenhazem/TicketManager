@@ -85,17 +85,15 @@ stages:
         displayName: "SonarQube Analysis"
         steps:
           - script: |
-              docker run --rm \
-                --network host \
-                -e SONAR_HOST_URL=http://localhost:9000 \
-                -e SONAR_TOKEN=$(SONAR_TOKEN) \
-                -v "$(System.DefaultWorkingDirectory):/usr/src" \
-                sonarsource/sonar-scanner-cli \
+              export SONAR_TOKEN=$(SONAR_TOKEN)
+
+              sonar-scanner \
                 -Dsonar.projectKey=ticket-manager \
                 -Dsonar.projectName=TicketManager \
+                -Dsonar.host.url=http://localhost:9000 \
+                -Dsonar.login=$SONAR_TOKEN \
                 -Dsonar.sources=backend/src,frontend \
-                -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/.next/**,**/coverage/** \
-                -Dsonar.javascript.lcov.reportPaths=backend/coverage/lcov.info
+                -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/coverage/**
             displayName: "Run SonarQube Analysis"
 
   # =========================
