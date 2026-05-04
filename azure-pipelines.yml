@@ -7,24 +7,20 @@ trigger:
 pool:
   name: ticketmanager-pool
 
-variables:
-  ARM_CLIENT_ID: $(ARM_CLIENT_ID)
-  ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
-  ARM_TENANT_ID: $(ARM_TENANT_ID)
-  ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
-
-  STACK_ARM_ENVIRONMENT_NAME: $(STACK_ARM_ENVIRONMENT_NAME)
-  TFSTATE_ACCESS_KEY: $(TFSTATE_ACCESS_KEY)
-  SSH_PUBLIC_KEY: $(SSH_PUBLIC_KEY)
-
-  NEXUS_URL: $(NEXUS_URL)
-  NEXUS_USER: $(NEXUS_USER)
-  NEXUS_PASSWORD: $(NEXUS_PASSWORD)
-
-  SNYK_TOKEN: $(SNYK_TOKEN)
-  SONAR_TOKEN: $(SONAR_TOKEN)
-
-  TF_APPROVERS: $(TF_APPROVERS)
+# Définir dans Azure DevOps : Pipeline → Edit → Variables (ne pas faire VAR: $(VAR) dans ce YAML).
+# Secrets → cocher « Keep this value secret ».
+#
+# Qualité / sécurité / registry
+#   SONAR_TOKEN          — token d’analyse SonarQube (secret)
+#   SNYK_TOKEN           — token API Snyk (secret)
+#   NEXUS_URL            — ex. registry.example.com:8082 (sans https:// si docker login l’exige ainsi)
+#   NEXUS_USER           — utilisateur Nexus
+#   NEXUS_PASSWORD       — mot de passe ou token Nexus (secret)
+#
+# Terraform / Azure Stack (voir aussi les étapes Terraform)
+#   ARM_CLIENT_ID, ARM_CLIENT_SECRET (secret), ARM_TENANT_ID, ARM_SUBSCRIPTION_ID
+#   STACK_ARM_ENVIRONMENT_NAME, TFSTATE_ACCESS_KEY (secret), SSH_PUBLIC_KEY (secret)
+#   TF_APPROVERS         — email pour l’approbation manuelle (main)
 
 stages:
 
@@ -85,15 +81,18 @@ stages:
         displayName: "SonarQube Analysis"
         steps:
           - script: |
-              export SONAR_TOKEN=$(SONAR_TOKEN)
-
-              sonar-scanner \
+              docker run --rm \
+                --network host \
+                -e SONAR_HOST_URL=http://localhost:9000 \
+                -e SONAR_TOKEN="$(SONAR_TOKEN)" \
+                -v "$(System.DefaultWorkingDirectory):/usr/src" \
+                -w /usr/src \
+                sonarsource/sonar-scanner-cli \
                 -Dsonar.projectKey=ticket-manager \
                 -Dsonar.projectName=TicketManager \
-                -Dsonar.host.url=http://localhost:9000 \
-                -Dsonar.login=$SONAR_TOKEN \
                 -Dsonar.sources=backend/src,frontend \
-                -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/coverage/**
+                -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/.next/**,**/coverage/** \
+                -Dsonar.javascript.lcov.reportPaths=backend/coverage/lcov.info
             displayName: "Run SonarQube Analysis"
 
   # =========================
