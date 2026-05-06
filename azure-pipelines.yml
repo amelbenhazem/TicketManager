@@ -7,21 +7,6 @@ trigger:
 pool:
   name: ticketmanager-pool
 
-# Définir dans Azure DevOps : Pipeline → Edit → Variables (ne pas faire VAR: $(VAR) dans ce YAML).
-# Secrets → cocher « Keep this value secret ».
-#
-# Qualité / sécurité / registry
-#   SONAR_TOKEN          — token d’analyse SonarQube (secret)
-#   SNYK_TOKEN           — token API Snyk (secret)
-#   NEXUS_URL            — ex. registry.example.com:8082 (sans https:// si docker login l’exige ainsi)
-#   NEXUS_USER           — utilisateur Nexus
-#   NEXUS_PASSWORD       — mot de passe ou token Nexus (secret)
-#
-# Terraform / Azure Stack (voir aussi les étapes Terraform)
-#   ARM_CLIENT_ID, ARM_CLIENT_SECRET (secret), ARM_TENANT_ID, ARM_SUBSCRIPTION_ID
-#   STACK_ARM_ENVIRONMENT_NAME, TFSTATE_ACCESS_KEY (secret), SSH_PUBLIC_KEY (secret)
-#   TF_APPROVERS         — email pour l’approbation manuelle (main)
-
 stages:
 
   # =========================
@@ -202,6 +187,14 @@ stages:
         pool:
           name: ticketmanager-pool
         steps:
+
+          - task: DownloadPipelineArtifact@2
+            displayName: "Download tfstate (si existant)"
+            continueOnError: true
+            inputs:
+              artifact: tfstate
+              path: $(System.DefaultWorkingDirectory)/terraform
+
           - script: |
               az cloud register --name XpressAzureDC2 \
                 --endpoint-resource-manager "https://management.dc2.xpressazure.com" \
@@ -222,12 +215,7 @@ stages:
 
           - script: |
               cd terraform
-              terraform init \
-                -backend-config="resource_group_name=AmalBH" \
-                -backend-config="storage_account_name=amalbhtfstate01" \
-                -backend-config="container_name=tfstate" \
-                -backend-config="key=terraform.tfstate" \
-                -backend-config="access_key=$(TFSTATE_ACCESS_KEY)"
+              terraform init
             displayName: "Terraform Init"
 
           - script: |
@@ -245,6 +233,12 @@ stages:
                 -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
                 -var="ssh_public_key=$(SSH_PUBLIC_KEY)"
             displayName: "Terraform Plan"
+
+          - task: PublishPipelineArtifact@1
+            displayName: "Publish tfplan"
+            inputs:
+              targetPath: $(System.DefaultWorkingDirectory)/terraform/tfplan
+              artifact: tfplan
 
       - job: TerraformManualApproval
         displayName: "Approval gate"
@@ -266,6 +260,13 @@ stages:
         pool:
           name: ticketmanager-pool
         steps:
+
+          - task: DownloadPipelineArtifact@2
+            displayName: "Download tfplan"
+            inputs:
+              artifact: tfplan
+              path: $(System.DefaultWorkingDirectory)/terraform
+
           - script: |
               az cloud set --name XpressAzureDC2
               az login --service-principal \
@@ -277,17 +278,12 @@ stages:
 
           - script: |
               cd terraform
-              terraform init \
-                -backend-config="resource_group_name=AmalBH" \
-                -backend-config="storage_account_name=amalbhtfstate01" \
-                -backend-config="container_name=tfstate" \
-                -backend-config="key=terraform.tfstate" \
-                -backend-config="access_key=$(TFSTATE_ACCESS_KEY)"
-              terraform apply -input=false -auto-approve \
-                -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
-                -var="tenant_id=$(ARM_TENANT_ID)" \
-                -var="client_id=$(ARM_CLIENT_ID)" \
-                -var="client_secret=$(ARM_CLIENT_SECRET)" \
-                -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
-                -var="ssh_public_key=$(SSH_PUBLIC_KEY)"
+              terraform init
+              terraform apply -input=false -auto-approve tfplan
             displayName: "Terraform Apply"
+
+          - task: PublishPipelineArtifact@1
+            displayName: "Publish tfstate"
+            inputs:
+              targetPath: $(System.DefaultWorkingDirectory)/terraform/terraform.tfstate
+              artifact: tfstate
