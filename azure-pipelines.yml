@@ -307,7 +307,7 @@ stages:
         steps:
           - task: ManualValidation@0
             inputs:
-              instructions: "Vérifiez le plan Terraform et approuvez pour continuer."
+              instructions: "Le job Apply refait un plan après import puis applique (tfplan du build n'est pas réutilisé). Vérifiez le dernier log Plan du job TerraformInitValidatePlan puis approuvez."
               notifyUsers: "$(TF_APPROVERS)"
               onTimeout: "reject"
             timeoutInMinutes: 1440
@@ -319,12 +319,6 @@ stages:
         pool:
           name: ticketmanager-pool
         steps:
-
-          - task: DownloadPipelineArtifact@2
-            displayName: "Download tfplan"
-            inputs:
-              artifact: tfplan
-              path: $(System.DefaultWorkingDirectory)/terraform
 
           - script: |
               az cloud set --name XpressAzureDC2
@@ -340,7 +334,7 @@ stages:
               terraform init
             displayName: "Terraform Init"
 
-          # ✅ NOUVEAU — Import des ressources existantes sur Azure
+          # Import (modifie le state) : ne pas réutiliser le tfplan du job précédent — replanifier ensuite.
           # || true = idempotent : si déjà dans le state, continue sans erreur
           - script: |
               cd terraform
@@ -397,9 +391,18 @@ stages:
             displayName: "Terraform Import existing resources"
 
           - script: |
+              set -e
               cd terraform
-              terraform apply -input=false -auto-approve tfplan
-            displayName: "Terraform Apply"
+              terraform plan -input=false \
+                -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
+                -var="tenant_id=$(ARM_TENANT_ID)" \
+                -var="client_id=$(ARM_CLIENT_ID)" \
+                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
+                -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
+                -out=tfplan-apply
+              terraform apply -input=false -auto-approve tfplan-apply
+            displayName: "Terraform Plan + Apply (after import)"
 
           # ✅ CONSERVÉ : tfstate publié comme artifact pipeline
           - task: PublishPipelineArtifact@1
