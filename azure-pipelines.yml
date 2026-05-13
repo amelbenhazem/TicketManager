@@ -18,11 +18,30 @@ stages:
       - job: BuildJob
         displayName: "Build Backend & Frontend"
         steps:
+
+          # ✅ CORRECTION 1 : Cache node_modules backend
+          # Évite de retélécharger les dépendances à chaque run
+          - task: Cache@2
+            displayName: "Cache backend node_modules"
+            inputs:
+              key: 'npm | "$(Agent.OS)" | backend/package-lock.json'
+              path: backend/node_modules
+              cacheHitVar: BACKEND_CACHE_RESTORED
+
+          # ✅ CORRECTION 1 : Cache node_modules frontend
+          - task: Cache@2
+            displayName: "Cache frontend node_modules"
+            inputs:
+              key: 'npm | "$(Agent.OS)" | frontend/package-lock.json'
+              path: frontend/node_modules
+              cacheHitVar: FRONTEND_CACHE_RESTORED
+
           - script: |
-              cd backend && npm ci && npm run build
+              cd backend && npm ci --prefer-offline && npm run build
             displayName: "Backend build"
+
           - script: |
-              cd frontend && npm ci && npm run build
+              cd frontend && npm ci --prefer-offline && npm run build
             displayName: "Frontend build"
 
   # =========================
@@ -35,22 +54,58 @@ stages:
       - job: UnitTests
         displayName: "Unit Tests"
         steps:
+
+          # ✅ CORRECTION 1 : Réutilisation du cache (plus de npm ci inutile)
+          - task: Cache@2
+            displayName: "Restore backend node_modules from cache"
+            inputs:
+              key: 'npm | "$(Agent.OS)" | backend/package-lock.json'
+              path: backend/node_modules
+              cacheHitVar: BACKEND_CACHE_RESTORED
+
           - script: |
               cd backend
-              npm ci
+              npm ci --prefer-offline
               npm run test -- --forceExit
             displayName: "Unit tests"
+
           - script: |
               cd backend
               npm run test:cov -- --forceExit
             displayName: "Coverage report"
 
+          # ✅ CORRECTION 3 : Publier les résultats de tests dans Azure DevOps
+          # Permet de voir les tests directement dans l'interface du pipeline
+          - task: PublishTestResults@2
+            displayName: "Publish test results"
+            inputs:
+              testResultsFormat: JUnit
+              testResultsFiles: backend/coverage/junit.xml
+            condition: always()
+
+          # ✅ CORRECTION 3 : Publier le rapport de coverage
+          # Visible dans l'onglet "Code Coverage" du pipeline
+          - task: PublishCodeCoverageResults@1
+            displayName: "Publish coverage report"
+            inputs:
+              codeCoverageTool: Cobertura
+              summaryFileLocation: backend/coverage/cobertura-coverage.xml
+            condition: always()
+
       - job: IntegrationTests
         displayName: "Integration Tests"
         steps:
+
+          - task: Cache@2
+            displayName: "Restore backend node_modules from cache"
+            inputs:
+              key: 'npm | "$(Agent.OS)" | backend/package-lock.json'
+              path: backend/node_modules
+              cacheHitVar: BACKEND_CACHE_RESTORED
+
           - script: |
               cd backend
-              npm ci
+              npm ci --prefer-offline
               npm run test:int -- --forceExit --testTimeout=30000
             displayName: "Integration tests"
             continueOnError: true
@@ -136,6 +191,7 @@ stages:
                 ticket-backend:$(Build.BuildId)
             displayName: "Trivy scan backend image"
             continueOnError: true
+
           - script: |
               docker run --rm \
                 -v /var/run/docker.sock:/var/run/docker.sock \
@@ -161,18 +217,34 @@ stages:
               echo "$(NEXUS_PASSWORD)" | docker login $(NEXUS_URL) \
                 -u $(NEXUS_USER) --password-stdin
             displayName: "Login to Nexus"
+
+          # ✅ CORRECTION 4 : Tag différent selon la branche
+          # main  → tag "latest"   (image stable de production)
+          # develop → tag "dev-XXX" (image de développement, n'écrase pas latest)
           - script: |
+              if [ "$(Build.SourceBranch)" = "refs/heads/main" ]; then
+                STABLE_TAG="latest"
+              else
+                STABLE_TAG="dev-$(Build.BuildId)"
+              fi
+
               docker tag ticket-backend:$(Build.BuildId) $(NEXUS_URL)/ticket-backend:$(Build.BuildId)
-              docker tag ticket-backend:$(Build.BuildId) $(NEXUS_URL)/ticket-backend:latest
+              docker tag ticket-backend:$(Build.BuildId) $(NEXUS_URL)/ticket-backend:$STABLE_TAG
               docker push $(NEXUS_URL)/ticket-backend:$(Build.BuildId)
-              docker push $(NEXUS_URL)/ticket-backend:latest
-            displayName: "Push backend image"
-          - script: |
+              docker push $(NEXUS_URL)/ticket-backend:$STABLE_TAG
+
               docker tag ticket-frontend:$(Build.BuildId) $(NEXUS_URL)/ticket-frontend:$(Build.BuildId)
-              docker tag ticket-frontend:$(Build.BuildId) $(NEXUS_URL)/ticket-frontend:latest
+              docker tag ticket-frontend:$(Build.BuildId) $(NEXUS_URL)/ticket-frontend:$STABLE_TAG
               docker push $(NEXUS_URL)/ticket-frontend:$(Build.BuildId)
-              docker push $(NEXUS_URL)/ticket-frontend:latest
-            displayName: "Push frontend image"
+              docker push $(NEXUS_URL)/ticket-frontend:$STABLE_TAG
+            displayName: "Tag and push images"
+
+          # ✅ CORRECTION 5 : Logout après push
+          # Nettoie les credentials Docker de l'agent
+          - script: |
+              docker logout $(NEXUS_URL)
+            displayName: "Logout from Nexus"
+            condition: always()
 
   # =========================
   # TERRAFORM
@@ -188,6 +260,8 @@ stages:
           name: ticketmanager-pool
         steps:
 
+          # ✅ CONSERVÉ : artifact pipeline pour tfstate (pas de storage account disponible)
+          # continueOnError: true est important → au 1er run le tfstate n'existe pas encore
           - task: DownloadPipelineArtifact@2
             displayName: "Download tfstate (si existant)"
             continueOnError: true
@@ -282,6 +356,7 @@ stages:
               terraform apply -input=false -auto-approve tfplan
             displayName: "Terraform Apply"
 
+          # ✅ CONSERVÉ : tfstate publié comme artifact pipeline
           - task: PublishPipelineArtifact@1
             displayName: "Publish tfstate"
             inputs:
