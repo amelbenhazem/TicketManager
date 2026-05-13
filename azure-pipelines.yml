@@ -19,8 +19,6 @@ stages:
         displayName: "Build Backend & Frontend"
         steps:
 
-          # ✅ CORRECTION 1 : Cache node_modules backend
-          # Évite de retélécharger les dépendances à chaque run
           - task: Cache@2
             displayName: "Cache backend node_modules"
             inputs:
@@ -28,7 +26,6 @@ stages:
               path: backend/node_modules
               cacheHitVar: BACKEND_CACHE_RESTORED
 
-          # ✅ CORRECTION 1 : Cache node_modules frontend
           - task: Cache@2
             displayName: "Cache frontend node_modules"
             inputs:
@@ -55,7 +52,6 @@ stages:
         displayName: "Unit Tests"
         steps:
 
-          # ✅ CORRECTION 1 : Réutilisation du cache (plus de npm ci inutile)
           - task: Cache@2
             displayName: "Restore backend node_modules from cache"
             inputs:
@@ -74,8 +70,6 @@ stages:
               npm run test:cov -- --forceExit
             displayName: "Coverage report"
 
-          # ✅ CORRECTION 3 : Publier les résultats de tests dans Azure DevOps
-          # Permet de voir les tests directement dans l'interface du pipeline
           - task: PublishTestResults@2
             displayName: "Publish test results"
             inputs:
@@ -83,8 +77,6 @@ stages:
               testResultsFiles: backend/coverage/junit.xml
             condition: always()
 
-          # ✅ CORRECTION 3 : Publier le rapport de coverage
-          # Visible dans l'onglet "Code Coverage" du pipeline
           - task: PublishCodeCoverageResults@1
             displayName: "Publish coverage report"
             inputs:
@@ -218,9 +210,6 @@ stages:
                 -u $(NEXUS_USER) --password-stdin
             displayName: "Login to Nexus"
 
-          # ✅ CORRECTION 4 : Tag différent selon la branche
-          # main  → tag "latest"   (image stable de production)
-          # develop → tag "dev-XXX" (image de développement, n'écrase pas latest)
           - script: |
               if [ "$(Build.SourceBranch)" = "refs/heads/main" ]; then
                 STABLE_TAG="latest"
@@ -239,8 +228,6 @@ stages:
               docker push $(NEXUS_URL)/ticket-frontend:$STABLE_TAG
             displayName: "Tag and push images"
 
-          # ✅ CORRECTION 5 : Logout après push
-          # Nettoie les credentials Docker de l'agent
           - script: |
               docker logout $(NEXUS_URL)
             displayName: "Logout from Nexus"
@@ -260,8 +247,6 @@ stages:
           name: ticketmanager-pool
         steps:
 
-          # ✅ CONSERVÉ : artifact pipeline pour tfstate (pas de storage account disponible)
-          # continueOnError: true est important → au 1er run le tfstate n'existe pas encore
           - task: DownloadPipelineArtifact@2
             displayName: "Download tfstate (si existant)"
             continueOnError: true
@@ -353,6 +338,66 @@ stages:
           - script: |
               cd terraform
               terraform init
+            displayName: "Terraform Init"
+
+          # ✅ NOUVEAU — Import des ressources existantes sur Azure
+          # || true = idempotent : si déjà dans le state, continue sans erreur
+          - script: |
+              cd terraform
+
+              terraform import \
+                -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
+                -var="tenant_id=$(ARM_TENANT_ID)" \
+                -var="client_id=$(ARM_CLIENT_ID)" \
+                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
+                -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
+                azurestack_virtual_network.main \
+                /subscriptions/$(ARM_SUBSCRIPTION_ID)/resourceGroups/AmalBH/providers/Microsoft.Network/virtualNetworks/ticketmanager-iac-vnet || true
+
+              terraform import \
+                -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
+                -var="tenant_id=$(ARM_TENANT_ID)" \
+                -var="client_id=$(ARM_CLIENT_ID)" \
+                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
+                -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
+                azurestack_network_security_group.mgmt \
+                /subscriptions/$(ARM_SUBSCRIPTION_ID)/resourceGroups/AmalBH/providers/Microsoft.Network/networkSecurityGroups/ticketmanager-iac-nsg-mgmt || true
+
+              terraform import \
+                -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
+                -var="tenant_id=$(ARM_TENANT_ID)" \
+                -var="client_id=$(ARM_CLIENT_ID)" \
+                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
+                -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
+                azurestack_network_security_group.db \
+                /subscriptions/$(ARM_SUBSCRIPTION_ID)/resourceGroups/AmalBH/providers/Microsoft.Network/networkSecurityGroups/ticketmanager-iac-nsg-db || true
+
+              terraform import \
+                -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
+                -var="tenant_id=$(ARM_TENANT_ID)" \
+                -var="client_id=$(ARM_CLIENT_ID)" \
+                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
+                -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
+                azurestack_network_security_group.aks \
+                /subscriptions/$(ARM_SUBSCRIPTION_ID)/resourceGroups/AmalBH/providers/Microsoft.Network/networkSecurityGroups/ticketmanager-iac-nsg-aks || true
+
+              terraform import \
+                -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
+                -var="tenant_id=$(ARM_TENANT_ID)" \
+                -var="client_id=$(ARM_CLIENT_ID)" \
+                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
+                -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
+                azurestack_public_ip.gestion \
+                /subscriptions/$(ARM_SUBSCRIPTION_ID)/resourceGroups/AmalBH/providers/Microsoft.Network/publicIPAddresses/ticketmanager-iac-vm-gestion-pip || true
+            displayName: "Terraform Import existing resources"
+
+          - script: |
+              cd terraform
               terraform apply -input=false -auto-approve tfplan
             displayName: "Terraform Apply"
 
