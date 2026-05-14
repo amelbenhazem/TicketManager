@@ -334,90 +334,181 @@ stages:
               terraform init
             displayName: "Terraform Init"
 
-          # ✅ Import de TOUTES les ressources existantes sur Azure
-          # Basé sur l'analyse complète des fichiers .tf :
-          # network.tf  : vnet, 3x nsg, 3x subnet
-          # vm-management.tf : public_ip, nic, vm (gestion)
-          # vm-db.tf    : nic, vm (db)
-          # || true = idempotent : si déjà dans le state, continue sans erreur
+          # ✅ CORRECTION : suppression de "set -e" pour que tous les imports s'exécutent
+          # même si certains échouent (|| true gère chaque import individuellement)
           - script: |
-              set -e
               cd terraform
               RG="AmalBH"
               SUB="$(ARM_SUBSCRIPTION_ID)"
-              VARS='-var="subscription_id=$(ARM_SUBSCRIPTION_ID)" -var="tenant_id=$(ARM_TENANT_ID)" -var="client_id=$(ARM_CLIENT_ID)" -var="client_secret=$(ARM_CLIENT_SECRET)" -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" -var="ssh_public_key=$(SSH_PUBLIC_KEY)"'
 
               # --- network.tf ---
-              terraform import $VARS \
+              terraform import \
+                -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
+                -var="tenant_id=$(ARM_TENANT_ID)" \
+                -var="client_id=$(ARM_CLIENT_ID)" \
+                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
+                -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
                 azurestack_virtual_network.main \
                 /subscriptions/$SUB/resourceGroups/$RG/providers/Microsoft.Network/virtualNetworks/ticketmanager-iac-vnet || true
 
-              terraform import $VARS \
+              terraform import \
+                -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
+                -var="tenant_id=$(ARM_TENANT_ID)" \
+                -var="client_id=$(ARM_CLIENT_ID)" \
+                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
+                -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
                 azurestack_network_security_group.mgmt \
                 /subscriptions/$SUB/resourceGroups/$RG/providers/Microsoft.Network/networkSecurityGroups/ticketmanager-iac-nsg-mgmt || true
 
-              terraform import $VARS \
+              terraform import \
+                -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
+                -var="tenant_id=$(ARM_TENANT_ID)" \
+                -var="client_id=$(ARM_CLIENT_ID)" \
+                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
+                -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
                 azurestack_network_security_group.db \
                 /subscriptions/$SUB/resourceGroups/$RG/providers/Microsoft.Network/networkSecurityGroups/ticketmanager-iac-nsg-db || true
 
-              terraform import $VARS \
+              terraform import \
+                -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
+                -var="tenant_id=$(ARM_TENANT_ID)" \
+                -var="client_id=$(ARM_CLIENT_ID)" \
+                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
+                -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
                 azurestack_network_security_group.aks \
                 /subscriptions/$SUB/resourceGroups/$RG/providers/Microsoft.Network/networkSecurityGroups/ticketmanager-iac-nsg-aks || true
 
-              terraform import $VARS \
+              terraform import \
+                -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
+                -var="tenant_id=$(ARM_TENANT_ID)" \
+                -var="client_id=$(ARM_CLIENT_ID)" \
+                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
+                -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
                 azurestack_network_security_rule.mgmt_ssh \
                 /subscriptions/$SUB/resourceGroups/$RG/providers/Microsoft.Network/networkSecurityGroups/ticketmanager-iac-nsg-mgmt/securityRules/AllowSSH || true
 
-              terraform import $VARS \
+              terraform import \
+                -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
+                -var="tenant_id=$(ARM_TENANT_ID)" \
+                -var="client_id=$(ARM_CLIENT_ID)" \
+                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
+                -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
                 azurestack_network_security_rule.db_mongo_from_mgmt \
                 /subscriptions/$SUB/resourceGroups/$RG/providers/Microsoft.Network/networkSecurityGroups/ticketmanager-iac-nsg-db/securityRules/AllowMongoFromMgmtSubnet || true
 
-              terraform import $VARS \
+              terraform import \
+                -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
+                -var="tenant_id=$(ARM_TENANT_ID)" \
+                -var="client_id=$(ARM_CLIENT_ID)" \
+                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
+                -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
                 azurestack_network_security_rule.db_mongo_from_aks \
                 /subscriptions/$SUB/resourceGroups/$RG/providers/Microsoft.Network/networkSecurityGroups/ticketmanager-iac-nsg-db/securityRules/AllowMongoFromAksSubnet || true
 
-              terraform import $VARS \
+              terraform import \
+                -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
+                -var="tenant_id=$(ARM_TENANT_ID)" \
+                -var="client_id=$(ARM_CLIENT_ID)" \
+                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
+                -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
                 azurestack_network_security_rule.aks_allow_internal \
                 /subscriptions/$SUB/resourceGroups/$RG/providers/Microsoft.Network/networkSecurityGroups/ticketmanager-iac-nsg-aks/securityRules/AllowVnetInbound || true
 
-              terraform import $VARS \
+              terraform import \
+                -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
+                -var="tenant_id=$(ARM_TENANT_ID)" \
+                -var="client_id=$(ARM_CLIENT_ID)" \
+                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
+                -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
                 azurestack_subnet.mgmt \
                 /subscriptions/$SUB/resourceGroups/$RG/providers/Microsoft.Network/virtualNetworks/ticketmanager-iac-vnet/subnets/ticketmanager-iac-snet-mgmt || true
 
-              terraform import $VARS \
+              terraform import \
+                -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
+                -var="tenant_id=$(ARM_TENANT_ID)" \
+                -var="client_id=$(ARM_CLIENT_ID)" \
+                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
+                -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
                 azurestack_subnet.db \
                 /subscriptions/$SUB/resourceGroups/$RG/providers/Microsoft.Network/virtualNetworks/ticketmanager-iac-vnet/subnets/ticketmanager-iac-snet-db || true
 
-              terraform import $VARS \
+              terraform import \
+                -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
+                -var="tenant_id=$(ARM_TENANT_ID)" \
+                -var="client_id=$(ARM_CLIENT_ID)" \
+                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
+                -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
                 azurestack_subnet.aks \
                 /subscriptions/$SUB/resourceGroups/$RG/providers/Microsoft.Network/virtualNetworks/ticketmanager-iac-vnet/subnets/ticketmanager-iac-snet-aks || true
 
               # --- vm-management.tf ---
-              terraform import $VARS \
+              terraform import \
+                -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
+                -var="tenant_id=$(ARM_TENANT_ID)" \
+                -var="client_id=$(ARM_CLIENT_ID)" \
+                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
+                -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
                 azurestack_public_ip.gestion \
                 /subscriptions/$SUB/resourceGroups/$RG/providers/Microsoft.Network/publicIPAddresses/ticketmanager-iac-vm-gestion-pip || true
 
-              terraform import $VARS \
+              terraform import \
+                -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
+                -var="tenant_id=$(ARM_TENANT_ID)" \
+                -var="client_id=$(ARM_CLIENT_ID)" \
+                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
+                -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
                 azurestack_network_interface.gestion \
                 /subscriptions/$SUB/resourceGroups/$RG/providers/Microsoft.Network/networkInterfaces/ticketmanager-iac-vm-gestion-nic || true
 
-              terraform import $VARS \
+              terraform import \
+                -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
+                -var="tenant_id=$(ARM_TENANT_ID)" \
+                -var="client_id=$(ARM_CLIENT_ID)" \
+                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
+                -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
                 azurestack_virtual_machine.gestion \
                 /subscriptions/$SUB/resourceGroups/$RG/providers/Microsoft.Compute/virtualMachines/ticketmanager-iac-vm-gestion || true
 
               # --- vm-db.tf ---
-              terraform import $VARS \
+              terraform import \
+                -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
+                -var="tenant_id=$(ARM_TENANT_ID)" \
+                -var="client_id=$(ARM_CLIENT_ID)" \
+                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
+                -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
                 azurestack_network_interface.db \
                 /subscriptions/$SUB/resourceGroups/$RG/providers/Microsoft.Network/networkInterfaces/ticketmanager-iac-vm-db-nic || true
 
-              terraform import $VARS \
+              terraform import \
+                -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
+                -var="tenant_id=$(ARM_TENANT_ID)" \
+                -var="client_id=$(ARM_CLIENT_ID)" \
+                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
+                -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
                 azurestack_virtual_machine.db \
                 /subscriptions/$SUB/resourceGroups/$RG/providers/Microsoft.Compute/virtualMachines/ticketmanager-iac-vm-db || true
+
+              echo "✅ Import terminé"
             displayName: "Terraform Import ALL existing resources"
 
-          # ✅ Nouveau plan APRÈS import (évite "Saved plan is stale")
+          # ✅ Plan frais APRÈS import + Apply
           - script: |
-              set -e
               cd terraform
               terraform plan -input=false \
                 -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \

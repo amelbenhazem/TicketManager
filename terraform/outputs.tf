@@ -32,6 +32,7 @@ output "vm_gestion_public_ip" {
   value = azurestack_public_ip.gestion.ip_address
 }
 
+
 output "vm_gestion_private_ip" {
   value = azurestack_network_interface.gestion.private_ip_address
 }
