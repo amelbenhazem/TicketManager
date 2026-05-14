@@ -106,19 +106,20 @@ variable "ssh_source_address_prefix" {
   default     = "*"
 }
 
+# ✅ CORRECTION : publisher, offer et sku corrigés pour Azure Stack Hub
 variable "image_publisher" {
   type    = string
-  default = "Canonical"
+  default = "canonical"
 }
 
 variable "image_offer" {
   type    = string
-  default = "UbuntuServer"
+  default = "0001-com-ubuntu-server-focal"
 }
 
 variable "image_sku" {
   type    = string
-  default = "20.04-LTS"
+  default = "20_04-lts"
 }
 
 variable "image_version" {
