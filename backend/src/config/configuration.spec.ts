@@ -17,5 +17,13 @@ describe('configuration (unit)', () => {
     const cfg = configuration();
     expect(cfg.port).toBe(4005);
   });
+
+  it('rejects AUTH_DEMO_* in production', () => {
+    process.env.NODE_ENV = 'production';
+    process.env.JWT_SECRET = 'a'.repeat(64);
+    process.env.AUTH_DEMO_EMAIL = 'demo@rfc.tn';
+    delete process.env.AUTH_DEMO_PASSWORD;
+    expect(() => configuration()).toThrow(/AUTH_DEMO/);
+  });
 });
 

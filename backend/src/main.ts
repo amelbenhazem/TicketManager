@@ -3,6 +3,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters';
+import { setupSwagger } from './swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -17,6 +18,10 @@ async function bootstrap() {
     }),
   );
   app.useGlobalFilters(new AllExceptionsFilter());
+
+  if (config.get<string>('nodeEnv') !== 'production') {
+    setupSwagger(app);
+  }
 
   const corsOrigin = config.get<string>('cors.origin');
   const isDev = config.get<string>('nodeEnv') !== 'production';
@@ -37,6 +42,9 @@ async function bootstrap() {
   const port = config.get<number>('port', 3000);
   await app.listen(port);
   console.log(`[Backend] Running at http://localhost:${port}`);
+  if (config.get<string>('nodeEnv') !== 'production') {
+    console.log(`[Backend] Swagger UI at http://localhost:${port}/api`);
+  }
   if (isDev) {
     console.log(`[Backend] CORS allowed for: ${corsOrigin}`);
   }

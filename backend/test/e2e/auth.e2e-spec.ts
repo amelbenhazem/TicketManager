@@ -19,15 +19,11 @@ describe('Auth (e2e)', () => {
     await app.close();
   });
 
-  it('POST /auth/login (demo) -> returns token + role', async () => {
-    const res = await request(app.getHttpServer())
+  it('POST /auth/login (compte démo supprimé) -> 401', async () => {
+    await request(app.getHttpServer())
       .post('/auth/login')
       .send({ email: 'demo@rfc.tn', password: 'demo123' })
-      .expect(200);
-
-    expect(res.body).toHaveProperty('access_token');
-    expect(res.body).toHaveProperty('expiresIn');
-    expect(res.body).toHaveProperty('role');
+      .expect(401);
   });
 
   it('GET /auth/me without token -> 401', async () => {

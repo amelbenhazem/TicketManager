@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test'
 
 const backendBaseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+const SEED_ADMIN_EMAIL = process.env.E2E_ADMIN_EMAIL ?? 'admin@rfc.com'
+const SEED_ADMIN_PASSWORD = process.env.E2E_ADMIN_PASSWORD ?? 'Admin123!'
 
 test('e2e: client creates ticket -> admin gets notification in bell', async ({ page, request, browser, baseURL }) => {
   const stamp = Date.now()
@@ -10,9 +12,9 @@ test('e2e: client creates ticket -> admin gets notification in bell', async ({ p
   const clientPassword = 'Passw0rd!123'
   const ticketTitle = `Ticket E2E ${stamp}`
 
-  // 1) Setup via API: login as demo admin, create a client user
+  // 1) Setup via API: login as seed admin, create users for this run
   const adminLogin = await request.post(`${backendBaseURL}/auth/login`, {
-    data: { email: 'demo@rfc.tn', password: 'demo123' },
+    data: { email: SEED_ADMIN_EMAIL, password: SEED_ADMIN_PASSWORD },
   })
   expect(adminLogin.ok()).toBeTruthy()
   const adminLoginJson = await adminLogin.json()
@@ -55,7 +57,7 @@ test('e2e: client creates ticket -> admin gets notification in bell', async ({ p
   await page.getByRole('button', { name: /Créer le ticket/i }).click()
   await expect(page).toHaveURL(/\/dashboard\/tickets$/)
 
-  // 3) UI (new context): demo admin opens bell and sees the notification
+  // 3) UI (new context): admin opens bell and sees the notification
   const adminContext = await browser.newContext()
   const adminPage = await adminContext.newPage()
   await adminPage.goto(`${baseURL}/login`)

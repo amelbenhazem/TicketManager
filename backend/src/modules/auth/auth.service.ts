@@ -50,21 +50,11 @@ export class AuthService {
     return { access_token, expiresIn, role };
   }
 
-  /**
-   * Valide : d'abord compte démo (admin), sinon utilisateur en base.
-   */
+  /** Authentification uniquement via utilisateurs en base (bcrypt). */
   private async validateUser(
     email: string,
     password: string,
   ): Promise<{ user: string | null; role: string }> {
-    const demoEmail =
-      this.config.get<string>('auth.demoEmail') ?? 'demo@rfc.tn';
-    const demoPassword =
-      this.config.get<string>('auth.demoPassword') ?? 'demo123';
-    if (email === demoEmail && password === demoPassword) {
-      return { user: email, role: UserRole.ADMIN };
-    }
-
     const found = await this.usersService.findByEmail(email);
     if (found == null) return { user: null, role: '' };
     const valid = await this.usersService.validatePassword(found, password);

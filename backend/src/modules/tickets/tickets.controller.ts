@@ -12,6 +12,13 @@ import {
   UploadedFiles,
   BadRequestException,
 } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { UserRole } from '../users/schemas/user.schema';
@@ -40,6 +47,8 @@ type RequestWithUser = Request & {
   user: { id: string; email: string; role: UserRole };
 };
 
+@ApiTags('tickets')
+@ApiBearerAuth('JWT')
 @Controller('tickets')
 @UseGuards(JwtAuthGuard)
 export class TicketsController {
@@ -142,6 +151,20 @@ export class TicketsController {
   }
 
   @Post('attachments/upload')
+  @ApiOperation({ summary: 'Upload pièces jointes (Cloudinary)' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['files'],
+      properties: {
+        files: {
+          type: 'array',
+          items: { type: 'string', format: 'binary' },
+        },
+      },
+    },
+  })
   @UseInterceptors(
     FilesInterceptor('files', 10, {
       limits: { fileSize: MAX_UPLOAD_SIZE },

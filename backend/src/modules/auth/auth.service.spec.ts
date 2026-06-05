@@ -18,7 +18,7 @@ describe('AuthService (unit)', () => {
 
   beforeEach(async () => {
     jwtService = { sign: jest.fn().mockReturnValue('jwt-token') };
-    config = { get: jest.fn() };
+    config = { get: jest.fn((_key: string, fallback?: string) => fallback) };
     usersService = {
       findByEmail: jest.fn(),
       validatePassword: jest.fn(),
@@ -37,39 +37,38 @@ describe('AuthService (unit)', () => {
     service = moduleRef.get(AuthService);
   });
 
-  it('login(): demo user -> returns ADMIN + 24h and signs jwt', async () => {
+  it('login(): admin en base -> JWT avec sub = ObjectId', async () => {
     config.get.mockImplementation((key: string, fallback?: string) => {
-      if (key === 'auth.demoEmail') return 'demo@rfc.tn';
-      if (key === 'auth.demoPassword') return 'demo123';
-      if (key === 'jwt.expiresIn') return undefined;
-      // AuthService uses config.get('jwt.expiresIn', '24h')
-      if (key === 'jwt.expiresIn' && fallback) return fallback;
+      if (key === 'jwt.expiresIn') return '24h';
       return fallback;
     });
+    usersService.findByEmail.mockResolvedValue({
+      _id: 'admin-id-1',
+      role: UserRole.ADMIN,
+    });
+    usersService.validatePassword.mockResolvedValue(true);
 
     const res = await service.login({
-      email: 'demo@rfc.tn',
-      password: 'demo123',
+      email: 'admin@rfc.com',
+      password: 'Admin123!',
     });
     expect(res).toEqual({
       access_token: 'jwt-token',
       expiresIn: '24h',
       role: UserRole.ADMIN,
     });
-    expect(jwtService.sign).toHaveBeenCalledTimes(1);
-    const [payload, opts] = jwtService.sign.mock.calls[0];
-    expect(payload).toMatchObject({
-      sub: 'demo@rfc.tn',
-      email: 'demo@rfc.tn',
-      role: UserRole.ADMIN,
-    });
-    expect(opts).toMatchObject({ expiresIn: '24h' });
+    expect(jwtService.sign).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sub: 'admin-id-1',
+        email: 'admin@rfc.com',
+        role: UserRole.ADMIN,
+      }),
+      expect.objectContaining({ expiresIn: '24h' }),
+    );
   });
 
   it('login(): uses configured jwt.expiresIn when present', async () => {
     config.get.mockImplementation((key: string, fallback?: string) => {
-      if (key === 'auth.demoEmail') return 'demo@rfc.tn';
-      if (key === 'auth.demoPassword') return 'demo123';
       if (key === 'jwt.expiresIn') return '12h';
       return fallback;
     });
@@ -88,8 +87,6 @@ describe('AuthService (unit)', () => {
 
   it('login(): db user -> returns role and signs jwt', async () => {
     config.get.mockImplementation((key: string, fallback?: string) => {
-      if (key === 'auth.demoEmail') return 'demo@rfc.tn';
-      if (key === 'auth.demoPassword') return 'demo123';
       if (key === 'jwt.expiresIn') return '24h';
       return fallback;
     });
@@ -114,12 +111,6 @@ describe('AuthService (unit)', () => {
   });
 
   it('login(): wrong password -> UnauthorizedException', async () => {
-    config.get.mockImplementation((key: string, fallback?: string) => {
-      if (key === 'auth.demoEmail') return 'demo@rfc.tn';
-      if (key === 'auth.demoPassword') return 'demo123';
-      return fallback;
-    });
-
     usersService.findByEmail.mockResolvedValue({
       _id: 'u1',
       role: UserRole.CLIENT,
@@ -128,6 +119,14 @@ describe('AuthService (unit)', () => {
 
     await expect(
       service.login({ email: 'c@ex.tn', password: 'wrong' }),
+    ).rejects.toBeInstanceOf(UnauthorizedException);
+  });
+
+  it('login(): unknown email -> UnauthorizedException', async () => {
+    usersService.findByEmail.mockResolvedValue(null);
+
+    await expect(
+      service.login({ email: 'demo@rfc.tn', password: 'demo123' }),
     ).rejects.toBeInstanceOf(UnauthorizedException);
   });
 });

@@ -14,6 +14,11 @@ export default function configuration() {
           "Générez-en un avec: node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\"",
       );
     }
+    if (process.env.AUTH_DEMO_EMAIL || process.env.AUTH_DEMO_PASSWORD) {
+      throw new Error(
+        'AUTH_DEMO_EMAIL / AUTH_DEMO_PASSWORD interdits en production. Utilisez des comptes créés en base.',
+      );
+    }
   }
 
   return {
@@ -31,11 +36,6 @@ export default function configuration() {
       origin:
         process.env.CORS_ORIGIN ??
         'http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001',
-    },
-    // Compte démo (à remplacer par vraie base utilisateurs)
-    auth: {
-      demoEmail: process.env.AUTH_DEMO_EMAIL,
-      demoPassword: process.env.AUTH_DEMO_PASSWORD,
     },
     cloudinary: {
       cloudName: process.env.CLOUDINARY_CLOUD_NAME ?? '',

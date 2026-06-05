@@ -197,7 +197,7 @@ void (async () => {
     ]);
 
     console.log(`Seed complete: ${usersCount} users, ${ticketsCount} tickets.`);
-    console.log('Login test accounts:');
+    console.log('Comptes de test (développement uniquement — changer les mots de passe en production):');
     console.log('- admin@rfc.com / Admin123!');
     console.log('- tech1@rfc.com / Tech123!');
     console.log('- tech2@rfc.com / Tech123!');
