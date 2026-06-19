@@ -1,0 +1,151 @@
+<mxfile host="app.diagrams.net" agent="TicketManager" version="22.1.0">
+  <diagram id="class-diagram" name="Diagramme de classes">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Titre -->
+        <mxCell id="title" value="Diagramme de classes — TicketManager (couche données / Mongoose)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=15;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="220" y="15" width="720" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- User -->
+        <mxCell id="class-user" value="&lt;b&gt;User&lt;/b&gt;&lt;hr&gt;_id: ObjectId&lt;br&gt;lastName: string&lt;br&gt;firstName: string&lt;br&gt;email: string {unique}&lt;br&gt;password: string {bcrypt}&lt;br&gt;role: UserRole&lt;br&gt;createdAt: Date&lt;br&gt;updatedAt: Date" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="80" y="70" width="220" height="160" as="geometry" />
+        </mxCell>
+
+        <!-- Ticket -->
+        <mxCell id="class-ticket" value="&lt;b&gt;Ticket&lt;/b&gt;&lt;hr&gt;_id: ObjectId&lt;br&gt;title: string&lt;br&gt;description: string&lt;br&gt;status: TicketStatus&lt;br&gt;category: TicketCategory&lt;br&gt;priority: TicketPriority&lt;br&gt;attachments: string[]&lt;br&gt;userId: ObjectId → User&lt;br&gt;assignedTo: ObjectId? → User&lt;br&gt;history: TicketHistoryEntry[]&lt;br&gt;createdAt: Date&lt;br&gt;updatedAt: Date" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#fff2cc;strokeColor=#d6b656;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="420" y="60" width="260" height="210" as="geometry" />
+        </mxCell>
+
+        <!-- TicketHistoryEntry (embedded) -->
+        <mxCell id="class-history" value="&lt;b&gt;TicketHistoryEntry&lt;/b&gt;&lt;hr size=&quot;0&quot;&gt;&lt;&lt;embedded&gt;&gt;&lt;br&gt;actorId: string&lt;br&gt;actorRole?: string&lt;br&gt;action: string&lt;br&gt;field?: string&lt;br&gt;from?: string&lt;br&gt;to?: string&lt;br&gt;timestamp: Date" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="760" y="70" width="220" height="150" as="geometry" />
+        </mxCell>
+
+        <!-- Notification -->
+        <mxCell id="class-notif" value="&lt;b&gt;Notification&lt;/b&gt;&lt;hr&gt;_id: ObjectId&lt;br&gt;userId: ObjectId → User&lt;br&gt;ticketId: ObjectId → Ticket&lt;br&gt;event: string&lt;br&gt;title: string&lt;br&gt;meta: object&lt;br&gt;isRead: boolean&lt;br&gt;createdAt: Date" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#d5e8d4;strokeColor=#82b366;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="420" y="320" width="240" height="165" as="geometry" />
+        </mxCell>
+
+        <!-- Enums -->
+        <mxCell id="enum-role" value="&lt;&lt;enumeration&gt;&gt;&lt;br&gt;&lt;b&gt;UserRole&lt;/b&gt;&lt;hr&gt;CLIENT&lt;br&gt;TECHNICIAN&lt;br&gt;ADMIN" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="80" y="280" width="140" height="95" as="geometry" />
+        </mxCell>
+        <mxCell id="enum-status" value="&lt;&lt;enumeration&gt;&gt;&lt;br&gt;&lt;b&gt;TicketStatus&lt;/b&gt;&lt;hr&gt;OPEN&lt;br&gt;IN_PROGRESS&lt;br&gt;RESOLVED&lt;br&gt;CLOSED" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="80" y="400" width="150" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="enum-cat" value="&lt;&lt;enumeration&gt;&gt;&lt;br&gt;&lt;b&gt;TicketCategory&lt;/b&gt;&lt;hr&gt;RESEAU&lt;br&gt;LOGICIEL&lt;br&gt;MATERIEL&lt;br&gt;AUTRE" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="250" y="280" width="140" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="enum-prio" value="&lt;&lt;enumeration&gt;&gt;&lt;br&gt;&lt;b&gt;TicketPriority&lt;/b&gt;&lt;hr&gt;LOW&lt;br&gt;MEDIUM&lt;br&gt;HIGH" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="250" y="410" width="140" height="95" as="geometry" />
+        </mxCell>
+
+        <!-- Stereotypes roles (conceptual) -->
+        <mxCell id="note-roles" value="&lt;b&gt;Profils métier&lt;/b&gt; (même entité User, discriminant &lt;i&gt;role&lt;/i&gt;) :&lt;br&gt;• &lt;b&gt;Client&lt;/b&gt; → crée des tickets (userId)&lt;br&gt;• &lt;b&gt;Technicien&lt;/b&gt; → tickets assignés (assignedTo)&lt;br&gt;• &lt;b&gt;Administrateur&lt;/b&gt; → gestion globale" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;size=14;fillColor=#ffffcc;strokeColor=#999999;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="80" y="530" width="310" height="85" as="geometry" />
+        </mxCell>
+
+        <!-- Relation User -> Ticket (crée) 1..* -->
+        <mxCell id="rel-create" value="crée" style="endArrow=open;endFill=0;startArrow=diamondThin;startFill=1;startSize=14;html=1;strokeWidth=1;strokeColor=#333333;fontStyle=1;fontSize=11;" edge="1" parent="1" source="class-user" target="class-ticket">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="card-create-1" value="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="330" y="115" width="25" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="card-create-n" value="0..*" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="395" y="115" width="35" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lbl-client" value="(Client / userId)" style="text;html=1;align=center;fontSize=9;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="330" y="95" width="100" height="18" as="geometry" />
+        </mxCell>
+
+        <!-- Relation User -> Ticket (assigné) 0..1 technicien, 0..* tickets -->
+        <mxCell id="rel-assign" value="assigné à" style="endArrow=open;endFill=0;startArrow=none;html=1;strokeWidth=1;strokeColor=#333333;dashed=1;fontStyle=1;fontSize=11;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="190" y="230" as="sourcePoint" />
+            <mxPoint x="500" y="230" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="190" y="290" />
+              <mxPoint x="500" y="290" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="card-assign-0" value="0..1" style="text;html=1;align=center;fontSize=11;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="470" y="268" width="35" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="card-assign-n" value="0..*" style="text;html=1;align=center;fontSize=11;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="155" y="268" width="35" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lbl-tech" value="(Technicien / assignedTo)" style="text;html=1;align=center;fontSize=9;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="280" y="295" width="140" height="18" as="geometry" />
+        </mxCell>
+
+        <!-- Ticket -> History 1..* composition -->
+        <mxCell id="rel-history" value="contient" style="endArrow=open;endFill=0;startArrow=diamond;startFill=1;startSize=18;html=1;strokeWidth=1;strokeColor=#333333;fontStyle=1;fontSize=11;" edge="1" parent="1" source="class-ticket" target="class-history">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="card-hist-1" value="1" style="text;html=1;align=center;fontSize=11;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="685" y="120" width="25" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="card-hist-n" value="1..*" style="text;html=1;align=center;fontSize=11;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="745" y="120" width="35" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- User -> Notification -->
+        <mxCell id="rel-notif-user" value="reçoit" style="endArrow=open;endFill=0;html=1;strokeColor=#82b366;fontStyle=1;fontSize=11;" edge="1" parent="1" source="class-user" target="class-notif">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="190" y="250" />
+              <mxPoint x="350" y="380" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="card-nu-1" value="1" style="text;html=1;align=center;fontSize=11;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="300" y="355" width="25" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="card-nu-n" value="0..*" style="text;html=1;align=center;fontSize=11;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="400" y="355" width="35" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Ticket -> Notification -->
+        <mxCell id="rel-notif-ticket" value="concerne" style="endArrow=open;endFill=0;html=1;strokeColor=#82b366;fontStyle=1;fontSize=11;" edge="1" parent="1" source="class-ticket" target="class-notif">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="card-nt-1" value="1" style="text;html=1;align=center;fontSize=11;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="530" y="295" width="25" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="card-nt-n" value="0..*" style="text;html=1;align=center;fontSize=11;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="530" y="315" width="35" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Enum dependencies -->
+        <mxCell id="dep-role" style="endArrow=open;endFill=0;dashed=1;html=1;strokeColor=#9673a6;" edge="1" parent="1" source="class-user" target="enum-role">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dep-status" style="endArrow=open;endFill=0;dashed=1;html=1;strokeColor=#9673a6;" edge="1" parent="1" source="class-ticket" target="enum-status">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="400" y="270" />
+              <mxPoint x="155" y="270" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dep-cat" style="endArrow=open;endFill=0;dashed=1;html=1;strokeColor=#9673a6;" edge="1" parent="1" source="class-ticket" target="enum-cat">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dep-prio" style="endArrow=open;endFill=0;dashed=1;html=1;strokeColor=#9673a6;" edge="1" parent="1" source="class-ticket" target="enum-prio">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Légende cardinalités -->
+        <mxCell id="legend" value="&lt;b&gt;Cardinalités principales&lt;/b&gt;&lt;hr&gt;• Client → Ticket : &lt;b&gt;1 .. *&lt;/b&gt; (userId)&lt;br&gt;• Technicien → Ticket : &lt;b&gt;0 .. *&lt;/b&gt; (assignedTo, 0..1 par ticket)&lt;br&gt;• Ticket → Historique : &lt;b&gt;1 .. *&lt;/b&gt; (tableau ordonné history[])&lt;br&gt;&lt;br&gt;◆ losange plein = composition (historique embarqué)" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;size=14;fillColor=#f5f5f5;strokeColor=#666666;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="720" y="320" width="280" height="120" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

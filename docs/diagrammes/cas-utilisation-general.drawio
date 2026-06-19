@@ -1,0 +1,126 @@
+<mxfile host="app.diagrams.net" agent="TicketManager" version="22.1.0">
+  <diagram id="use-case-general" name="Cas d'utilisation général">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Titre -->
+        <mxCell id="title" value="Diagramme de cas d'utilisation général — TicketManager" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="280" y="20" width="600" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Périmètre système -->
+        <mxCell id="system" value="Système TicketManager" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fontStyle=1;fontSize=13;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=2;dashed=1;dashPattern=8 8;" vertex="1" parent="1">
+          <mxGeometry x="280" y="70" width="610" height="680" as="geometry" />
+        </mxCell>
+
+        <!-- Acteurs -->
+        <mxCell id="actor-client" value="Client" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="80" y="180" width="40" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="actor-tech" value="Technicien" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="60" y="420" width="40" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="actor-admin" value="Administrateur" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="960" y="300" width="40" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Cas d'utilisation communs -->
+        <mxCell id="uc-auth" value="S'authentifier" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="500" y="100" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-profile" value="Consulter son profil" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="500" y="170" width="160" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-notif" value="Consulter et gérer&#xa;ses notifications" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="480" y="240" width="200" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Client -->
+        <mxCell id="uc-create" value="Créer un ticket" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="320" y="330" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-list-own" value="Consulter ses tickets" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="300" y="400" width="160" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-detail-own" value="Consulter le détail&#xa;d'un ticket" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="300" y="470" width="160" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-upload" value="Joindre des pièces jointes" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="290" y="545" width="180" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Technicien -->
+        <mxCell id="uc-list-assigned" value="Consulter les tickets&#xa;assignés" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="470" y="400" width="170" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-update-status" value="Mettre à jour le statut&#xa;d'un ticket assigné" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="460" y="480" width="190" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-realtime" value="Recevoir des alertes&#xa;temps réel (WebSocket)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="450" y="560" width="210" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Admin -->
+        <mxCell id="uc-users" value="Gérer les utilisateurs&#xa;(CRUD)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="680" y="330" width="170" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-list-all" value="Consulter tous les tickets" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="680" y="400" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-assign" value="Assigner un ticket&#xa;à un technicien" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="680" y="470" width="180" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-admin-update" value="Modifier un ticket&#xa;(statut / assignation)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="670" y="545" width="200" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-stats" value="Consulter les statistiques&#xa;(utilisateurs / tickets)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="660" y="620" width="220" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-filter" value="Filtrer et rechercher&#xa;des tickets" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="680" y="690" width="180" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Include : créer ticket inclut upload (optionnel) -->
+        <mxCell id="uc-package" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;strokeColor=#666666;fontSize=10;" edge="1" parent="1" source="uc-create" target="uc-upload">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Associations Client -->
+        <mxCell id="l-c1" style="endArrow=none;html=1;strokeColor=#6c8ebf;" edge="1" parent="1" source="actor-client" target="uc-auth"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l-c2" style="endArrow=none;html=1;strokeColor=#6c8ebf;" edge="1" parent="1" source="actor-client" target="uc-profile"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l-c3" style="endArrow=none;html=1;strokeColor=#6c8ebf;" edge="1" parent="1" source="actor-client" target="uc-notif"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l-c4" style="endArrow=none;html=1;strokeColor=#6c8ebf;" edge="1" parent="1" source="actor-client" target="uc-create"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l-c5" style="endArrow=none;html=1;strokeColor=#6c8ebf;" edge="1" parent="1" source="actor-client" target="uc-list-own"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l-c6" style="endArrow=none;html=1;strokeColor=#6c8ebf;" edge="1" parent="1" source="actor-client" target="uc-detail-own"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- Associations Technicien -->
+        <mxCell id="l-t1" style="endArrow=none;html=1;strokeColor=#d6b656;" edge="1" parent="1" source="actor-tech" target="uc-auth"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l-t2" style="endArrow=none;html=1;strokeColor=#d6b656;" edge="1" parent="1" source="actor-tech" target="uc-profile"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l-t3" style="endArrow=none;html=1;strokeColor=#d6b656;" edge="1" parent="1" source="actor-tech" target="uc-notif"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l-t4" style="endArrow=none;html=1;strokeColor=#d6b656;" edge="1" parent="1" source="actor-tech" target="uc-list-assigned"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l-t5" style="endArrow=none;html=1;strokeColor=#d6b656;" edge="1" parent="1" source="actor-tech" target="uc-update-status"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l-t6" style="endArrow=none;html=1;strokeColor=#d6b656;" edge="1" parent="1" source="actor-tech" target="uc-realtime"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l-t7" style="endArrow=none;html=1;strokeColor=#d6b656;" edge="1" parent="1" source="actor-tech" target="uc-detail-own"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- Associations Admin -->
+        <mxCell id="l-a1" style="endArrow=none;html=1;strokeColor=#82b366;" edge="1" parent="1" source="actor-admin" target="uc-auth"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l-a2" style="endArrow=none;html=1;strokeColor=#82b366;" edge="1" parent="1" source="actor-admin" target="uc-profile"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l-a3" style="endArrow=none;html=1;strokeColor=#82b366;" edge="1" parent="1" source="actor-admin" target="uc-notif"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l-a4" style="endArrow=none;html=1;strokeColor=#82b366;" edge="1" parent="1" source="actor-admin" target="uc-users"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l-a5" style="endArrow=none;html=1;strokeColor=#82b366;" edge="1" parent="1" source="actor-admin" target="uc-list-all"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l-a6" style="endArrow=none;html=1;strokeColor=#82b366;" edge="1" parent="1" source="actor-admin" target="uc-assign"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l-a7" style="endArrow=none;html=1;strokeColor=#82b366;" edge="1" parent="1" source="actor-admin" target="uc-admin-update"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l-a8" style="endArrow=none;html=1;strokeColor=#82b366;" edge="1" parent="1" source="actor-admin" target="uc-stats"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l-a9" style="endArrow=none;html=1;strokeColor=#82b366;" edge="1" parent="1" source="actor-admin" target="uc-filter"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l-a10" style="endArrow=none;html=1;strokeColor=#82b366;" edge="1" parent="1" source="actor-admin" target="uc-realtime"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- Légende -->
+        <mxCell id="legend" value="Légende des couleurs&#xa;■ Violet : cas communs (tous profils)&#xa;■ Bleu : Client&#xa;■ Jaune : Technicien&#xa;■ Vert : Administrateur" style="text;html=1;strokeColor=#999999;fillColor=#ffffff;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="80" y="620" width="180" height="90" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
