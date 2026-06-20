@@ -112,11 +112,16 @@ stages:
       - job: SonarJob
         displayName: "SonarQube Analysis"
         steps:
+          # ✅ CORRECTION : SONAR_TOKEN est une variable SECRETE.
+          # Les variables secrètes ne sont PAS injectées automatiquement via $(...)
+          # dans un script inline -> on les mappe explicitement avec "env:".
+          # Dans le script on référence donc la variable bash $SONAR_TOKEN.
           - script: |
+              echo "Longueur du token recu : $(printf '%s' "$SONAR_TOKEN" | wc -c)"
               docker run --rm \
                 --network host \
                 -e SONAR_HOST_URL=http://localhost:9000 \
-                -e SONAR_TOKEN="$(SONAR_TOKEN)" \
+                -e SONAR_TOKEN="$SONAR_TOKEN" \
                 -v "$(System.DefaultWorkingDirectory):/usr/src" \
                 -w /usr/src \
                 sonarsource/sonar-scanner-cli \
@@ -126,6 +131,8 @@ stages:
                 -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/.next/**,**/coverage/** \
                 -Dsonar.javascript.lcov.reportPaths=backend/coverage/lcov.info
             displayName: "Run SonarQube Analysis"
+            env:
+              SONAR_TOKEN: $(SONAR_TOKEN)
 
   # =========================
   # SECURITY
@@ -137,14 +144,16 @@ stages:
       - job: SnykJob
         displayName: "Snyk Vulnerability Scan"
         steps:
+          # Même logique : SNYK_TOKEN mappé via env: (variable secrète)
           - script: |
               sudo npm install -g snyk
-              export SNYK_TOKEN=$(SNYK_TOKEN)
               cd backend
               snyk test --severity-threshold=high
               cd ../frontend
               snyk test --severity-threshold=high || true
             displayName: "Snyk scan (backend + frontend)"
+            env:
+              SNYK_TOKEN: $(SNYK_TOKEN)
 
   # =========================
   # DOCKER BUILD
@@ -206,9 +215,11 @@ stages:
         displayName: "Push Docker Images"
         steps:
           - script: |
-              echo "$(NEXUS_PASSWORD)" | docker login $(NEXUS_URL) \
+              echo "$NEXUS_PASSWORD" | docker login $(NEXUS_URL) \
                 -u $(NEXUS_USER) --password-stdin
             displayName: "Login to Nexus"
+            env:
+              NEXUS_PASSWORD: $(NEXUS_PASSWORD)
 
           - script: |
               if [ "$(Build.SourceBranch)" = "refs/heads/main" ]; then
@@ -266,11 +277,13 @@ stages:
               az cloud set --name XpressAzureDC2
               az login --service-principal \
                 -u "$(ARM_CLIENT_ID)" \
-                -p "$(ARM_CLIENT_SECRET)" \
+                -p "$ARM_CLIENT_SECRET" \
                 --tenant "$(ARM_TENANT_ID)"
               az account set --subscription "$(ARM_SUBSCRIPTION_ID)"
               az account show
             displayName: "Azure Stack CLI login"
+            env:
+              ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
 
           - script: |
               cd terraform
@@ -288,10 +301,12 @@ stages:
                 -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
                 -var="tenant_id=$(ARM_TENANT_ID)" \
                 -var="client_id=$(ARM_CLIENT_ID)" \
-                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="client_secret=$ARM_CLIENT_SECRET" \
                 -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
                 -var="ssh_public_key=$(SSH_PUBLIC_KEY)"
             displayName: "Terraform Plan"
+            env:
+              ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
 
           - task: PublishPipelineArtifact@1
             displayName: "Publish tfplan"
@@ -324,10 +339,12 @@ stages:
               az cloud set --name XpressAzureDC2
               az login --service-principal \
                 -u "$(ARM_CLIENT_ID)" \
-                -p "$(ARM_CLIENT_SECRET)" \
+                -p "$ARM_CLIENT_SECRET" \
                 --tenant "$(ARM_TENANT_ID)"
               az account set --subscription "$(ARM_SUBSCRIPTION_ID)"
             displayName: "Azure Stack CLI login"
+            env:
+              ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
 
           - script: |
               cd terraform
@@ -346,7 +363,7 @@ stages:
                 -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
                 -var="tenant_id=$(ARM_TENANT_ID)" \
                 -var="client_id=$(ARM_CLIENT_ID)" \
-                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="client_secret=$ARM_CLIENT_SECRET" \
                 -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
                 -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
                 azurestack_virtual_network.main \
@@ -356,7 +373,7 @@ stages:
                 -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
                 -var="tenant_id=$(ARM_TENANT_ID)" \
                 -var="client_id=$(ARM_CLIENT_ID)" \
-                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="client_secret=$ARM_CLIENT_SECRET" \
                 -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
                 -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
                 azurestack_network_security_group.mgmt \
@@ -366,7 +383,7 @@ stages:
                 -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
                 -var="tenant_id=$(ARM_TENANT_ID)" \
                 -var="client_id=$(ARM_CLIENT_ID)" \
-                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="client_secret=$ARM_CLIENT_SECRET" \
                 -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
                 -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
                 azurestack_network_security_group.db \
@@ -376,7 +393,7 @@ stages:
                 -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
                 -var="tenant_id=$(ARM_TENANT_ID)" \
                 -var="client_id=$(ARM_CLIENT_ID)" \
-                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="client_secret=$ARM_CLIENT_SECRET" \
                 -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
                 -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
                 azurestack_network_security_group.aks \
@@ -386,7 +403,7 @@ stages:
                 -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
                 -var="tenant_id=$(ARM_TENANT_ID)" \
                 -var="client_id=$(ARM_CLIENT_ID)" \
-                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="client_secret=$ARM_CLIENT_SECRET" \
                 -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
                 -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
                 azurestack_network_security_rule.mgmt_ssh \
@@ -396,7 +413,7 @@ stages:
                 -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
                 -var="tenant_id=$(ARM_TENANT_ID)" \
                 -var="client_id=$(ARM_CLIENT_ID)" \
-                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="client_secret=$ARM_CLIENT_SECRET" \
                 -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
                 -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
                 azurestack_network_security_rule.db_mongo_from_mgmt \
@@ -406,7 +423,7 @@ stages:
                 -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
                 -var="tenant_id=$(ARM_TENANT_ID)" \
                 -var="client_id=$(ARM_CLIENT_ID)" \
-                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="client_secret=$ARM_CLIENT_SECRET" \
                 -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
                 -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
                 azurestack_network_security_rule.db_mongo_from_aks \
@@ -416,7 +433,7 @@ stages:
                 -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
                 -var="tenant_id=$(ARM_TENANT_ID)" \
                 -var="client_id=$(ARM_CLIENT_ID)" \
-                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="client_secret=$ARM_CLIENT_SECRET" \
                 -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
                 -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
                 azurestack_network_security_rule.aks_allow_internal \
@@ -426,7 +443,7 @@ stages:
                 -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
                 -var="tenant_id=$(ARM_TENANT_ID)" \
                 -var="client_id=$(ARM_CLIENT_ID)" \
-                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="client_secret=$ARM_CLIENT_SECRET" \
                 -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
                 -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
                 azurestack_subnet.mgmt \
@@ -436,7 +453,7 @@ stages:
                 -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
                 -var="tenant_id=$(ARM_TENANT_ID)" \
                 -var="client_id=$(ARM_CLIENT_ID)" \
-                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="client_secret=$ARM_CLIENT_SECRET" \
                 -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
                 -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
                 azurestack_subnet.db \
@@ -446,7 +463,7 @@ stages:
                 -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
                 -var="tenant_id=$(ARM_TENANT_ID)" \
                 -var="client_id=$(ARM_CLIENT_ID)" \
-                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="client_secret=$ARM_CLIENT_SECRET" \
                 -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
                 -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
                 azurestack_subnet.aks \
@@ -457,7 +474,7 @@ stages:
                 -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
                 -var="tenant_id=$(ARM_TENANT_ID)" \
                 -var="client_id=$(ARM_CLIENT_ID)" \
-                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="client_secret=$ARM_CLIENT_SECRET" \
                 -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
                 -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
                 azurestack_public_ip.gestion \
@@ -467,7 +484,7 @@ stages:
                 -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
                 -var="tenant_id=$(ARM_TENANT_ID)" \
                 -var="client_id=$(ARM_CLIENT_ID)" \
-                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="client_secret=$ARM_CLIENT_SECRET" \
                 -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
                 -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
                 azurestack_network_interface.gestion \
@@ -477,7 +494,7 @@ stages:
                 -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
                 -var="tenant_id=$(ARM_TENANT_ID)" \
                 -var="client_id=$(ARM_CLIENT_ID)" \
-                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="client_secret=$ARM_CLIENT_SECRET" \
                 -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
                 -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
                 azurestack_virtual_machine.gestion \
@@ -488,7 +505,7 @@ stages:
                 -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
                 -var="tenant_id=$(ARM_TENANT_ID)" \
                 -var="client_id=$(ARM_CLIENT_ID)" \
-                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="client_secret=$ARM_CLIENT_SECRET" \
                 -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
                 -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
                 azurestack_network_interface.db \
@@ -498,7 +515,7 @@ stages:
                 -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
                 -var="tenant_id=$(ARM_TENANT_ID)" \
                 -var="client_id=$(ARM_CLIENT_ID)" \
-                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="client_secret=$ARM_CLIENT_SECRET" \
                 -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
                 -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
                 azurestack_virtual_machine.db \
@@ -506,6 +523,8 @@ stages:
 
               echo "✅ Import terminé"
             displayName: "Terraform Import ALL existing resources"
+            env:
+              ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
 
           # ✅ Plan frais APRÈS import + Apply
           - script: |
@@ -514,13 +533,15 @@ stages:
                 -var="subscription_id=$(ARM_SUBSCRIPTION_ID)" \
                 -var="tenant_id=$(ARM_TENANT_ID)" \
                 -var="client_id=$(ARM_CLIENT_ID)" \
-                -var="client_secret=$(ARM_CLIENT_SECRET)" \
+                -var="client_secret=$ARM_CLIENT_SECRET" \
                 -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
                 -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
                 -out=tfplan-apply
 
               terraform apply -input=false -auto-approve tfplan-apply
             displayName: "Terraform Plan + Apply (after import)"
+            env:
+              ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
 
           - task: PublishPipelineArtifact@1
             displayName: "Publish tfstate"
