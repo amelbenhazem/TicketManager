@@ -32,6 +32,7 @@ describe('TicketsService (unit)', () => {
   let ticketModel: {
     create: jest.Mock;
     findById: jest.Mock;
+    findByIdAndDelete?: jest.Mock;
     find?: jest.Mock;
     countDocuments?: jest.Mock;
   };
@@ -39,25 +40,30 @@ describe('TicketsService (unit)', () => {
     notifyTicketCreated: jest.Mock;
     notifyTicketAssigned: jest.Mock;
     notifyTicketStatusChanged: jest.Mock;
+    notifyTicketDeleted: jest.Mock;
   };
   let notifications: {
     createForAdmins: jest.Mock;
     createMany: jest.Mock;
+    deleteByTicketId: jest.Mock;
   };
 
   beforeEach(async () => {
     ticketModel = {
       create: jest.fn(),
       findById: jest.fn(),
+      findByIdAndDelete: jest.fn(),
     };
     gateway = {
       notifyTicketCreated: jest.fn(),
       notifyTicketAssigned: jest.fn(),
       notifyTicketStatusChanged: jest.fn(),
+      notifyTicketDeleted: jest.fn(),
     };
     notifications = {
       createForAdmins: jest.fn().mockResolvedValue(undefined),
       createMany: jest.fn().mockResolvedValue(undefined),
+      deleteByTicketId: jest.fn().mockResolvedValue(undefined),
     };
 
     const moduleRef = await Test.createTestingModule({
@@ -287,15 +293,21 @@ describe('TicketsService (unit)', () => {
     expect(res).toBeNull();
   });
 
-  it('getTicketForGuard(): returns assignedToId when found', async () => {
-    const doc = { assignedTo: new Types.ObjectId('507f1f77bcf86cd799439012') };
+  it('getTicketForGuard(): returns assignedToId and userId when found', async () => {
+    const doc = {
+      assignedTo: new Types.ObjectId('507f1f77bcf86cd799439012'),
+      userId: new Types.ObjectId('507f1f77bcf86cd799439011'),
+    };
     ticketModel.findById = jest.fn().mockReturnValue({
       select: jest.fn().mockReturnThis(),
       lean: jest.fn().mockReturnThis(),
       exec: jest.fn().mockResolvedValue(doc),
     });
     const res = await service.getTicketForGuard('x');
-    expect(res).toEqual({ assignedToId: '507f1f77bcf86cd799439012' });
+    expect(res).toEqual({
+      assignedToId: '507f1f77bcf86cd799439012',
+      userId: '507f1f77bcf86cd799439011',
+    });
   });
 
   it('update(): technician changes status -> notifies client + admins and emits realtime status_changed', async () => {
@@ -342,6 +354,97 @@ describe('TicketsService (unit)', () => {
         { id: '507f1f77bcf86cd799439012', role: UserRole.TECHNICIAN },
       ),
     ).rejects.toBeInstanceOf(ForbiddenException);
+  });
+
+  it('update(): client updates open ticket content', async () => {
+    const clientId = '507f1f77bcf86cd799439011';
+    const doc = makeTicketDoc({
+      userId: new Types.ObjectId(clientId),
+      status: TicketStatus.OPEN,
+      title: 'Ancien titre',
+      description: 'Ancienne description',
+      history: [],
+    });
+    ticketModel.findById.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(doc),
+    });
+
+    const updated = await service.update(
+      String(doc._id),
+      {
+        title: 'Nouveau titre',
+        description: 'Nouvelle description',
+      },
+      { id: clientId, role: UserRole.CLIENT },
+    );
+
+    expect(updated?.title).toBe('Nouveau titre');
+    expect(doc.save).toHaveBeenCalled();
+    expect(doc.history).toHaveLength(2);
+  });
+
+  it('update(): client cannot update ticket when not open', async () => {
+    const clientId = '507f1f77bcf86cd799439011';
+    const doc = makeTicketDoc({
+      userId: new Types.ObjectId(clientId),
+      status: TicketStatus.IN_PROGRESS,
+    });
+    ticketModel.findById.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(doc),
+    });
+
+    await expect(
+      service.update(
+        String(doc._id),
+        { title: 'Nouveau titre' },
+        { id: clientId, role: UserRole.CLIENT },
+      ),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+  });
+
+  it('update(): client cannot change status', async () => {
+    const clientId = '507f1f77bcf86cd799439011';
+    const doc = makeTicketDoc({
+      userId: new Types.ObjectId(clientId),
+      status: TicketStatus.OPEN,
+    });
+    ticketModel.findById.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(doc),
+    });
+
+    await expect(
+      service.update(
+        String(doc._id),
+        { status: TicketStatus.RESOLVED },
+        { id: clientId, role: UserRole.CLIENT },
+      ),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+  });
+
+  it('remove(): admin deletes ticket and related notifications', async () => {
+    const doc = makeTicketDoc({
+      userId: new Types.ObjectId('507f1f77bcf86cd799439011'),
+      assignedTo: new Types.ObjectId('507f1f77bcf86cd799439012'),
+      title: 'Ticket à supprimer',
+    });
+    ticketModel.findById.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(doc),
+    });
+    ticketModel.findByIdAndDelete = jest.fn().mockReturnValue({
+      exec: jest.fn().mockResolvedValue(doc),
+    });
+
+    const res = await service.remove(String(doc._id));
+
+    expect(res).toEqual({ success: true });
+    expect(notifications.deleteByTicketId).toHaveBeenCalledWith(String(doc._id));
+    expect(ticketModel.findByIdAndDelete).toHaveBeenCalledWith(String(doc._id));
+    expect(gateway.notifyTicketDeleted).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ticketId: String(doc._id),
+        title: 'Ticket à supprimer',
+      }),
+    );
   });
 
   it('update(): admin assigns technician -> notifies client + assigned technician, emits realtime assigned', async () => {

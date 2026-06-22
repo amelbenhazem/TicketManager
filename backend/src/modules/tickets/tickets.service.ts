@@ -1,4 +1,4 @@
-import { Injectable, ForbiddenException } from '@nestjs/common';
+import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types, Query } from 'mongoose';
 import {
@@ -543,16 +543,19 @@ export class TicketsService {
 
   async getTicketForGuard(
     id: string,
-  ): Promise<{ assignedToId: string | null } | null> {
+  ): Promise<{ assignedToId: string | null; userId: string } | null> {
     const ticket = await this.ticketModel
       .findById(id)
-      .select('assignedTo')
+      .select('assignedTo userId')
       .lean()
       .exec();
     if (ticket) {
       const assignedToId =
         ticket.assignedTo != null ? String(ticket.assignedTo) : null;
-      return { assignedToId };
+      return {
+        assignedToId,
+        userId: String(ticket.userId),
+      };
     } else {
       return null;
     }
@@ -593,6 +596,31 @@ export class TicketsService {
     return created;
   }
 
+  async remove(id: string): Promise<{ success: true }> {
+    const ticket = await this.ticketModel.findById(id).exec();
+    if (!ticket) {
+      throw new NotFoundException('Ticket introuvable');
+    }
+
+    const ticketId = String(ticket._id);
+    const ownerId = this.toUserIdString(ticket.userId);
+    const assignedToId =
+      ticket.assignedTo != null ? String(ticket.assignedTo) : null;
+    const title = ticket.title;
+
+    await this.notifications.deleteByTicketId(ticketId);
+    await this.ticketModel.findByIdAndDelete(id).exec();
+
+    this.ticketsNotifications.notifyTicketDeleted({
+      ticketId,
+      title,
+      ownerId,
+      assignedToId,
+    });
+
+    return { success: true };
+  }
+
   async update(
     id: string,
     dto: UpdateTicketDto,
@@ -623,7 +651,129 @@ export class TicketsService {
       });
     }
 
+    if (user.role === UserRole.CLIENT) {
+      return this.handleClientUpdate({ ticket, dto, user });
+    }
+
     throw new ForbiddenException('Action non autorisée');
+  }
+
+  private async handleClientUpdate(params: {
+    ticket: TicketDocument;
+    dto: UpdateTicketDto;
+    user: { id: string; role: UserRole };
+  }): Promise<TicketResponse> {
+    const { ticket, dto, user } = params;
+    const ownerId = this.toUserIdString(ticket.userId);
+    if (ownerId !== user.id) {
+      throw new ForbiddenException(
+        'Vous ne pouvez modifier que vos propres tickets.',
+      );
+    }
+    if (ticket.status !== TicketStatus.OPEN) {
+      throw new ForbiddenException(
+        'Seuls les tickets au statut « Ouvert » peuvent être modifiés par le client.',
+      );
+    }
+    this.assertClientCannotChangeRestrictedFields(dto);
+
+    if (dto.title !== undefined && dto.title !== ticket.title) {
+      this.pushHistory(ticket, {
+        actorId: user.id,
+        actorRole: 'client',
+        action: 'updated',
+        field: 'title',
+        from: ticket.title,
+        to: dto.title,
+        timestamp: new Date(),
+      });
+      ticket.title = dto.title;
+    }
+
+    if (
+      dto.description !== undefined &&
+      dto.description !== ticket.description
+    ) {
+      this.pushHistory(ticket, {
+        actorId: user.id,
+        actorRole: 'client',
+        action: 'updated',
+        field: 'description',
+        from: ticket.description,
+        to: dto.description,
+        timestamp: new Date(),
+      });
+      ticket.description = dto.description;
+    }
+
+    if (dto.category !== undefined && dto.category !== ticket.category) {
+      this.pushHistory(ticket, {
+        actorId: user.id,
+        actorRole: 'client',
+        action: 'updated',
+        field: 'category',
+        from: String(ticket.category),
+        to: String(dto.category),
+        timestamp: new Date(),
+      });
+      ticket.category = dto.category;
+    }
+
+    if (dto.priority !== undefined && dto.priority !== ticket.priority) {
+      this.pushHistory(ticket, {
+        actorId: user.id,
+        actorRole: 'client',
+        action: 'updated',
+        field: 'priority',
+        from: String(ticket.priority),
+        to: String(dto.priority),
+        timestamp: new Date(),
+      });
+      ticket.priority = dto.priority;
+    }
+
+    if (dto.attachments !== undefined) {
+      const previous = JSON.stringify(ticket.attachments ?? []);
+      const next = JSON.stringify(dto.attachments);
+      if (previous !== next) {
+        this.pushHistory(ticket, {
+          actorId: user.id,
+          actorRole: 'client',
+          action: 'updated',
+          field: 'attachments',
+          from: previous,
+          to: next,
+          timestamp: new Date(),
+        });
+        ticket.attachments = dto.attachments;
+      }
+    }
+
+    await ticket.save();
+    await this.populateTicket(ticket);
+    return this.toResponse(ticket);
+  }
+
+  private assertClientCannotChangeRestrictedFields(dto: UpdateTicketDto): void {
+    if (dto.status !== undefined) {
+      throw new ForbiddenException(
+        'Le client ne peut pas modifier le statut du ticket.',
+      );
+    }
+    if (dto.assignedTo !== undefined) {
+      throw new ForbiddenException(
+        "Le client ne peut pas modifier l'assignation du ticket.",
+      );
+    }
+    const hasEditableField =
+      dto.title !== undefined ||
+      dto.description !== undefined ||
+      dto.category !== undefined ||
+      dto.priority !== undefined ||
+      dto.attachments !== undefined;
+    if (!hasEditableField) {
+      throw new ForbiddenException('Aucune modification fournie.');
+    }
   }
 
   private toUserIdString(userId: unknown): string {

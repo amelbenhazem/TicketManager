@@ -6,6 +6,7 @@ export type TicketRealtimeEvent =
   | 'ticket.created'
   | 'ticket.assigned'
   | 'ticket.status_changed'
+  | 'ticket.deleted'
 
 type RealtimeOptions = {
   showToast?: boolean
@@ -111,6 +112,12 @@ export function subscribeTicketRealtime(
         if (showToast) {
           notifyWithSound()
         }
+        onEvent()
+      },
+    },
+    {
+      event: 'ticket.deleted',
+      fn: () => {
         onEvent()
       },
     },

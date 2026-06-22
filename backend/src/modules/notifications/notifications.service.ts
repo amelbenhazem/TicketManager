@@ -149,4 +149,10 @@ export class NotificationsService {
       .exec();
     return { success: true };
   }
+
+  async deleteByTicketId(ticketId: string): Promise<void> {
+    await this.notificationModel
+      .deleteMany({ ticketId: new Types.ObjectId(ticketId) })
+      .exec();
+  }
 }

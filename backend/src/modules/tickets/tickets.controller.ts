@@ -4,6 +4,7 @@ import {
   Post,
   Body,
   Patch,
+  Delete,
   Param,
   Query,
   UseGuards,
@@ -196,5 +197,13 @@ export class TicketsController {
     @Request() req: RequestWithUser,
   ): Promise<TicketResponse | null> {
     return this.ticketsService.update(id, dto, req.user);
+  }
+
+  @Delete(':id')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({ summary: 'Supprimer un ticket (administrateur)' })
+  async remove(@Param('id') id: string): Promise<{ success: true }> {
+    return this.ticketsService.remove(id);
   }
 }

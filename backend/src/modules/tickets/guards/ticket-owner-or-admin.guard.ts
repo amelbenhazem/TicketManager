@@ -16,7 +16,7 @@ type RequestWithUser = Request & {
  * Vérifie si l'utilisateur a le droit de toucher CE ticket (PATCH /tickets/:id).
  * - Admin : toujours oui.
  * - Technicien : oui uniquement si le ticket lui est assigné.
- * - Client : non.
+ * - Client : oui uniquement s'il est le créateur du ticket.
  */
 @Injectable()
 export class TicketOwnerOrAdminGuard implements CanActivate {
@@ -37,9 +37,16 @@ export class TicketOwnerOrAdminGuard implements CanActivate {
     }
 
     if (user.role === UserRole.CLIENT) {
-      throw new ForbiddenException(
-        'Seuls l’administrateur et le technicien assigné peuvent modifier un ticket.',
-      );
+      const ticket = await this.ticketsService.getTicketForGuard(ticketId);
+      if (!ticket) {
+        throw new ForbiddenException('Ticket introuvable ou accès refusé');
+      }
+      if (ticket.userId !== user.id) {
+        throw new ForbiddenException(
+          'Vous ne pouvez modifier que vos propres tickets.',
+        );
+      }
+      return true;
     }
 
     if (user.role === UserRole.TECHNICIAN) {

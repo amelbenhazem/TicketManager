@@ -140,9 +140,32 @@ export class TicketsNotificationsGateway
     });
   }
 
+  notifyTicketDeleted(params: {
+    ticketId: string;
+    title: string;
+    ownerId: string;
+    assignedToId: string | null;
+  }): void {
+    const rooms = new Set<string>([this.roleRoom(UserRole.ADMIN)]);
+    if (params.ownerId) rooms.add(this.userRoom(params.ownerId));
+    if (params.assignedToId) rooms.add(this.userRoom(params.assignedToId));
+
+    const payload = {
+      ticketId: params.ticketId,
+      title: params.title,
+      timestamp: new Date().toISOString(),
+    };
+    for (const room of rooms) {
+      this.server.to(room).emit('ticket.deleted', payload);
+    }
+  }
+
   private emitToRooms(
     rooms: Set<string>,
-    event: 'ticket.created' | 'ticket.assigned' | 'ticket.status_changed',
+    event:
+      | 'ticket.created'
+      | 'ticket.assigned'
+      | 'ticket.status_changed',
     payload: TicketEventPayload,
   ): void {
     for (const room of rooms) {

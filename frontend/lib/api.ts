@@ -249,11 +249,23 @@ export const api = {
       }, true),
     update: (
       id: string,
-      payload: { status?: TicketStatus; assignedTo?: string | null },
+      payload: {
+        title?: string;
+        description?: string;
+        category?: TicketCategory;
+        priority?: TicketPriority;
+        attachments?: string[];
+        status?: TicketStatus;
+        assignedTo?: string | null;
+      },
     ) =>
       request<TicketResponse>(`tickets/${id}`, {
         method: 'PATCH',
         body: JSON.stringify(payload),
+      }, true),
+    delete: (id: string) =>
+      request<{ success: true }>(`tickets/${id}`, {
+        method: 'DELETE',
       }, true),
   },
   notifications: {

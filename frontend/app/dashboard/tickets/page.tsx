@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import Link from 'next/link'
 import { api, ApiError, type TicketCategory, type TicketPriority, type TicketResponse, type TicketStatus } from '@/lib/api'
 import { subscribeTicketRealtime } from '@/lib/realtime'
 import { NotificationsBell } from '@/components/notifications/NotificationsBell'
@@ -256,13 +257,23 @@ export default function MesTicketsPage() {
                     {new Date(t.createdAt).toLocaleDateString('fr-FR')}
                   </td>
                   <td className="py-3">
-                    <button
-                      type="button"
-                      onClick={() => setDetailTicket(t)}
-                      className="px-3 py-1.5 rounded-lg text-xs font-medium bg-white/[0.08] text-white/80 hover:bg-white/[0.12]"
-                    >
-                      Voir
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setDetailTicket(t)}
+                        className="px-3 py-1.5 rounded-lg text-xs font-medium bg-white/[0.08] text-white/80 hover:bg-white/[0.12]"
+                      >
+                        Voir
+                      </button>
+                      {t.status === 'open' && (
+                        <Link
+                          href={`/dashboard/tickets/${t.id}/edit`}
+                          className="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#0066FF]/20 text-[#93C5FD] hover:bg-[#0066FF]/30"
+                        >
+                          Modifier
+                        </Link>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}

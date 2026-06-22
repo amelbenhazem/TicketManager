@@ -19,12 +19,25 @@ describe('TicketOwnerOrAdminGuard (unit)', () => {
     ).resolves.toBe(true);
   });
 
-  it('denies client', async () => {
-    const guard = new TicketOwnerOrAdminGuard({
-      getTicketForGuard: jest.fn(),
-    } as any);
+  it('allows client when ticket owner', async () => {
+    const getTicketForGuard = jest.fn().mockResolvedValue({
+      assignedToId: null,
+      userId: 'c1',
+    });
+    const guard = new TicketOwnerOrAdminGuard({ getTicketForGuard } as any);
     await expect(
-      guard.canActivate(makeCtx({ id: 'c', role: UserRole.CLIENT }, 't1')),
+      guard.canActivate(makeCtx({ id: 'c1', role: UserRole.CLIENT }, 't1')),
+    ).resolves.toBe(true);
+  });
+
+  it('denies client when not ticket owner', async () => {
+    const getTicketForGuard = jest.fn().mockResolvedValue({
+      assignedToId: null,
+      userId: 'other',
+    });
+    const guard = new TicketOwnerOrAdminGuard({ getTicketForGuard } as any);
+    await expect(
+      guard.canActivate(makeCtx({ id: 'c1', role: UserRole.CLIENT }, 't1')),
     ).rejects.toBeInstanceOf(ForbiddenException);
   });
 

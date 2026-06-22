@@ -29,6 +29,7 @@ export function AdminTicketsList() {
   const [assignTicket, setAssignTicket] = useState<TicketResponse | null>(null)
   const [detailTicket, setDetailTicket] = useState<TicketResponse | null>(null)
   const [, setUpdatingId] = useState<string | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
   const [ticketsPage, setTicketsPage] = useState(1)
   const [ticketsPagination, setTicketsPagination] = useState({ total: 0, page: 1, totalPages: 1 })
   // Filtres
@@ -136,6 +137,25 @@ export function AdminTicketsList() {
       alert(e instanceof ApiError ? e.message : 'Erreur')
     } finally {
       setUpdatingId(null)
+    }
+  }
+
+  const handleDelete = async (ticket: TicketResponse) => {
+    const confirmed = globalThis.confirm(
+      `Supprimer le ticket « ${ticket.title} » ? Cette action est irréversible.`,
+    )
+    if (!confirmed) return
+
+    setDeletingId(ticket.id)
+    try {
+      await api.tickets.delete(ticket.id)
+      if (detailTicket?.id === ticket.id) setDetailTicket(null)
+      if (assignTicket?.id === ticket.id) setAssignTicket(null)
+      await fetchTickets()
+    } catch (e) {
+      alert(e instanceof ApiError ? e.message : 'Erreur lors de la suppression')
+    } finally {
+      setDeletingId(null)
     }
   }
 
@@ -300,6 +320,14 @@ export function AdminTicketsList() {
                       className="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#0066FF]/30 text-[#60A5FA] hover:bg-[#0066FF]/50"
                     >
                       Affecter
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(t)}
+                      disabled={deletingId === t.id}
+                      className="px-3 py-1.5 rounded-lg text-xs font-medium bg-red-500/20 text-red-300 hover:bg-red-500/30 disabled:opacity-50"
+                    >
+                      {deletingId === t.id ? 'Suppression...' : 'Supprimer'}
                     </button>
                   </div>
                 </td>

@@ -14,6 +14,7 @@ describe('TicketsController (unit)', () => {
     create: jest.Mock;
     update: jest.Mock;
     getStats: jest.Mock;
+    remove: jest.Mock;
   };
   let attachmentsService: { uploadMany: jest.Mock };
 
@@ -26,6 +27,7 @@ describe('TicketsController (unit)', () => {
       create: jest.fn(),
       update: jest.fn(),
       getStats: jest.fn(),
+      remove: jest.fn(),
     };
     attachmentsService = { uploadMany: jest.fn() };
 
@@ -108,5 +110,12 @@ describe('TicketsController (unit)', () => {
     const res = await controller.create(req as any, dto as any);
     expect(ticketsService.create).toHaveBeenCalledWith('c1', dto);
     expect(res).toEqual({ id: 't1' });
+  });
+
+  it('DELETE /tickets/:id -> calls remove', async () => {
+    ticketsService.remove.mockResolvedValue({ success: true });
+    const res = await controller.remove('t1');
+    expect(ticketsService.remove).toHaveBeenCalledWith('t1');
+    expect(res).toEqual({ success: true });
   });
 });
