@@ -16,10 +16,12 @@ import { NotificationsBell } from '@/components/notifications/NotificationsBell'
 import { subscribeTicketRealtime } from '@/lib/realtime'
 import type { CreateUserData } from '@/components/admin/AddUserForm'
 import type { UpdateUserData } from '@/components/admin/EditUserModal'
+import { useRequireAuth } from '@/hooks/useRequireAuth'
 
 export default function AdminDashboardPage() {
   Chart.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement)
   const router = useRouter()
+  useRequireAuth('admin')
   const [activeSection, setActiveSection] = useState<'dashboard' | 'create' | 'tickets'>('dashboard')
   const [stats, setStats] = useState<UsersStats | null>(null)
   const [ticketStats, setTicketStats] = useState<TicketsStats | null>(null)
@@ -36,13 +38,6 @@ export default function AdminDashboardPage() {
   const [usersPage, setUsersPage] = useState(1)
   const [usersPagination, setUsersPagination] = useState({ total: 0, page: 1, totalPages: 1 })
   const [flashMessage, setFlashMessage] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (typeof window !== 'undefined' && !localStorage.getItem('access_token')) {
-      router.replace('/login')
-      return
-    }
-  }, [router])
 
   useEffect(() => {
     return subscribeTicketRealtime(() => {})

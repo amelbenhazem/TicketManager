@@ -4,8 +4,11 @@ import { ReactNode } from 'react'
 import { TechnicianSidebar } from '@/components/technician/TechnicianSidebar'
 import { LoginStyleLayout } from '@/components/layout/LoginStyleLayout'
 import { NotificationsBell } from '@/components/notifications/NotificationsBell'
+import { useRequireAuth } from '@/hooks/useRequireAuth'
 
 export default function TechnicianLayout({ children }: { children: ReactNode }) {
+  useRequireAuth('technician')
+
   return (
     <LoginStyleLayout>
       <div className="flex min-h-screen">

@@ -38,7 +38,7 @@ export function useLogin() {
         if (e instanceof ApiError) {
           message = e.message
         } else if (e instanceof TypeError && e.message.includes('fetch')) {
-          message = 'Impossible de joindre le serveur. Vérifiez que le backend est démarré (port 3000) et CORS.'
+          message = 'Impossible de joindre le serveur. Vérifiez que le backend est démarré (port 3001) et CORS.'
         } else {
           message = e instanceof Error ? e.message : 'Erreur de connexion'
         }

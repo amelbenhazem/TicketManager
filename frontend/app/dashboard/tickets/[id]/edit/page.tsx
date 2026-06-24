@@ -113,10 +113,12 @@ export default function EditTicketPage() {
     setError(null)
     setSaving(true)
     try {
-      const attachments = [
-        ...existingAttachments,
-        ...newFiles.map((f) => f.name),
-      ]
+      let newUrls: string[] = []
+      if (newFiles.length > 0) {
+        const { urls } = await api.tickets.uploadAttachments(newFiles)
+        newUrls = urls
+      }
+      const attachments = [...existingAttachments, ...newUrls]
       await api.tickets.update(ticketId, {
         title: title.trim(),
         description: description.trim(),
@@ -259,7 +261,7 @@ export default function EditTicketPage() {
                   key={`${url}-${index}`}
                   className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-white/[0.06] border border-white/[0.1] text-sm text-white/90"
                 >
-                  <span className="truncate">{url}</span>
+                  <span className="truncate">{url.split('/').pop() ?? url}</span>
                   <button
                     type="button"
                     onClick={() => removeExistingAttachment(index)}

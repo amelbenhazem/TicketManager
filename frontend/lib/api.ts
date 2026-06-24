@@ -158,6 +158,42 @@ async function request<T>(
   return body as T;
 }
 
+async function uploadRequest<T>(path: string, formData: FormData): Promise<T> {
+  const url = `${env.apiUrl.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: formData,
+  });
+
+  let body: unknown;
+  const contentType = res.headers.get('content-type');
+  if (contentType?.includes('application/json')) {
+    body = await res.json();
+  } else {
+    body = await res.text();
+  }
+
+  if (!res.ok) {
+    if (res.status === 401 && typeof globalThis.window !== 'undefined') {
+      disconnectRealtime();
+      globalThis.localStorage?.removeItem('access_token');
+      globalThis.localStorage?.removeItem('user_role');
+      globalThis.window.location.href = '/login';
+    }
+    let message: string;
+    if (typeof body === 'object' && body !== null && 'message' in body) {
+      const m = (body as { message: unknown }).message;
+      message = Array.isArray(m) ? m.join('. ') : String(m);
+    } else {
+      message = res.statusText || 'Erreur lors de l\'upload';
+    }
+    throw new ApiError(message, res.status, body);
+  }
+
+  return body as T;
+}
+
 export const api = {
   auth: {
     login: (payload: LoginPayload) =>
@@ -267,6 +303,11 @@ export const api = {
       request<{ success: true }>(`tickets/${id}`, {
         method: 'DELETE',
       }, true),
+    uploadAttachments: (files: File[]) => {
+      const formData = new FormData();
+      files.forEach((f) => formData.append('files', f));
+      return uploadRequest<{ urls: string[] }>('tickets/attachments/upload', formData);
+    },
   },
   notifications: {
     list: (params?: { isRead?: boolean; page?: number; limit?: number }) => {

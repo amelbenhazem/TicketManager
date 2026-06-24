@@ -61,12 +61,17 @@ export default function NouveauTicketPage() {
     setError(null)
     setLoading(true)
     try {
+      let attachmentUrls: string[] | undefined
+      if (files.length > 0) {
+        const { urls } = await api.tickets.uploadAttachments(files)
+        attachmentUrls = urls
+      }
       await api.tickets.create({
         title: title.trim(),
         description: description.trim() || undefined,
         category,
         priority,
-        attachments: files.length > 0 ? files.map((f) => f.name) : undefined,
+        attachments: attachmentUrls,
       })
       router.push('/dashboard/tickets')
     } catch (e) {
