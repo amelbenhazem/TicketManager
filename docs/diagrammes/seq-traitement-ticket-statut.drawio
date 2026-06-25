@@ -1,0 +1,149 @@
+<mxfile host="app.diagrams.net" agent="TicketManager" version="22.1.0">
+  <diagram id="seq-traitement-statut" name="Séquence - Traitement ticket statut">
+    <mxGraphModel dx="1500" dy="950" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1150" pageHeight="760" math="0" shadow="0" background="#ffffff">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="bg" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="0" y="0" width="1150" height="760" as="geometry" />
+        </mxCell>
+
+        <mxCell id="title" value="Traitement d'un ticket et mise à jour du statut" style="text;html=1;strokeColor=none;fillColor=#ffffff;align=center;fontSize=14;fontStyle=1;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="275" y="15" width="600" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="p-tech" value=":Technicien" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="30" y="60" width="100" height="660" as="geometry" />
+        </mxCell>
+        <mxCell id="p-fe" value=":Frontend Technicien" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="160" y="60" width="120" height="660" as="geometry" />
+        </mxCell>
+        <mxCell id="p-ctrl" value=":TicketsController" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="320" y="60" width="120" height="660" as="geometry" />
+        </mxCell>
+        <mxCell id="p-svc" value=":TicketsService" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="480" y="60" width="110" height="660" as="geometry" />
+        </mxCell>
+        <mxCell id="p-db" value=":MongoDB" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#ffe6cc;strokeColor=#d79b00;fontColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="630" y="60" width="100" height="660" as="geometry" />
+        </mxCell>
+        <mxCell id="p-gw" value=":Notifications WS" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#e1d5e7;strokeColor=#9673a6;fontColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="770" y="60" width="110" height="660" as="geometry" />
+        </mxCell>
+        <mxCell id="p-client" value=":Client" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="920" y="60" width="90" height="660" as="geometry" />
+        </mxCell>
+        <mxCell id="p-admin" value=":Administrateur" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1040" y="60" width="100" height="660" as="geometry" />
+        </mxCell>
+
+        <mxCell id="m1" value="accède /technician/tickets" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="80" y="110" as="sourcePoint" />
+            <mxPoint x="220" y="110" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m2" value="GET /tickets (tickets assignés) + JWT" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="220" y="145" as="sourcePoint" />
+            <mxPoint x="380" y="145" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m3" value="findAllByAssignedTo(technicianId)" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="380" y="180" as="sourcePoint" />
+            <mxPoint x="535" y="180" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m4" value="PaginatedTickets" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="535" y="215" as="sourcePoint" />
+            <mxPoint x="80" y="215" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m5" value="change statut (À traiter / En cours / Résolu)" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="80" y="255" as="sourcePoint" />
+            <mxPoint x="220" y="255" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m6" value="PATCH /tickets/:id&#xa;{ status: newStatus } + JWT" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="220" y="295" as="sourcePoint" />
+            <mxPoint x="380" y="295" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m7" value="handleTechnicianUpdate()" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="380" y="335" as="sourcePoint" />
+            <mxPoint x="535" y="335" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m8" value="vérifie assignation + statut autorisé" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#666666;dashed=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="535" y="370" as="sourcePoint" />
+            <mxPoint x="535" y="390" as="targetPoint" />
+            <Array as="points"><mxPoint x="560" y="370" /><mxPoint x="560" y="390" /></Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m9" value="status := newStatus&#xa;history[status_changed]" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="535" y="425" as="sourcePoint" />
+            <mxPoint x="680" y="425" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m10" value="ticket mis à jour" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="680" y="460" as="sourcePoint" />
+            <mxPoint x="535" y="460" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m11" value="notifyTicketStatusChanged() WS" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="535" y="500" as="sourcePoint" />
+            <mxPoint x="825" y="500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m12" value="notification statut changé" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="825" y="535" as="sourcePoint" />
+            <mxPoint x="965" y="535" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m13" value="createForAdmins(ticket.status_changed)" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="825" y="570" as="sourcePoint" />
+            <mxPoint x="1090" y="570" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m14" value="200 OK TicketResponse" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="380" y="610" as="sourcePoint" />
+            <mxPoint x="80" y="610" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m15" value="liste rafraîchie" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="220" y="650" as="sourcePoint" />
+            <mxPoint x="80" y="650" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

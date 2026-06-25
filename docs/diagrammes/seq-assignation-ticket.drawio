@@ -1,172 +1,146 @@
 <mxfile host="app.diagrams.net" agent="TicketManager" version="22.1.0">
   <diagram id="seq-assign" name="Séquence - Assignation ticket">
-    <mxGraphModel dx="1500" dy="950" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1300" pageHeight="900" math="0" shadow="0">
+    <mxGraphModel dx="1500" dy="950" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="780" math="0" shadow="0" background="#ffffff">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
 
-        <mxCell id="title" value="Diagramme de séquence — Assignation d'un ticket et notification du technicien" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=14;fontStyle=1" vertex="1" parent="1">
-          <mxGeometry x="120" y="10" width="1060" height="30" as="geometry" />
+        <mxCell id="bg" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="0" y="0" width="1200" height="780" as="geometry" />
         </mxCell>
 
-        <!-- Lifelines -->
-        <mxCell id="p-admin" value=":Administrateur" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1" vertex="1" parent="1">
-          <mxGeometry x="30" y="50" width="110" height="780" as="geometry" />
-        </mxCell>
-        <mxCell id="p-fe-admin" value=":Frontend&#xa;Admin" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1" vertex="1" parent="1">
-          <mxGeometry x="170" y="50" width="100" height="780" as="geometry" />
-        </mxCell>
-        <mxCell id="p-ctrl" value=":TicketsController" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1" vertex="1" parent="1">
-          <mxGeometry x="310" y="50" width="120" height="780" as="geometry" />
-        </mxCell>
-        <mxCell id="p-svc" value=":TicketsService" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1" vertex="1" parent="1">
-          <mxGeometry x="470" y="50" width="110" height="780" as="geometry" />
-        </mxCell>
-        <mxCell id="p-db" value=":MongoDB" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1" vertex="1" parent="1">
-          <mxGeometry x="620" y="50" width="100" height="780" as="geometry" />
-        </mxCell>
-        <mxCell id="p-gw" value=":TicketsNotifications&#xa;Gateway (WS)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1" vertex="1" parent="1">
-          <mxGeometry x="760" y="50" width="130" height="780" as="geometry" />
-        </mxCell>
-        <mxCell id="p-notif" value=":NotificationsService" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1" vertex="1" parent="1">
-          <mxGeometry x="930" y="50" width="140" height="780" as="geometry" />
-        </mxCell>
-        <mxCell id="p-fe-tech" value=":Frontend&#xa;Technicien" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1" vertex="1" parent="1">
-          <mxGeometry x="1110" y="50" width="100" height="780" as="geometry" />
+        <mxCell id="title" value="Assignation d'un ticket à un technicien" style="text;html=1;strokeColor=none;fillColor=#ffffff;align=center;fontSize=14;fontStyle=1;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="300" y="15" width="600" height="30" as="geometry" />
         </mxCell>
 
-        <!-- Messages -->
-        <mxCell id="m1" value="1. sélectionne un technicien (AssignTicketModal)" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" edge="1" parent="1">
+        <mxCell id="p-admin" value=":Administrateur" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="30" y="60" width="110" height="680" as="geometry" />
+        </mxCell>
+        <mxCell id="p-fe" value=":Frontend Admin" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="170" y="60" width="110" height="680" as="geometry" />
+        </mxCell>
+        <mxCell id="p-ctrl" value=":TicketsController" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="320" y="60" width="120" height="680" as="geometry" />
+        </mxCell>
+        <mxCell id="p-svc" value=":TicketsService" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="480" y="60" width="110" height="680" as="geometry" />
+        </mxCell>
+        <mxCell id="p-db" value=":MongoDB" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#ffe6cc;strokeColor=#d79b00;fontColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="630" y="60" width="100" height="680" as="geometry" />
+        </mxCell>
+        <mxCell id="p-gw" value=":Notifications WS" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#e1d5e7;strokeColor=#9673a6;fontColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="770" y="60" width="110" height="680" as="geometry" />
+        </mxCell>
+        <mxCell id="p-tech" value=":Technicien" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="920" y="60" width="100" height="680" as="geometry" />
+        </mxCell>
+        <mxCell id="p-client" value=":Client" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1060" y="60" width="90" height="680" as="geometry" />
+        </mxCell>
+
+        <mxCell id="m1" value="ouvre AssignTicketModal" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="85" y="120" as="sourcePoint" />
-            <mxPoint x="220" y="120" as="targetPoint" />
+            <mxPoint x="85" y="110" as="sourcePoint" />
+            <mxPoint x="225" y="110" as="targetPoint" />
           </mxGeometry>
         </mxCell>
 
-        <mxCell id="m2" value="2. PATCH /tickets/:id&#xa;{ assignedTo: technicianId } + JWT admin" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" edge="1" parent="1">
+        <mxCell id="m2" value="GET /users?role=technician" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="220" y="160" as="sourcePoint" />
-            <mxPoint x="370" y="160" as="targetPoint" />
+            <mxPoint x="225" y="145" as="sourcePoint" />
+            <mxPoint x="380" y="145" as="targetPoint" />
           </mxGeometry>
         </mxCell>
 
-        <mxCell id="m3" value="3. update(id, UpdateTicketDto, user)" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" edge="1" parent="1">
+        <mxCell id="m3" value="liste techniciens" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="370" y="200" as="sourcePoint" />
-            <mxPoint x="525" y="200" as="targetPoint" />
+            <mxPoint x="380" y="180" as="sourcePoint" />
+            <mxPoint x="85" y="180" as="targetPoint" />
           </mxGeometry>
         </mxCell>
 
-        <mxCell id="m4" value="4. handleAdminUpdate()&#xa;assignedTo := ObjectId(technicianId)" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;strokeColor=#666666;dashed=1;" edge="1" parent="1">
+        <mxCell id="m4" value="sélectionne un technicien" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="525" y="235" as="sourcePoint" />
-            <mxPoint x="525" y="255" as="targetPoint" />
-            <Array as="points"><mxPoint x="550" y="235" /><mxPoint x="550" y="255" /></Array>
+            <mxPoint x="85" y="215" as="sourcePoint" />
+            <mxPoint x="225" y="215" as="targetPoint" />
           </mxGeometry>
         </mxCell>
 
-        <mxCell id="m5" value="5. pushHistory({ action:'assigned_changed',&#xa;field:'assignedTo', from, to })" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;strokeColor=#666666;dashed=1;" edge="1" parent="1">
+        <mxCell id="m5" value="PATCH /tickets/:id&#xa;{ assignedTo: technicianId } + JWT" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="525" y="285" as="sourcePoint" />
-            <mxPoint x="525" y="305" as="targetPoint" />
-            <Array as="points"><mxPoint x="550" y="285" /><mxPoint x="550" y="305" /></Array>
+            <mxPoint x="225" y="255" as="sourcePoint" />
+            <mxPoint x="380" y="255" as="targetPoint" />
           </mxGeometry>
         </mxCell>
 
-        <mxCell id="m6" value="6. save(ticket)" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" edge="1" parent="1">
+        <mxCell id="m6" value="handleAdminUpdate()" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="525" y="335" as="sourcePoint" />
-            <mxPoint x="670" y="335" as="targetPoint" />
+            <mxPoint x="380" y="295" as="sourcePoint" />
+            <mxPoint x="535" y="295" as="targetPoint" />
           </mxGeometry>
         </mxCell>
 
-        <mxCell id="m7" value="7. ticket mis à jour (assignedTo + history[])" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;" edge="1" parent="1">
+        <mxCell id="m7" value="assignedTo := technicianId&#xa;history[assigned_changed]" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="670" y="370" as="sourcePoint" />
-            <mxPoint x="525" y="370" as="targetPoint" />
+            <mxPoint x="535" y="335" as="sourcePoint" />
+            <mxPoint x="680" y="335" as="targetPoint" />
           </mxGeometry>
         </mxCell>
 
-        <mxCell id="m8" value="8. notifyAssignmentChange()" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;strokeColor=#666666;dashed=1;" edge="1" parent="1">
+        <mxCell id="m8" value="ticket mis à jour" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="525" y="405" as="sourcePoint" />
-            <mxPoint x="525" y="425" as="targetPoint" />
-            <Array as="points"><mxPoint x="550" y="405" /><mxPoint x="550" y="425" /></Array>
+            <mxPoint x="680" y="375" as="sourcePoint" />
+            <mxPoint x="535" y="375" as="targetPoint" />
           </mxGeometry>
         </mxCell>
 
-        <mxCell id="m9" value="9. notifyTicketAssigned(ticket)" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" edge="1" parent="1">
+        <mxCell id="m9" value="notifyTicketAssigned() WS" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="525" y="450" as="sourcePoint" />
-            <mxPoint x="825" y="450" as="targetPoint" />
+            <mxPoint x="535" y="415" as="sourcePoint" />
+            <mxPoint x="825" y="415" as="targetPoint" />
           </mxGeometry>
         </mxCell>
 
-        <mxCell id="m10" value="10. emit('ticket.assigned') → room user:technicianId" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" edge="1" parent="1">
+        <mxCell id="m10" value="alerte temps réel" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="825" y="485" as="sourcePoint" />
-            <mxPoint x="1160" y="485" as="targetPoint" />
+            <mxPoint x="825" y="450" as="sourcePoint" />
+            <mxPoint x="970" y="450" as="targetPoint" />
           </mxGeometry>
         </mxCell>
 
-        <mxCell id="m11" value="11. createMany([technicianId], { event:'ticket.assigned' })" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" edge="1" parent="1">
+        <mxCell id="m11" value="createMany notifications&#xa;(technicien + client)" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="525" y="530" as="sourcePoint" />
-            <mxPoint x="1000" y="530" as="targetPoint" />
+            <mxPoint x="535" y="490" as="sourcePoint" />
+            <mxPoint x="680" y="490" as="targetPoint" />
           </mxGeometry>
         </mxCell>
 
-        <mxCell id="m12" value="12. insert notification (collection notifications)" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" edge="1" parent="1">
+        <mxCell id="m12" value="notification « Technicien affecté »" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="1000" y="565" as="sourcePoint" />
-            <mxPoint x="670" y="565" as="targetPoint" />
+            <mxPoint x="680" y="530" as="sourcePoint" />
+            <mxPoint x="1105" y="530" as="targetPoint" />
           </mxGeometry>
         </mxCell>
 
-        <mxCell id="m13" value="13. TicketResponse (JSON)" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;" edge="1" parent="1">
+        <mxCell id="m13" value="notification « Ticket affecté »" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="525" y="610" as="sourcePoint" />
-            <mxPoint x="370" y="610" as="targetPoint" />
+            <mxPoint x="680" y="565" as="sourcePoint" />
+            <mxPoint x="970" y="565" as="targetPoint" />
           </mxGeometry>
         </mxCell>
 
-        <mxCell id="m14" value="14. 200 OK" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;" edge="1" parent="1">
+        <mxCell id="m14" value="200 OK TicketResponse" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="370" y="645" as="sourcePoint" />
-            <mxPoint x="220" y="645" as="targetPoint" />
+            <mxPoint x="380" y="605" as="sourcePoint" />
+            <mxPoint x="85" y="605" as="targetPoint" />
           </mxGeometry>
         </mxCell>
 
-        <mxCell id="m15" value="15. liste tickets / modal mise à jour" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;" edge="1" parent="1">
+        <mxCell id="m15" value="liste tickets mise à jour" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="220" y="680" as="sourcePoint" />
-            <mxPoint x="85" y="680" as="targetPoint" />
+            <mxPoint x="225" y="645" as="sourcePoint" />
+            <mxPoint x="85" y="645" as="targetPoint" />
           </mxGeometry>
-        </mxCell>
-
-        <mxCell id="m16" value="16. alerte temps réel + cloche (ticket affecté)" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;strokeColor=#9673a6;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="1160" y="520" as="sourcePoint" />
-            <mxPoint x="1160" y="555" as="targetPoint" />
-            <Array as="points"><mxPoint x="1195" y="520" /><mxPoint x="1195" y="555" /></Array>
-          </mxGeometry>
-        </mxCell>
-
-        <!-- Notes -->
-        <mxCell id="note-guard" value="TicketOwnerOrAdminGuard&#xa;admin : accès autorisé" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;size=12;fillColor=#ffffcc;strokeColor=#999999;align=left;spacingLeft=6;fontSize=10;" vertex="1" parent="1">
-          <mxGeometry x="310" y="115" width="140" height="45" as="geometry" />
-        </mxCell>
-
-        <mxCell id="note-client" value="[note] Le client créateur reçoit&#xa;aussi une notification persistante&#xa;« Technicien affecté: … »" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;size=12;fillColor=#f5f5f5;strokeColor=#666666;align=left;spacingLeft=6;fontSize=10;" vertex="1" parent="1">
-          <mxGeometry x="930" y="600" width="200" height="55" as="geometry" />
-        </mxCell>
-
-        <!-- Frame par notifications technicien -->
-        <mxCell id="par-frame" value="par" style="shape=umlFrame;whiteSpace=wrap;html=1;width=50;height=30;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;align=left;verticalAlign=top;spacingLeft=8;" vertex="1" parent="1">
-          <mxGeometry x="450" y="435" width="720" height="150" as="geometry" />
-        </mxCell>
-        <mxCell id="par-label" value="Notification du technicien assigné (WebSocket + persistance)" style="text;html=1;align=left;fontSize=10;fontStyle=2" vertex="1" parent="1">
-          <mxGeometry x="460" y="465" width="320" height="20" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

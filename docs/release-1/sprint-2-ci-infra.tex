@@ -1,0 +1,661 @@
+% =============================================================================
+% Sprint 2 — Intégration continue et approvisionnement de l'infrastructure
+% TicketManager — aligné sur le dépôt réel (terraform/, azure-pipelines.yml)
+% Captures d'écran : placer les PNG dans le dossier img/ du rapport LaTeX
+% =============================================================================
+
+\section[Sprint 2 : Implémentation de l'intégration continue et de l'infrastructure]%
+{Sprint 2 : Implémentation de l'intégration continue et de l'infrastructure}
+
+Ce sprint vise à industrialiser le cycle de vie de la plateforme \textit{TicketManager} en
+automatisant la validation du code, la construction des artefacts et l'approvisionnement de
+l'infrastructure sur \textbf{Azure Stack Hub}. Il s'appuie sur une approche \textit{Infrastructure
+as Code} pour le réseau et les machines virtuelles, complétée par un pipeline d'intégration
+continue défini de manière déclarative.
+
+
+% ---------------------------------------------------------------------------
+\subsection{Objectif du Sprint 2}
+% ---------------------------------------------------------------------------
+
+Le Sprint~2 prolonge le socle applicatif réalisé au Sprint~1. Réalisé en \textbf{autonomie}
+(développement, intégration et infrastructure), il met l'accent sur
+\textbf{l'industrialisation} et \textbf{l'approvisionnement cloud}. L'objectif est de rendre
+reproductibles la validation du code, la production d'artefacts conteneurisés et le déploiement
+de l'infrastructure cible sur Azure Stack Hub.
+
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.1}
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{|p{2.8cm}|p{9.2cm}|}
+\hline
+\textbf{Axe} & \textbf{Objectif} \\
+\hline
+Infrastructure & Définir et provisionner le réseau, la sécurité et les machines virtuelles
+                 par Terraform (\textit{Infrastructure as Code}) sur Azure Stack Hub \\
+\hline
+Intégration continue & Mettre en place un pipeline Azure DevOps déclaratif (YAML) déclenché
+                       à chaque évolution du code source \\
+\hline
+Qualité et sécurité & Automatiser les tests, l'analyse statique (SonarQube), l'analyse des
+                      dépendances (Snyk) et le scan des images (Trivy) \\
+\hline
+Conteneurisation & Construire des images Docker multi-étapes pour le backend et le frontend,
+                   puis les publier dans un registre privé (Nexus) \\
+\hline
+Préparation au déploiement & Préparer le sous-réseau Kubernetes et la chaîne d'outils DevOps
+                             (registre, analyse) en vue du déploiement applicatif au sprint suivant \\
+\hline
+\end{tabular}
+\caption{Objectifs du Sprint~2 par axe}
+\label{tab:s2-objectifs}
+\end{table}
+
+\paragraph{Résultat attendu.}
+À l'issue de ce sprint, la solution \textit{TicketManager} dispose des éléments suivants :
+\begin{itemize}
+  \item une infrastructure réseau documentée et reproductible (VNet, sous-réseaux, NSG,
+        machines de gestion et de base de données) ;
+  \item un pipeline CI/CD exécutable sur agent auto-hébergé, couvrant compilation, tests,
+        analyse qualité, construction d'images, scan de vulnérabilités et publication vers Nexus ;
+  \item une étape Terraform intégrée au pipeline, avec contrôle manuel avant application sur
+        la branche principale ;
+  \item un socle prêt pour le déploiement du cluster Kubernetes et des services applicatifs
+        au sprint ultérieur.
+\end{itemize}
+
+\paragraph{Périmètre.}
+Le tableau~\ref{tab:s2-perimetre} précise le contenu du Sprint~2 par rapport aux livraisons
+précédentes et futures.
+
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.1}
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{|p{5.5cm}|c|c|}
+\hline
+\textbf{Élément} & \textbf{Sprint~2} & \textbf{Sprint ultérieur} \\
+\hline
+Socle applicatif (backend, frontend, MongoDB locale) & — & Sprint~1 \\
+\hline
+Terraform — réseau, NSG, VMs (gestion, base de données) & Oui & — \\
+\hline
+Pipeline Azure DevOps (build, tests, qualité, Docker) & Oui & — \\
+\hline
+Registre Docker privé (Nexus) & Oui & — \\
+\hline
+Déploiement cluster Kubernetes (AKS Engine) & Préparation & Sprint~3 \\
+\hline
+Déploiement applicatif en pods (frontend, backend) & — & Sprint~3 \\
+\hline
+Déploiement continu (CD) vers production & — & Sprint~3 \\
+\hline
+\end{tabular}
+\caption{Périmètre fonctionnel et infrastructurel du Sprint~2}
+\label{tab:s2-perimetre}
+\end{table}
+
+
+% ---------------------------------------------------------------------------
+\subsection{Backlog du Sprint 2}
+% ---------------------------------------------------------------------------
+
+Le backlog du Sprint~2 est organisé en trois epics : infrastructure cloud, chaîne
+d'intégration continue et outillage DevOps. L'acteur principal des user stories est le
+\textbf{développeur}, seul responsable de la conception, de l'implémentation et de la mise en
+œuvre DevOps du projet. Le tableau~\ref{tab:s2-backlog-consolide} en présente une vue
+consolidée ; les tableaux~\ref{tab:s2-backlog-infra} et~\ref{tab:s2-backlog-cicd} détaillent
+les livrables par epic.
+
+\subsubsection{Epic — Infrastructure cloud (Terraform)}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{0.9}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{|c|p{5.2cm}|c|p{4.2cm}|c|}
+\hline
+\textbf{ID} & \textbf{User story} & \textbf{Priorité} & \textbf{Livrable} & \textbf{Statut} \\
+\hline
+S2-I01 & En tant que développeur, je provisionne l'infrastructure par Terraform sur Azure Stack Hub & Must & Cycle init, validate, plan, apply & $\checkmark$ \\
+\hline
+S2-I02 & En tant que développeur, je segmente le réseau en sous-réseaux dédiés (administration, base de données, Kubernetes) & Must & VNet \texttt{10.1.0.0/16}, 3 subnets & $\checkmark$ \\
+\hline
+S2-I03 & En tant que développeur, je configure les groupes de sécurité réseau par sous-réseau & Must & NSG par sous-réseau & $\checkmark$ \\
+\hline
+S2-I04 & En tant que développeur, je dispose d'une VM d'administration pour orchestrer les déploiements & Must & VM-gestion (IP publique + privée) & $\checkmark$ \\
+\hline
+S2-I05 & En tant que développeur, je déploie une VM hébergeant MongoDB en environnement cloud & Must & VM-base de données (MongoDB) & $\checkmark$ \\
+\hline
+S2-I06 & En tant que développeur, j'associe chaque VM à une interface réseau sécurisée & Must & NIC + association NSG & $\checkmark$ \\
+\hline
+S2-I07 & En tant que développeur, je prépare le sous-réseau pour le futur cluster Kubernetes & Should & Subnet AKS, règles NSG associées & $\checkmark$ \\
+\hline
+\end{tabular}
+\caption{Backlog Sprint~2 — Epic infrastructure cloud}
+\label{tab:s2-backlog-infra}
+\end{table}
+
+\subsubsection{Epic — Intégration continue (Azure DevOps)}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{0.9}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{|c|p{5.2cm}|c|p{4.2cm}|c|}
+\hline
+\textbf{ID} & \textbf{User story} & \textbf{Priorité} & \textbf{Livrable} & \textbf{Statut} \\
+\hline
+S2-C01 & En tant que développeur, je centralise le code source sur Azure Repos & Must & Dépôt distant, synchronisation Git & $\checkmark$ \\
+\hline
+S2-C02 & En tant que développeur, j'exécute le pipeline sur un agent auto-hébergé & Must & Pool auto-hébergé \textit{ticketmanager-pool} & $\checkmark$ \\
+\hline
+S2-C03 & En tant que développeur, je déclenche automatiquement le pipeline à chaque push & Must & Fichier \texttt{azure-pipelines.yml}, branches \texttt{main}/\texttt{develop} & $\checkmark$ \\
+\hline
+S2-C04 & En tant que développeur, je compile backend et frontend à chaque livraison & Must & Stage Build (NestJS, Next.js) & $\checkmark$ \\
+\hline
+S2-C05 & En tant que développeur, j'exécute les tests automatisés et publie la couverture & Must & Stage Test (unitaires, intégration, couverture) & $\checkmark$ \\
+\hline
+S2-C06 & En tant que développeur, j'intègre l'analyse SonarQube dans le pipeline & Must & Stage SonarQube & $\checkmark$ \\
+\hline
+S2-C07 & En tant que développeur, j'analyse les vulnérabilités des dépendances avec Snyk & Should & Stage Snyk & $\checkmark$ \\
+\hline
+S2-C08 & En tant que développeur, je construis des images Docker prêtes pour la production & Must & Dockerfiles multi-étapes, stage Docker & $\checkmark$ \\
+\hline
+S2-C09 & En tant que développeur, je scanne les images Docker avant publication & Must & Stage Trivy & $\checkmark$ \\
+\hline
+S2-C10 & En tant que développeur, je publie les images validées dans un registre privé & Must & Stage Push vers Nexus & $\checkmark$ \\
+\hline
+S2-C11 & En tant que développeur, j'automatise Terraform dans le pipeline avec validation manuelle & Must & Stage Terraform (approbation sur \texttt{main}) & $\checkmark$ \\
+\hline
+\end{tabular}
+\caption{Backlog Sprint~2 — Epic intégration continue}
+\label{tab:s2-backlog-cicd}
+\end{table}
+
+\subsubsection{Vue consolidée du backlog}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{0.85}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{|c|p{6.8cm}|c|p{2.8cm}|c|}
+\hline
+\textbf{ID} & \textbf{User story} & \textbf{Priorité} & \textbf{Epic} & \textbf{Statut} \\
+\hline
+S2-01 & En tant que développeur, je provisionne l'infrastructure réseau et compute par Terraform & Must & Infrastructure & $\checkmark$ \\
+\hline
+S2-02 & En tant que développeur, je déploie les VMs de gestion et de base de données & Must & Infrastructure & $\checkmark$ \\
+\hline
+S2-03 & En tant que développeur, je configure les NSG et les interfaces réseau & Must & Infrastructure & $\checkmark$ \\
+\hline
+S2-04 & En tant que développeur, je connecte mon dépôt local à Azure Repos & Must & CI/CD & $\checkmark$ \\
+\hline
+S2-05 & En tant que développeur, je configure un agent auto-hébergé pour le pipeline & Must & CI/CD & $\checkmark$ \\
+\hline
+S2-06 & En tant que développeur, j'automatise la compilation backend et frontend & Must & CI/CD & $\checkmark$ \\
+\hline
+S2-07 & En tant que développeur, j'exécute les tests unitaires et d'intégration à chaque build & Must & CI/CD & $\checkmark$ \\
+\hline
+S2-08 & En tant que développeur, j'intègre SonarQube dans le pipeline & Must & Outillage & $\checkmark$ \\
+\hline
+S2-09 & En tant que développeur, j'analyse les vulnérabilités des dépendances avec Snyk & Should & Outillage & $\checkmark$ \\
+\hline
+S2-10 & En tant que développeur, je construis les images Docker multi-étapes & Must & CI/CD & $\checkmark$ \\
+\hline
+S2-11 & En tant que développeur, je scanne les images Docker avec Trivy & Must & Outillage & $\checkmark$ \\
+\hline
+S2-12 & En tant que développeur, je publie les images vers Nexus & Must & Outillage & $\checkmark$ \\
+\hline
+S2-13 & En tant que développeur, j'intègre Terraform au pipeline avec contrôle manuel & Must & CI/CD & $\checkmark$ \\
+\hline
+S2-14 & En tant que développeur, je prépare le sous-réseau et la configuration AKS Engine & Should & Infrastructure & En cours \\
+\hline
+\end{tabular}
+\caption{Backlog consolidé du Sprint~2}
+\label{tab:s2-backlog-consolide}
+\end{table}
+
+\paragraph{Hors périmètre Sprint~2.}
+Les éléments suivants sont reportés au sprint suivant :
+\begin{itemize}
+  \item déploiement effectif du cluster Kubernetes via AKS Engine ;
+  \item déploiement des pods applicatifs (frontend, backend) en production ;
+  \item mise en place du déploiement continu (CD) automatisé vers le cluster ;
+  \item fonctionnalités métier additionnelles (réinitialisation mot de passe, profil utilisateur).
+\end{itemize}
+
+
+% ---------------------------------------------------------------------------
+\subsection{Approvisionnement de l'infrastructure cloud}
+% ---------------------------------------------------------------------------
+
+\subsubsection{Infrastructure as Code avec Terraform}
+
+Terraform est un outil d'Infrastructure as Code (IaC) édité par HashiCorp. Il permet de
+décrire de façon déclarative l'état cible des ressources cloud, sans détailler manuellement
+chaque opération de création. Dans le cadre de TicketManager, Terraform est utilisé avec le
+fournisseur \textit{azurestack}, adapté au environnement Azure Stack Hub de l'organisme
+d'hébergement.
+
+Le cycle de déploiement repose sur quatre commandes complémentaires :
+
+\begin{itemize}
+  \item \textbf{Initialisation} (\texttt{terraform init}) : prépare l'environnement de travail,
+        télécharge le fournisseur et prépare le backend local d'état ;
+  \item \textbf{Validation} (\texttt{terraform validate}) : contrôle la cohérence syntaxique
+        des fichiers de configuration avant toute exécution ;
+  \item \textbf{Planification} (\texttt{terraform plan}) : produit un plan d'exécution
+        détaillant les ressources à créer, modifier ou supprimer ;
+  \item \textbf{Application} (\texttt{terraform apply}) : matérialise le plan en respectant
+        l'ordre des dépendances entre ressources.
+\end{itemize}
+
+La figure~\ref{fig:tf-init} illustre la réussite de l'étape d'initialisation.
+La figure~\ref{fig:tf-validate} confirme la validité de la configuration.
+La figure~\ref{fig:tf-plan} présente le plan d'exécution généré.
+La figure~\ref{fig:tf-apply} montre le résultat de l'application, incluant les adresses
+réseau attribuées aux machines virtuelles.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/terraform-init.png}
+    \caption{Résultat de l'initialisation Terraform}
+    \label{fig:tf-init}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/terraform-validate.png}
+    \caption{Validation réussie de la configuration Terraform}
+    \label{fig:tf-validate}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/terraform-plan.png}
+    \caption{Plan d'exécution Terraform}
+    \label{fig:tf-plan}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/terraform-apply.png}
+    \caption{Résultat de l'application Terraform (adresses IP et sorties)}
+    \label{fig:tf-apply}
+\end{figure}
+
+L'utilisation de Terraform apporte plusieurs bénéfices pour un projet académique de PFE :
+reproductibilité des déploiements, traçabilité via le fichier d'état (\texttt{terraform.tfstate}),
+réduction des erreurs manuelles et homogénéité entre les environnements de test et de
+démonstration.
+
+
+\subsubsection{Architecture de l'infrastructure}
+
+L'architecture retenue pour TicketManager repose sur une organisation hybride : une couche
+réseau et compute provisionnée par Terraform, complétée par un déploiement Kubernetes prévu
+via AKS Engine sur un sous-réseau dédié. La figure~\ref{fig:arch-infra} en donne une vue
+d'ensemble.
+
+Toutes les ressources sont regroupées dans un même groupe de ressources Azure Stack Hub,
+attribué par l'encadrant du projet. L'infrastructure comprend les composants suivants.
+
+\paragraph{Réseau virtuel et sous-réseaux.}
+Un réseau virtuel (\texttt{10.1.0.0/16}) structure la connectivité interne. Trois sous-réseaux
+sont définis :
+\begin{itemize}
+  \item \textbf{Administration} (\texttt{10.1.1.0/24}) : hébergement de la machine de gestion ;
+  \item \textbf{Base de données} (\texttt{10.1.2.0/24}) : hébergement de MongoDB, sans
+        exposition directe à Internet ;
+  \item \textbf{Kubernetes} (\texttt{10.1.3.0/24}) : réservé au futur cluster AKS Engine.
+\end{itemize}
+La figure~\ref{fig:vnet-subnets} illustre cette segmentation.
+
+\paragraph{Machines virtuelles.}
+Deux machines virtuelles Linux sont déployées par Terraform (et non trois) :
+\begin{itemize}
+  \item \textbf{VM-gestion} : point d'administration pour l'exploitation de l'infrastructure,
+        l'exécution d'AKS Engine et les opérations de déploiement ;
+  \item \textbf{VM-base de données} : héberge MongoDB pour la persistance des tickets et des
+        utilisateurs en environnement cloud.
+\end{itemize}
+La figure~\ref{fig:vms} présente ces machines dans le portail Azure Stack Hub.
+
+\paragraph{Groupes de sécurité réseau.}
+Trois groupes de sécurité réseau (NSG) filtrent le trafic par rôle : administration (accès
+SSH), base de données (MongoDB depuis les sous-réseaux autorisés) et cluster Kubernetes
+(trafic interne au réseau virtuel). La figure~\ref{fig:nsg} les représente.
+
+\paragraph{Interfaces réseau.}
+Chaque machine virtuelle est rattachée à une interface réseau propre, intégrée au réseau
+virtuel et associée au NSG correspondant. La figure~\ref{fig:nics} montre ces associations.
+
+\paragraph{Cluster Kubernetes (perspective).}
+Le cluster Kubernetes n'est pas créé par Terraform lui-même : le module réseau prépare
+uniquement le sous-réseau et les règles associées. Le déploiement du plan de contrôle et des
+nœuds workers est confié à AKS Engine, outil adapté à Azure Stack Hub. Les services applicatifs
+conteneurisés (frontend Next.js, backend NestJS) ainsi que les outils DevOps (registre Nexus,
+analyse SonarQube, supervision) seront déployés sous forme de pods dans ce cluster.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/architecture-infra-ticketmanager.png}
+    \caption{Architecture globale de l'infrastructure TicketManager}
+    \label{fig:arch-infra}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/vnet-subnets.png}
+    \caption{Réseau virtuel et sous-réseaux}
+    \label{fig:vnet-subnets}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/vms-azurestack.png}
+    \caption{Machines virtuelles déployées sur Azure Stack Hub}
+    \label{fig:vms}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/nsg-azurestack.png}
+    \caption{Groupes de sécurité réseau}
+    \label{fig:nsg}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/nics-azurestack.png}
+    \caption{Interfaces réseau des machines virtuelles}
+    \label{fig:nics}
+\end{figure}
+
+
+% ---------------------------------------------------------------------------
+\subsection{Présentation d'Azure DevOps}
+% ---------------------------------------------------------------------------
+
+Azure DevOps est la plateforme collaborative retenue pour centraliser le code source, planifier
+le travail et automatiser l'intégration continue. La figure~\ref{fig:azure-devops-ui} présente
+son interface principale.
+
+Les modules mobilisés dans TicketManager sont les suivants :
+\begin{itemize}
+  \item \textbf{Azure Boards} : planification agile, suivi des sprints et des user stories ;
+  \item \textbf{Azure Repos} : gestion de versions Git, branches et revues de code ;
+  \item \textbf{Azure Pipelines} : exécution automatisée du pipeline CI/CD défini en YAML.
+\end{itemize}
+
+
+% ---------------------------------------------------------------------------
+\subsection{Conception et infrastructure du pipeline CI}
+% ---------------------------------------------------------------------------
+
+\subsubsection{Approche déclarative en YAML}
+
+Le pipeline est entièrement décrit dans le fichier \texttt{azure-pipelines.yml}, versionné avec
+le code source. Cette approche garantit la traçabilité des modifications, la reproductibilité
+des exécutions et la cohérence entre les environnements.
+
+\subsubsection{Pool d'agents auto-hébergés}
+
+Les tâches du pipeline s'exécutent sur un \textbf{agent auto-hébergé}, regroupé dans le pool
+\textit{ticketmanager-pool}. Ce choix permet de maîtriser l'environnement d'exécution
+(Docker, Node.js, outils d'analyse) et de rester compatible avec l'infrastructure locale ou
+Stack Hub. La figure~\ref{fig:agent-pool} illustre la configuration du pool et de l'agent.
+
+La figure~\ref{fig:agent-config} montre la procédure de liaison de l'agent au projet Azure
+DevOps.
+
+\subsubsection{Connexion au dépôt distant}
+
+Le code source est synchronisé avec Azure Repos selon le flux Git classique : initialisation
+du dépôt local, indexation des modifications, création de commits descriptifs et envoi vers
+le dépôt distant. La figure~\ref{fig:azure-repos} présente l'arborescence du projet, incluant
+le fichier de pipeline et les répertoires \texttt{backend}, \texttt{frontend} et
+\texttt{terraform}.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/azure-devops-interface.png}
+    \caption{Interface principale d'Azure DevOps}
+    \label{fig:azure-devops-ui}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/agent-pool.png}
+    \caption{Configuration du pool d'agents auto-hébergés}
+    \label{fig:agent-pool}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/agent-configuration.png}
+    \caption{Liaison de l'agent auto-hébergé au projet}
+    \label{fig:agent-config}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/azure-repos.png}
+    \caption{Dépôt Azure Repos — structure du projet TicketManager}
+    \label{fig:azure-repos}
+\end{figure}
+
+
+% ---------------------------------------------------------------------------
+\subsection{Étapes du pipeline d'intégration continue}
+% ---------------------------------------------------------------------------
+
+Le pipeline est organisé en \textbf{stages} successifs, déclenchés automatiquement à chaque
+push sur les branches \texttt{main} et \texttt{develop}. La figure~\ref{fig:pipeline-overview}
+en présente la vue d'ensemble.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{img/pipeline-stages.png}
+    \caption{Vue d'ensemble des étapes du pipeline CI/CD}
+    \label{fig:pipeline-overview}
+\end{figure}
+
+
+\subsubsection{Compilation des composants applicatifs}
+
+La première étape compile le backend (API NestJS) et le frontend (application Next.js) après
+installation des dépendances. Un mécanisme de cache accélère les exécutions suivantes en
+réutilisant les modules déjà téléchargés.
+
+
+\subsubsection{Vérification du code et exécution des tests}
+
+Les tests automatisés constituent un garde-fou essentiel de l'intégration continue.
+
+\paragraph{Tests backend.}
+Le backend est couvert par des tests unitaires et des tests d'intégration, exécutés avec
+l'outil Jest. Les résultats sont publiés dans Azure DevOps sous forme de rapports JUnit, et
+un rapport de couverture de code est généré au format Cobertura. La figure~\ref{fig:tests-backend}
+illustre l'exécution réussie de cette étape.
+
+\paragraph{Tests frontend.}
+La validation du frontend repose principalement sur la compilation de production et les
+contrôles qualité intégrés au pipeline ; des tests unitaires frontend pourront être renforcés
+dans une itération ultérieure.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/tests-backend.png}
+    \caption{Exécution des tests automatisés du backend}
+    \label{fig:tests-backend}
+\end{figure}
+
+
+\subsubsection{Analyse de la qualité du code}
+
+SonarQube est intégré au pipeline pour l'analyse statique du code source backend et frontend.
+Il mesure la dette technique, détecte les duplications et évalue la couverture des tests.
+La connexion au serveur SonarQube s'effectue via un jeton d'authentification configuré dans
+Azure DevOps. La figure~\ref{fig:sonar-connection} présente la liaison entre les deux outils,
+et la figure~\ref{fig:sonar-results} un extrait du tableau de bord d'analyse.
+
+
+\subsubsection{Analyse de sécurité des dépendances}
+
+En parallèle, l'outil Snyk analyse les dépendances npm du backend et du frontend afin
+d'identifier les vulnérabilités connues avant la construction des images conteneurisées.
+
+
+\subsubsection{Construction des images Docker}
+
+Une fois le code validé, deux images Docker sont produites :
+\begin{itemize}
+  \item \textbf{Image backend} : API NestJS exposée sur le port 3001 ;
+  \item \textbf{Image frontend} : application Next.js exposée sur le port 3000.
+\end{itemize}
+
+Chaque image est construite selon une approche \textbf{multi-étapes} : une phase de compilation
+séparée de l'image d'exécution finale, allégée et adaptée à la production. Les
+figures~\ref{fig:dockerfile-frontend} et~\ref{fig:dockerfile-backend} présentent les
+Dockerfiles correspondants ; la figure~\ref{fig:docker-build} montre le succès de la
+construction dans le pipeline.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/dockerfile-frontend.png}
+    \caption{Dockerfile du frontend Next.js}
+    \label{fig:dockerfile-frontend}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/dockerfile-backend.png}
+    \caption{Dockerfile du backend NestJS}
+    \label{fig:dockerfile-backend}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/docker-build-pipeline.png}
+    \caption{Construction des images Docker dans le pipeline}
+    \label{fig:docker-build}
+\end{figure}
+
+
+\subsubsection{Scan de vulnérabilités des images}
+
+L'outil Trivy analyse les images Docker construites afin de détecter les failles de sécurité
+de niveau élevé ou critique. Les figures~\ref{fig:trivy-backend} et~\ref{fig:trivy-frontend}
+présentent les rapports obtenus pour le backend et le frontend. Les anomalies identifiées
+peuvent être corrigées par mise à jour des dépendances avant publication.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/trivy-backend.png}
+    \caption{Analyse Trivy — image backend}
+    \label{fig:trivy-backend}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/trivy-frontend.png}
+    \caption{Analyse Trivy — image frontend}
+    \label{fig:trivy-frontend}
+\end{figure}
+
+
+\subsubsection{Publication des images vers Nexus Repository}
+
+Nexus Repository Manager joue le rôle de \textbf{registre Docker privé}. Il centralise les
+images validées par le pipeline et assure leur traçabilité avant déploiement dans le cluster
+Kubernetes.
+
+\paragraph{Positionnement dans l'architecture.}
+Dans la cible retenue pour TicketManager, Nexus est hébergé au sein du cluster Kubernetes
+sous forme de pod dédié, aux côtés des autres outils DevOps (analyse qualité, supervision).
+Le registre Docker y est exposé via un service interne au cluster, accessible depuis l'agent
+d'intégration continue. Cette organisation évite la dispersion des artefacts et prépare le
+déploiement continu des composants applicatifs, qui consommeront les mêmes images depuis le
+registre interne.
+
+\paragraph{Configuration.}
+Un dépôt Docker de type \textit{hosted} est créé dans Nexus, associé à un compte de service
+disposant des droits de lecture et d'écriture. Les figures~\ref{fig:nexus-repo}
+et~\ref{fig:nexus-user} illustrent cette configuration initiale.
+
+\paragraph{Intégration pipeline.}
+Après authentification au registre, les images backend et frontend sont étiquetées avec
+l'identifiant de build puis poussées vers Nexus. Sur la branche principale, une étiquette
+stable \texttt{latest} est également appliquée afin de faciliter les déploiements de
+démonstration. La figure~\ref{fig:nexus-images} montre les images stockées après exécution
+du pipeline.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/sonar-connection.png}
+    \caption{Connexion SonarQube — Azure DevOps}
+    \label{fig:sonar-connection}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/sonar-results.png}
+    \caption{Résultats d'analyse SonarQube}
+    \label{fig:sonar-results}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/nexus-docker-repo.png}
+    \caption{Création du dépôt Docker dans Nexus}
+    \label{fig:nexus-repo}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/nexus-user.png}
+    \caption{Compte de service Nexus pour le registre Docker}
+    \label{fig:nexus-user}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/nexus-images.png}
+    \caption{Images Docker publiées dans Nexus après exécution du pipeline}
+    \label{fig:nexus-images}
+\end{figure}
+
+
+\subsubsection{Provisionnement Terraform automatisé}
+
+En fin de pipeline, une étape dédiée exécute le cycle Terraform sur Azure Stack Hub
+(initialisation, validation, planification). Sur la branche principale, une \textbf{validation
+manuelle} est requise avant l'application effective, afin de contrôler les modifications
+infrastructurelles. La figure~\ref{fig:terraform-pipeline} illustre cette étape dans Azure
+Pipelines.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/terraform-pipeline-stage.png}
+    \caption{Étape Terraform intégrée au pipeline CI/CD}
+    \label{fig:terraform-pipeline}
+\end{figure}
+
+
+% ---------------------------------------------------------------------------
+\subsection{Bilan du Sprint 2}
+% ---------------------------------------------------------------------------
+
+À l'issue de ce sprint, TicketManager dispose d'une chaîne d'intégration continue couvrant
+la compilation, les tests, l'analyse qualité et sécurité, la conteneurisation, la publication
+d'artefacts et le provisionnement réseau sur Azure Stack Hub. Cette industrialisation constitue
+le socle nécessaire au déploiement applicatif sur le cluster Kubernetes prévu au sprint
+suivant, ainsi qu'à la reproductibilité des livraisons dans un contexte académique de PFE.

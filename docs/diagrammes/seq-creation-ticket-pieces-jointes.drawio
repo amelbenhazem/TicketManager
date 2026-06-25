@@ -1,0 +1,148 @@
+<mxfile host="app.diagrams.net" agent="TicketManager" version="22.1.0">
+  <diagram id="seq-create-ticket-pj" name="Séquence - Création ticket + PJ">
+    <mxGraphModel dx="1500" dy="950" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1300" pageHeight="750" math="0" shadow="0" background="#ffffff">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="bg" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="0" y="0" width="1300" height="750" as="geometry" />
+        </mxCell>
+
+        <mxCell id="title" value="Création d'un ticket avec pièces jointes" style="text;html=1;strokeColor=none;fillColor=#ffffff;align=center;fontSize=14;fontStyle=1;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="350" y="15" width="600" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="p-client" value=":Client" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="20" y="60" width="90" height="640" as="geometry" />
+        </mxCell>
+        <mxCell id="p-fe" value=":Frontend" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="140" y="60" width="100" height="640" as="geometry" />
+        </mxCell>
+        <mxCell id="p-ctrl" value=":TicketsController" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="280" y="60" width="120" height="640" as="geometry" />
+        </mxCell>
+        <mxCell id="p-att" value=":AttachmentsService" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="440" y="60" width="130" height="640" as="geometry" />
+        </mxCell>
+        <mxCell id="p-cloud" value=":Cloudinary" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#ffe6cc;strokeColor=#d79b00;fontColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="610" y="60" width="100" height="640" as="geometry" />
+        </mxCell>
+        <mxCell id="p-svc" value=":TicketsService" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="750" y="60" width="110" height="640" as="geometry" />
+        </mxCell>
+        <mxCell id="p-db" value=":MongoDB" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#ffe6cc;strokeColor=#d79b00;fontColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="900" y="60" width="100" height="640" as="geometry" />
+        </mxCell>
+        <mxCell id="p-notif" value=":Notifications" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#e1d5e7;strokeColor=#9673a6;fontColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1040" y="60" width="110" height="640" as="geometry" />
+        </mxCell>
+
+        <mxCell id="m1" value="saisit formulaire + fichiers" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="65" y="120" as="sourcePoint" />
+            <mxPoint x="190" y="120" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m2" value="clique Créer le ticket" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="65" y="150" as="sourcePoint" />
+            <mxPoint x="190" y="150" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m3" value="POST /tickets/attachments/upload&#xa;(multipart, Bearer JWT)" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="190" y="190" as="sourcePoint" />
+            <mxPoint x="340" y="190" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m4" value="uploadMany(files)" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="340" y="230" as="sourcePoint" />
+            <mxPoint x="505" y="230" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m5" value="uploadOne(buffer, mimetype)" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="505" y="270" as="sourcePoint" />
+            <mxPoint x="660" y="270" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m6" value="secure_url" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="660" y="310" as="sourcePoint" />
+            <mxPoint x="505" y="310" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m7" value="{ urls: string[] }" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="505" y="350" as="sourcePoint" />
+            <mxPoint x="340" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m8" value="200 OK" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="340" y="385" as="sourcePoint" />
+            <mxPoint x="190" y="385" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m9" value="POST /tickets&#xa;{ title, description, category, priority, attachments }" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="190" y="425" as="sourcePoint" />
+            <mxPoint x="340" y="425" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m10" value="create(userId, dto)" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="340" y="465" as="sourcePoint" />
+            <mxPoint x="805" y="465" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m11" value="insert(ticket)" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="805" y="505" as="sourcePoint" />
+            <mxPoint x="950" y="505" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m12" value="TicketDocument" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="950" y="540" as="sourcePoint" />
+            <mxPoint x="805" y="540" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m13" value="notifyTicketCreated()" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="805" y="580" as="sourcePoint" />
+            <mxPoint x="1095" y="580" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m14" value="201 Created" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="340" y="620" as="sourcePoint" />
+            <mxPoint x="190" y="620" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m15" value="redirection /dashboard/tickets" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="190" y="660" as="sourcePoint" />
+            <mxPoint x="65" y="660" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

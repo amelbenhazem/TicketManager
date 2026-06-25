@@ -1,0 +1,470 @@
+% TicketManager — User stories Sprint 1 (aligné sur l'implémentation réelle)
+% Exporter les .drawio en PNG dans le dossier img/ (voir noms ci-dessous).
+
+% ============================================================
+% US01 — S'authentifier
+% ============================================================
+\subsubsection{Description textuelle du cas d'utilisation « S'authentifier »}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{0.8}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{|p{3cm}|p{9cm}|}
+\hline
+\textbf{Élément} & \textbf{Description} \\
+\hline
+Cas d'utilisation & S'authentifier \\
+\hline
+Acteurs & Client, Technicien, Administrateur \\
+\hline
+Précondition & L'acteur possède un compte valide (email + mot de passe). Le backend NestJS et MongoDB sont disponibles. \\
+\hline
+Postcondition & Un JWT (\texttt{access\_token}) est émis, stocké côté client (\texttt{localStorage}) et l'acteur est redirigé vers son espace selon son rôle (\texttt{/dashboard}, \texttt{/technician} ou \texttt{/admin}). \\
+\hline
+Scénario nominal &
+1. L'acteur accède à \texttt{/login}.\\
+& 2. Il saisit email et mot de passe, puis clique sur « Se connecter ».\\
+& 3. Le frontend appelle \texttt{POST /auth/login}.\\
+& 4. \texttt{AuthService} vérifie les identifiants (bcrypt) et \texttt{JwtService} génère un JWT (24 h).\\
+& 5. Le frontend enregistre le token et le rôle, puis redirige l'utilisateur.\\
+\hline
+Scénarios alternatifs &
+• Identifiants incorrects (401 — « Email ou mot de passe incorrect »).\\
+& • Email invalide ou mot de passe $<$ 6 caractères (400).\\
+& • Backend injoignable (message d'erreur réseau).\\
+& • Accès à un espace protégé sans token (redirection \texttt{/login}).\\
+\hline
+\end{tabular}
+\caption{Description textuelle du cas d'utilisation : S'authentifier}
+\label{tab:cu-auth}
+\end{table}
+
+La figure~\ref{fig:seq-auth} illustre ce scénario.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/seq-authentification.png}
+    \caption{Diagramme de séquence -- Authentification JWT}
+    \label{fig:seq-auth}
+\end{figure}
+
+\subsubsection{Développement et intégration de l'interface d'authentification}
+L'interface de connexion (\texttt{/login}) permet la saisie sécurisée des identifiants avec affichage des erreurs. Après validation, le système délivre un JWT, stocke le token et le rôle côté client, puis redirige automatiquement l'utilisateur vers son espace selon son profil RBAC.
+
+
+% ============================================================
+% US02 — Création d'un ticket avec pièces jointes
+% ============================================================
+\subsubsection{Description textuelle du cas d'utilisation « Créer un ticket avec pièces jointes »}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{0.8}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{|p{3cm}|p{9cm}|}
+\hline
+\textbf{Élément} & \textbf{Description} \\
+\hline
+Cas d'utilisation & Créer un ticket avec pièces jointes \\
+\hline
+Acteurs & Client (secondaire : Administrateur notifié) \\
+\hline
+Précondition & Le client est authentifié (JWT, rôle \textit{client}). Cloudinary est configuré pour l'upload. \\
+\hline
+Postcondition & Un ticket est créé en base avec statut \texttt{open}, historique \texttt{created}, URLs Cloudinary dans \texttt{attachments[]}. Les administrateurs sont notifiés (WebSocket + base). \\
+\hline
+Scénario nominal &
+1. Le client accède à \texttt{/dashboard/tickets/new}.\\
+& 2. Il renseigne titre, description, catégorie et priorité.\\
+& 3. Il joint éventuellement des fichiers (glisser-déposer ou sélection).\\
+& 4. À la soumission : \texttt{POST /tickets/attachments/upload} puis \texttt{POST /tickets}.\\
+& 5. Le ticket est persisté dans MongoDB ; notifications admin émises.\\
+& 6. Redirection vers \texttt{/dashboard/tickets}.\\
+\hline
+Scénarios alternatifs &
+• Titre vide (400 — validation).\\
+& • Fichier $>$ 10 Mo ou type non autorisé (JPEG, PNG, GIF, WebP, PDF).\\
+& • Échec upload Cloudinary ou backend injoignable.\\
+& • Session expirée (401 — redirection \texttt{/login}).\\
+\hline
+\end{tabular}
+\caption{Description textuelle du cas d'utilisation : Créer un ticket avec pièces jointes}
+\label{tab:cu-create-ticket}
+\end{table}
+
+La figure~\ref{fig:seq-create-ticket} illustre ce scénario.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/seq-creation-ticket-pieces-jointes.png}
+    \caption{Diagramme de séquence -- Création d'un ticket avec pièces jointes}
+    \label{fig:seq-create-ticket}
+\end{figure}
+
+\subsubsection{Développement et intégration de l'interface de création de ticket}
+L'interface propose un formulaire (titre, description, catégorie, priorité) et une zone de dépôt de fichiers. Les pièces jointes sont uploadées sur Cloudinary avant l'enregistrement du ticket ; le client est redirigé vers la liste de ses tickets après confirmation.
+
+
+% ============================================================
+% US03 — Consultation, filtrage et modification des tickets personnels
+% ============================================================
+\subsubsection{Description textuelle du cas d'utilisation « Consulter, filtrer et modifier ses tickets »}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{0.8}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{|p{3cm}|p{9cm}|}
+\hline
+\textbf{Élément} & \textbf{Description} \\
+\hline
+Cas d'utilisation & Consulter, filtrer et modifier ses tickets personnels \\
+\hline
+Acteurs & Client \\
+\hline
+Précondition & Le client est authentifié (JWT, rôle \textit{client}). \\
+\hline
+Postcondition & Le client visualise sa liste paginée filtrée ; en cas de modification réussie, le ticket \texttt{open} est mis à jour avec entrée \texttt{history[updated]}. \\
+\hline
+Scénario nominal &
+1. Le client accède à \texttt{/dashboard/tickets}.\\
+& 2. Il applique des filtres : statut, priorité, catégorie, dates, recherche texte.\\
+& 3. \texttt{GET /tickets} retourne uniquement \textbf{ses} tickets (\texttt{findAllByUser}).\\
+& 4. Il consulte le détail via \texttt{TicketDetailModal}.\\
+& 5. Pour un ticket \texttt{open}, il modifie via \texttt{/dashboard/tickets/[id]/edit} puis \texttt{PATCH /tickets/:id}.\\
+\hline
+Scénarios alternatifs &
+• Aucun ticket pour les filtres sélectionnés (liste vide).\\
+& • Modification refusée si statut $\neq$ \texttt{open} (403).\\
+& • Erreur chargement ou session expirée (401).\\
+\hline
+\end{tabular}
+\caption{Description textuelle du cas d'utilisation : Consulter et gérer ses tickets}
+\label{tab:cu-consult-ticket}
+\end{table}
+
+La figure~\ref{fig:seq-consult-ticket} illustre ce scénario.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/seq-consultation-tickets-client.png}
+    \caption{Diagramme de séquence -- Consultation, filtrage et modification des tickets}
+    \label{fig:seq-consult-ticket}
+\end{figure}
+
+\subsubsection{Développement et intégration de l'interface de gestion des tickets client}
+L'interface « Mes Tickets » offre une liste paginée avec filtres combinés et rafraîchissement temps réel (WebSocket). Le client peut modifier titre, description, catégorie, priorité et pièces jointes tant que le ticket reste au statut « Ouvert ».
+
+
+% ============================================================
+% US04 — Assignation d'un ticket à un technicien
+% ============================================================
+\subsubsection{Description textuelle du cas d'utilisation « Assigner un ticket à un technicien »}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{0.8}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{|p{3cm}|p{9cm}|}
+\hline
+\textbf{Élément} & \textbf{Description} \\
+\hline
+Cas d'utilisation & Assigner un ticket à un technicien \\
+\hline
+Acteurs & Administrateur (secondaires : Technicien, Client notifiés) \\
+\hline
+Précondition & L'administrateur est authentifié (rôle \textit{admin}). Le ticket existe. Au moins un technicien est enregistré. \\
+\hline
+Postcondition & Le champ \texttt{assignedTo} pointe vers le technicien choisi ; historique \texttt{assigned\_changed}. Notifications WebSocket + persistantes au technicien et au client. \textbf{Le statut n'est pas modifié automatiquement.} \\
+\hline
+Scénario nominal &
+1. L'administrateur ouvre la liste des tickets (\texttt{/admin}).\\
+& 2. Il ouvre \texttt{AssignTicketModal} et charge \texttt{GET /users?role=technician}.\\
+& 3. Il sélectionne un technicien et confirme.\\
+& 4. \texttt{PATCH /tickets/:id} avec \texttt{\{ assignedTo: technicianId \}}.\\
+& 5. \texttt{handleAdminUpdate()} met à jour le ticket et notifie les acteurs concernés.\\
+\hline
+Scénarios alternatifs &
+• Réassignation ou retrait d'affectation (\texttt{assignedTo: null}).\\
+& • Utilisateur non admin (403).\\
+& • Erreur serveur ou session expirée (401).\\
+\hline
+\end{tabular}
+\caption{Description textuelle du cas d'utilisation : Assigner un ticket}
+\label{tab:cu-assign-ticket}
+\end{table}
+
+La figure~\ref{fig:seq-assign-ticket} illustre ce scénario.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/seq-assignation-ticket.png}
+    \caption{Diagramme de séquence -- Assignation d'un ticket à un technicien}
+    \label{fig:seq-assign-ticket}
+\end{figure}
+
+\subsubsection{Développement et intégration de l'interface d'assignation de ticket}
+La modal \texttt{AssignTicketModal} permet de rechercher et sélectionner un technicien. L'assignation met à jour le ticket via l'API et déclenche des notifications au technicien (« Ticket affecté ») et au client (« Technicien affecté »).
+
+
+% ============================================================
+% US05 — Traitement d'un ticket et mise à jour du statut
+% ============================================================
+\subsubsection{Description textuelle du cas d'utilisation « Traiter un ticket et mettre à jour le statut »}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{0.8}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{|p{3cm}|p{9cm}|}
+\hline
+\textbf{Élément} & \textbf{Description} \\
+\hline
+Cas d'utilisation & Traiter un ticket et mettre à jour le statut \\
+\hline
+Acteurs & Technicien (secondaires : Client, Administrateur notifiés) \\
+\hline
+Précondition & Le technicien est authentifié. Le ticket lui est \textbf{assigné} (\texttt{assignedTo}). \\
+\hline
+Postcondition & Le statut est mis à jour (\texttt{open}, \texttt{in\_progress} ou \texttt{resolved}) ; historique \texttt{status\_changed}. Client et admins notifiés. \\
+\hline
+Scénario nominal &
+1. Le technicien accède à \texttt{/technician/tickets}.\\
+& 2. \texttt{GET /tickets} retourne les tickets qui lui sont assignés.\\
+& 3. Il change le statut via la liste déroulante (À traiter / En cours / Résolu).\\
+& 4. \texttt{PATCH /tickets/:id} avec \texttt{\{ status \}} uniquement.\\
+& 5. \texttt{handleTechnicianUpdate()} vérifie l'assignation et enregistre le changement.\\
+& 6. Notifications temps réel et persistantes émises.\\
+\hline
+Scénarios alternatifs &
+• Ticket non assigné à ce technicien (403).\\
+& • Tentative de clôture \texttt{closed} par le technicien (403 — réservé à l'admin).\\
+& • Tentative de modifier l'affectation (403).\\
+& • Session expirée (401).\\
+\hline
+\end{tabular}
+\caption{Description textuelle du cas d'utilisation : Traiter un ticket}
+\label{tab:cu-process-ticket}
+\end{table}
+
+La figure~\ref{fig:seq-process-ticket} illustre ce scénario.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/seq-traitement-ticket-statut.png}
+    \caption{Diagramme de séquence -- Traitement et mise à jour du statut}
+    \label{fig:seq-process-ticket}
+\end{figure}
+
+\subsubsection{Développement et intégration de l'interface de traitement de ticket}
+L'espace technicien affiche les tickets assignés avec filtres. Le changement de statut se fait directement depuis la liste (sans module de commentaires). Le client reçoit une notification à chaque évolution du statut.
+
+
+% ============================================================
+% US06 — Gestion des utilisateurs
+% ============================================================
+\subsubsection{Description textuelle du cas d'utilisation « Gérer les utilisateurs »}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{0.8}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{|p{3cm}|p{9cm}|}
+\hline
+\textbf{Élément} & \textbf{Description} \\
+\hline
+Cas d'utilisation & Gérer les utilisateurs (CRUD) \\
+\hline
+Acteurs & Administrateur \\
+\hline
+Précondition & L'administrateur est authentifié (rôle \textit{admin}). Routes protégées par \texttt{RolesGuard}. \\
+\hline
+Postcondition & Les opérations CRUD sur la collection \texttt{users} sont effectuées ; la liste admin est rafraîchie. \\
+\hline
+Scénario nominal &
+1. L'administrateur accède à \texttt{/admin} (section utilisateurs).\\
+& 2. \texttt{GET /users} avec filtres \texttt{role}, \texttt{search}, pagination.\\
+& 3. Il crée (\texttt{POST /users}), modifie (\texttt{PATCH /users/:id}) ou supprime (\texttt{DELETE /users/:id}).\\
+& 4. Mot de passe hashé bcrypt à la création/modification.\\
+\hline
+Scénarios alternatifs &
+• Email déjà utilisé (409 — \texttt{ConflictException}).\\
+& • Suppression d'un technicien avec tickets assignés (409).\\
+& • Session expirée (401).\\
+\hline
+\end{tabular}
+\caption{Description textuelle du cas d'utilisation : Gérer les utilisateurs}
+\label{tab:cu-manage-users}
+\end{table}
+
+La figure~\ref{fig:seq-manage-users} illustre ce scénario.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/seq-gestion-utilisateurs.png}
+    \caption{Diagramme de séquence -- Gestion des utilisateurs}
+    \label{fig:seq-manage-users}
+\end{figure}
+
+\subsubsection{Développement et intégration de l'interface de gestion des utilisateurs}
+L'interface admin centralise la liste paginée des utilisateurs avec recherche et filtre par rôle. Les formulaires \texttt{AddUserForm} et \texttt{EditUserModal} permettent le CRUD complet (client, technicien, admin).
+
+
+% ============================================================
+% US07 — Tableau de bord et statistiques
+% ============================================================
+\subsubsection{Description textuelle du cas d'utilisation « Consulter le tableau de bord »}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{0.8}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{|p{3cm}|p{9cm}|}
+\hline
+\textbf{Élément} & \textbf{Description} \\
+\hline
+Cas d'utilisation & Consulter le tableau de bord et les statistiques \\
+\hline
+Acteurs & Administrateur \\
+\hline
+Précondition & L'administrateur est authentifié (rôle \textit{admin}). \\
+\hline
+Postcondition & Les indicateurs agrégés sont affichés : utilisateurs par rôle, tickets par statut, priorité et technicien. \\
+\hline
+Scénario nominal &
+1. L'administrateur accède au dashboard \texttt{/admin}.\\
+& 2. \texttt{GET /users/stats} retourne \texttt{\{ total, byRole \}}.\\
+& 3. \texttt{GET /tickets/stats} retourne \texttt{\{ byStatus, byPriority, byTechnician, total \}}.\\
+& 4. Affichage via \texttt{StatsCards} et graphiques Chart.js (Doughnut, Bar).\\
+\hline
+Scénarios alternatifs &
+• Base vide (compteurs à zéro).\\
+& • Erreur chargement API (401/500).\\
+\hline
+\end{tabular}
+\caption{Description textuelle du cas d'utilisation : Consulter le tableau de bord}
+\label{tab:cu-dashboard}
+\end{table}
+
+La figure~\ref{fig:seq-dashboard} illustre ce scénario.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/seq-tableau-de-bord.png}
+    \caption{Diagramme de séquence -- Tableau de bord et statistiques}
+    \label{fig:seq-dashboard}
+\end{figure}
+
+\subsubsection{Développement et intégration de l'interface du tableau de bord}
+Le tableau de bord admin agrège les statistiques utilisateurs et tickets via deux endpoints dédiés. Les graphiques Chart.js visualisent la répartition par statut, par priorité et le volume par technicien assigné.
+
+
+% ============================================================
+% US08 — Notifications persistantes et alertes temps réel
+% ============================================================
+\subsubsection{Description textuelle du cas d'utilisation « Recevoir des notifications »}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{0.8}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{|p{3cm}|p{9cm}|}
+\hline
+\textbf{Élément} & \textbf{Description} \\
+\hline
+Cas d'utilisation & Recevoir des notifications et alertes temps réel \\
+\hline
+Acteurs & Client, Technicien, Administrateur \\
+\hline
+Précondition & L'acteur est authentifié. Connexion Socket.IO établie sur le namespace \texttt{/notifications} (JWT). \\
+\hline
+Postcondition & L'acteur reçoit une alerte temps réel (toast) et peut consulter l'historique persistant via \texttt{NotificationsBell}. \\
+\hline
+Scénario nominal &
+1. À la connexion, le frontend ouvre Socket.IO avec le JWT.\\
+& 2. Un événement ticket se produit (\texttt{ticket.created}, \texttt{ticket.assigned}, \texttt{ticket.status\_changed}).\\
+& 3. \texttt{TicketsNotificationsGateway} émet l'événement WS vers les rooms ciblées.\\
+& 4. \texttt{NotificationsService} persiste la notification en MongoDB.\\
+& 5. \texttt{NotificationsBell} affiche le compteur et la liste (\texttt{GET /notifications}).\\
+\hline
+Scénarios alternatifs &
+• Perte WebSocket (reconnexion automatique Socket.IO).\\
+& • Notifications non lues consultables à la reconnexion (persistance).\\
+& • Token expiré (déconnexion et redirection \texttt{/login}).\\
+\hline
+\end{tabular}
+\caption{Description textuelle du cas d'utilisation : Recevoir des notifications}
+\label{tab:cu-notifications}
+\end{table}
+
+La figure~\ref{fig:seq-notifications} illustre ce scénario.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/seq-notifications.png}
+    \caption{Diagramme de séquence -- Notifications temps réel (WebSocket)}
+    \label{fig:seq-notifications}
+\end{figure}
+
+\subsubsection{Développement et intégration du système de notifications}
+Le système combine Socket.IO (alertes instantanées + rafraîchissement des listes) et persistance MongoDB (cloche \texttt{NotificationsBell}, marquage lu/non lu via \texttt{PATCH /notifications/read-all}).
+
+
+% ============================================================
+% US09 — Historique et traçabilité
+% ============================================================
+\subsubsection{Description textuelle du cas d'utilisation « Consulter l'historique »}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{0.8}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{|p{3cm}|p{9cm}|}
+\hline
+\textbf{Élément} & \textbf{Description} \\
+\hline
+Cas d'utilisation & Consulter l'historique et la traçabilité d'un ticket \\
+\hline
+Acteurs & Client, Technicien, Administrateur \\
+\hline
+Précondition & L'acteur est authentifié et a accès au ticket (propriétaire, assigné ou admin). \\
+\hline
+Postcondition & La chronologie des actions (\texttt{history[]}) est affichée dans la modal de détail. \\
+\hline
+Scénario nominal &
+1. L'acteur sélectionne un ticket dans sa liste.\\
+& 2. \texttt{GET /tickets/:id} retourne le ticket avec le tableau \texttt{history[]}.\\
+& 3. \texttt{TicketDetailModal} affiche la timeline horodatée.\\
+& 4. Chaque entrée indique l'acteur, l'action (\texttt{created}, \texttt{updated}, \texttt{status\_changed}, \texttt{assigned\_changed}) et les valeurs avant/après.\\
+\hline
+Scénarios alternatifs &
+• Historique vide (ticket sans entrée — cas rare).\\
+& • Ticket introuvable ou accès refusé (403/404).\\
+& • Session expirée (401).\\
+\hline
+\end{tabular}
+\caption{Description textuelle du cas d'utilisation : Consulter l'historique}
+\label{tab:cu-history}
+\end{table}
+
+La figure~\ref{fig:seq-history} illustre ce scénario.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/seq-historique.png}
+    \caption{Diagramme de séquence -- Historique et traçabilité}
+    \label{fig:seq-history}
+\end{figure}
+
+\subsubsection{Développement et intégration de l'interface d'historique}
+L'historique est embarqué dans le document ticket MongoDB (\texttt{TicketHistoryEntry[]}). Il est rendu dans \texttt{TicketDetailModal} sous forme de liste chronologique, sans onglet séparé ni filtre avancé dans la version Sprint~1.

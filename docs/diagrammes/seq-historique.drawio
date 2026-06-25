@@ -1,0 +1,22 @@
+<mxfile host="app.diagrams.net" agent="TicketManager" version="22.1.0">
+  <diagram id="seq-history" name="Séquence - Historique ticket">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" page="1" pageWidth="950" pageHeight="580" background="#ffffff">
+      <root>
+        <mxCell id="0"/><mxCell id="1" parent="0"/>
+        <mxCell id="bg" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=none;" vertex="1" parent="1"><mxGeometry width="950" height="580" as="geometry"/></mxCell>
+        <mxCell id="title" value="Consultation de l'historique et traçabilité d'un ticket" style="text;html=1;strokeColor=none;fillColor=#ffffff;align=center;fontSize=14;fontStyle=1;fontColor=#000000;" vertex="1" parent="1"><mxGeometry x="200" y="15" width="550" height="30" as="geometry"/></mxCell>
+        <mxCell id="p-user" value=":Utilisateur" style="shape=umlLifeline;whiteSpace=wrap;html=1;size=40;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#000000;fontStyle=1" vertex="1" parent="1"><mxGeometry x="40" y="60" width="100" height="480" as="geometry"/></mxCell>
+        <mxCell id="p-fe" value=":Frontend" style="shape=umlLifeline;whiteSpace=wrap;html=1;size=40;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#000000;fontStyle=1" vertex="1" parent="1"><mxGeometry x="170" y="60" width="100" height="480" as="geometry"/></mxCell>
+        <mxCell id="p-ctrl" value=":TicketsController" style="shape=umlLifeline;whiteSpace=wrap;html=1;size=40;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontStyle=1" vertex="1" parent="1"><mxGeometry x="310" y="60" width="120" height="480" as="geometry"/></mxCell>
+        <mxCell id="p-svc" value=":TicketsService" style="shape=umlLifeline;whiteSpace=wrap;html=1;size=40;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontStyle=1" vertex="1" parent="1"><mxGeometry x="470" y="60" width="110" height="480" as="geometry"/></mxCell>
+        <mxCell id="p-db" value=":MongoDB" style="shape=umlLifeline;whiteSpace=wrap;html=1;size=40;fillColor=#ffe6cc;strokeColor=#d79b00;fontColor=#000000;fontStyle=1" vertex="1" parent="1"><mxGeometry x="620" y="60" width="100" height="480" as="geometry"/></mxCell>
+        <mxCell id="m1" value="clique sur un ticket (modal détail)" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="90" y="110" as="sourcePoint"/><mxPoint x="220" y="110" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m2" value="GET /tickets/:id + JWT" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="220" y="150" as="sourcePoint"/><mxPoint x="370" y="150" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m3" value="findOne(id, userId, isAdmin)" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="370" y="190" as="sourcePoint"/><mxPoint x="525" y="190" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m4" value="findById (ticket.history[])" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="525" y="230" as="sourcePoint"/><mxPoint x="670" y="230" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m5" value="TicketResponse + history[]" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="370" y="280" as="sourcePoint"/><mxPoint x="90" y="280" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m6" value="affiche timeline (created, updated,&#xa;status_changed, assigned_changed)" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="220" y="330" as="sourcePoint"/><mxPoint x="90" y="330" as="targetPoint"/></mxGeometry></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

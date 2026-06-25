@@ -112,10 +112,6 @@ stages:
       - job: SonarJob
         displayName: "SonarQube Analysis"
         steps:
-          # ✅ CORRECTION : SONAR_TOKEN est une variable SECRETE.
-          # Les variables secrètes ne sont PAS injectées automatiquement via $(...)
-          # dans un script inline -> on les mappe explicitement avec "env:".
-          # Dans le script on référence donc la variable bash $SONAR_TOKEN.
           - script: |
               echo "Longueur du token recu : $(printf '%s' "$SONAR_TOKEN" | wc -c)"
               docker run --rm \
@@ -144,7 +140,6 @@ stages:
       - job: SnykJob
         displayName: "Snyk Vulnerability Scan"
         steps:
-          # Même logique : SNYK_TOKEN mappé via env: (variable secrète)
           - script: |
               sudo npm install -g snyk
               cd backend
@@ -351,8 +346,6 @@ stages:
               terraform init
             displayName: "Terraform Init"
 
-          # ✅ CORRECTION : suppression de "set -e" pour que tous les imports s'exécutent
-          # même si certains échouent (|| true gère chaque import individuellement)
           - script: |
               cd terraform
               RG="AmalBH"
@@ -521,12 +514,11 @@ stages:
                 azurestack_virtual_machine.db \
                 /subscriptions/$SUB/resourceGroups/$RG/providers/Microsoft.Compute/virtualMachines/ticketmanager-iac-vm-db || true
 
-              echo "✅ Import terminé"
+              echo " Import terminé"
             displayName: "Terraform Import ALL existing resources"
             env:
               ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
 
-          # ✅ Plan frais APRÈS import + Apply
           - script: |
               cd terraform
               terraform plan -input=false \

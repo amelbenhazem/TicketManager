@@ -1,0 +1,23 @@
+<mxfile host="app.diagrams.net" agent="TicketManager" version="22.1.0">
+  <diagram id="seq-dashboard" name="Séquence - Tableau de bord">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" page="1" pageWidth="950" pageHeight="620" background="#ffffff">
+      <root>
+        <mxCell id="0"/><mxCell id="1" parent="0"/>
+        <mxCell id="bg" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=none;" vertex="1" parent="1"><mxGeometry width="950" height="620" as="geometry"/></mxCell>
+        <mxCell id="title" value="Tableau de bord et statistiques (admin)" style="text;html=1;strokeColor=none;fillColor=#ffffff;align=center;fontSize=14;fontStyle=1;fontColor=#000000;" vertex="1" parent="1"><mxGeometry x="225" y="15" width="500" height="30" as="geometry"/></mxCell>
+        <mxCell id="p-admin" value=":Administrateur" style="shape=umlLifeline;whiteSpace=wrap;html=1;size=40;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontStyle=1" vertex="1" parent="1"><mxGeometry x="40" y="60" width="110" height="520" as="geometry"/></mxCell>
+        <mxCell id="p-fe" value=":Frontend Admin" style="shape=umlLifeline;whiteSpace=wrap;html=1;size=40;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#000000;fontStyle=1" vertex="1" parent="1"><mxGeometry x="190" y="60" width="110" height="520" as="geometry"/></mxCell>
+        <mxCell id="p-users" value=":UsersController" style="shape=umlLifeline;whiteSpace=wrap;html=1;size=40;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontStyle=1" vertex="1" parent="1"><mxGeometry x="340" y="60" width="120" height="520" as="geometry"/></mxCell>
+        <mxCell id="p-tickets" value=":TicketsController" style="shape=umlLifeline;whiteSpace=wrap;html=1;size=40;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontStyle=1" vertex="1" parent="1"><mxGeometry x="500" y="60" width="120" height="520" as="geometry"/></mxCell>
+        <mxCell id="p-db" value=":MongoDB" style="shape=umlLifeline;whiteSpace=wrap;html=1;size=40;fillColor=#ffe6cc;strokeColor=#d79b00;fontColor=#000000;fontStyle=1" vertex="1" parent="1"><mxGeometry x="670" y="60" width="100" height="520" as="geometry"/></mxCell>
+        <mxCell id="m1" value="accède /admin (dashboard)" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="95" y="110" as="sourcePoint"/><mxPoint x="245" y="110" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m2" value="GET /users/stats" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="245" y="150" as="sourcePoint"/><mxPoint x="400" y="150" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m3" value="{ total, byRole }" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="400" y="190" as="sourcePoint"/><mxPoint x="245" y="190" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m4" value="GET /tickets/stats" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="245" y="230" as="sourcePoint"/><mxPoint x="560" y="230" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m5" value="aggregate byStatus, byPriority, byTechnician" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="560" y="270" as="sourcePoint"/><mxPoint x="720" y="270" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m6" value="TicketsStats" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="560" y="310" as="sourcePoint"/><mxPoint x="245" y="310" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="m7" value="affiche StatsCards + graphiques Chart.js" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="245" y="360" as="sourcePoint"/><mxPoint x="95" y="360" as="targetPoint"/></mxGeometry></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

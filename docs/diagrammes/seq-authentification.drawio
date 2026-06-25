@@ -1,163 +1,215 @@
 <mxfile host="app.diagrams.net" agent="TicketManager" version="22.1.0">
-  <diagram id="seq-auth" name="Séquence - Authentification">
-    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+  <diagram id="seq-auth" name="Séquence - S'authentifier">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
 
-        <!-- Titre -->
-        <mxCell id="title" value="Diagramme de séquence — Authentification (POST /auth/login)" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=14;fontStyle=1" vertex="1" parent="1">
-          <mxGeometry x="200" y="15" width="760" height="30" as="geometry" />
+        <mxCell id="title" value="Diagramme de séquence — Cas d'utilisation « S'authentifier » (TicketManager)" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="180" y="15" width="800" height="30" as="geometry" />
         </mxCell>
 
-        <!-- Participants (en-têtes) -->
-        <mxCell id="p-user" value=":Utilisateur" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};size=40;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1" vertex="1" parent="1">
-          <mxGeometry x="40" y="60" width="100" height="620" as="geometry" />
+        <!-- Participants -->
+        <mxCell id="p-user" value=":Utilisateur&#xa;(Client / Technicien / Admin)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="60" width="130" height="980" as="geometry" />
         </mxCell>
-        <mxCell id="p-fe" value=":Frontend&#xa;(Next.js)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};size=40;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1" vertex="1" parent="1">
-          <mxGeometry x="180" y="60" width="110" height="620" as="geometry" />
+        <mxCell id="p-fe" value=":Interface Login&#xa;(Next.js)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="210" y="60" width="110" height="980" as="geometry" />
         </mxCell>
-        <mxCell id="p-ctrl" value=":AuthController" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};size=40;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1" vertex="1" parent="1">
-          <mxGeometry x="330" y="60" width="120" height="620" as="geometry" />
+        <mxCell id="p-ctrl" value=":AuthController" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="360" y="60" width="120" height="980" as="geometry" />
         </mxCell>
-        <mxCell id="p-svc" value=":AuthService" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};size=40;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1" vertex="1" parent="1">
-          <mxGeometry x="490" y="60" width="110" height="620" as="geometry" />
+        <mxCell id="p-svc" value=":AuthService" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="520" y="60" width="110" height="980" as="geometry" />
         </mxCell>
-        <mxCell id="p-users" value=":UsersService" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};size=40;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1" vertex="1" parent="1">
-          <mxGeometry x="640" y="60" width="110" height="620" as="geometry" />
+        <mxCell id="p-users" value=":UsersService" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="670" y="60" width="110" height="980" as="geometry" />
         </mxCell>
-        <mxCell id="p-db" value=":MongoDB" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};size=40;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1" vertex="1" parent="1">
-          <mxGeometry x="790" y="60" width="100" height="620" as="geometry" />
+        <mxCell id="p-db" value=":MongoDB" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="820" y="60" width="100" height="980" as="geometry" />
         </mxCell>
-        <mxCell id="p-jwt" value=":JwtService" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};size=40;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1" vertex="1" parent="1">
-          <mxGeometry x="930" y="60" width="100" height="620" as="geometry" />
+        <mxCell id="p-jwt" value=":JwtService" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;size=40;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="960" y="60" width="100" height="980" as="geometry" />
         </mxCell>
 
-        <!-- Messages -->
-        <mxCell id="m1" value="1. saisit email et mot de passe" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;strokeWidth=1;" edge="1" parent="1" source="p-user" target="p-fe">
+        <!-- Scénario nominal -->
+        <mxCell id="frame-nom" value="Scénario nominal" style="shape=umlFrame;whiteSpace=wrap;html=1;width=140;height=30;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;align=left;verticalAlign=top;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="30" y="115" width="1040" height="520" as="geometry" />
+        </mxCell>
+
+        <mxCell id="m1" value="1. accède à /login" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="90" y="130" as="sourcePoint" />
-            <Array as="points" />
-            <mxPoint x="235" y="130" as="targetPoint" />
+            <mxPoint x="105" y="150" as="sourcePoint" />
+            <mxPoint x="265" y="150" as="targetPoint" />
           </mxGeometry>
         </mxCell>
 
-        <mxCell id="m2" value="2. POST /auth/login { email, password }" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;strokeWidth=1;" edge="1" parent="1">
+        <mxCell id="m2" value="2. saisit email et mot de passe" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="235" y="165" as="sourcePoint" />
-            <mxPoint x="390" y="165" as="targetPoint" />
+            <mxPoint x="105" y="180" as="sourcePoint" />
+            <mxPoint x="265" y="180" as="targetPoint" />
           </mxGeometry>
         </mxCell>
 
-        <mxCell id="m3" value="3. login(LoginDto)" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;strokeWidth=1;" edge="1" parent="1">
+        <mxCell id="m3" value="3. clique « Se connecter »" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="390" y="200" as="sourcePoint" />
-            <mxPoint x="545" y="200" as="targetPoint" />
+            <mxPoint x="105" y="210" as="sourcePoint" />
+            <mxPoint x="265" y="210" as="targetPoint" />
           </mxGeometry>
         </mxCell>
 
-        <mxCell id="m4" value="4. findByEmail(email)" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;strokeWidth=1;" edge="1" parent="1">
+        <mxCell id="m4" value="4. POST /auth/login { email, password }" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="545" y="240" as="sourcePoint" />
-            <mxPoint x="695" y="240" as="targetPoint" />
+            <mxPoint x="265" y="245" as="sourcePoint" />
+            <mxPoint x="420" y="245" as="targetPoint" />
           </mxGeometry>
         </mxCell>
 
-        <mxCell id="m5" value="5. findOne({ email })" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;strokeWidth=1;" edge="1" parent="1">
+        <mxCell id="note-public" value="@Public()&#xa;route sans JWT" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;size=12;fillColor=#ffffcc;strokeColor=#999999;align=left;spacingLeft=6;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="360" y="255" width="110" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="m5" value="5. login(LoginDto)" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="695" y="275" as="sourcePoint" />
-            <mxPoint x="840" y="275" as="targetPoint" />
+            <mxPoint x="420" y="310" as="sourcePoint" />
+            <mxPoint x="575" y="310" as="targetPoint" />
           </mxGeometry>
         </mxCell>
 
-        <mxCell id="m6" value="6. document User (password hashé)" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;strokeWidth=1;" edge="1" parent="1">
+        <mxCell id="m6" value="6. findByEmail(email)" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="840" y="310" as="sourcePoint" />
-            <mxPoint x="695" y="310" as="targetPoint" />
+            <mxPoint x="575" y="345" as="sourcePoint" />
+            <mxPoint x="725" y="345" as="targetPoint" />
           </mxGeometry>
         </mxCell>
 
-        <mxCell id="m7" value="7. UserDocument" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;strokeWidth=1;" edge="1" parent="1">
+        <mxCell id="m7" value="7. findOne({ email })" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="695" y="345" as="sourcePoint" />
-            <mxPoint x="545" y="345" as="targetPoint" />
+            <mxPoint x="725" y="380" as="sourcePoint" />
+            <mxPoint x="870" y="380" as="targetPoint" />
           </mxGeometry>
         </mxCell>
 
-        <mxCell id="m8" value="8. validatePassword(user, password)&#xa;bcrypt.compare(...)" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;strokeWidth=1;" edge="1" parent="1">
+        <mxCell id="m8" value="8. User (mot de passe hashé bcrypt)" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="545" y="385" as="sourcePoint" />
-            <mxPoint x="695" y="385" as="targetPoint" />
+            <mxPoint x="870" y="415" as="sourcePoint" />
+            <mxPoint x="725" y="415" as="targetPoint" />
           </mxGeometry>
         </mxCell>
 
-        <mxCell id="m9" value="9. true / false" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;strokeWidth=1;" edge="1" parent="1">
+        <mxCell id="m9" value="9. validatePassword(user, password)" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="695" y="420" as="sourcePoint" />
-            <mxPoint x="545" y="420" as="targetPoint" />
+            <mxPoint x="575" y="450" as="sourcePoint" />
+            <mxPoint x="725" y="450" as="targetPoint" />
           </mxGeometry>
         </mxCell>
 
-        <mxCell id="m10" value="10. sign({ sub, email, role })" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;strokeWidth=1;" edge="1" parent="1">
+        <mxCell id="m10" value="10. true" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="545" y="460" as="sourcePoint" />
-            <mxPoint x="980" y="460" as="targetPoint" />
+            <mxPoint x="725" y="485" as="sourcePoint" />
+            <mxPoint x="575" y="485" as="targetPoint" />
           </mxGeometry>
         </mxCell>
 
-        <mxCell id="m11" value="11. access_token (JWT)" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;strokeWidth=1;" edge="1" parent="1">
+        <mxCell id="m11" value="11. sign({ sub, email, role })" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="980" y="495" as="sourcePoint" />
-            <mxPoint x="545" y="495" as="targetPoint" />
+            <mxPoint x="575" y="520" as="sourcePoint" />
+            <mxPoint x="1010" y="520" as="targetPoint" />
           </mxGeometry>
         </mxCell>
 
-        <mxCell id="m12" value="12. { access_token, expiresIn, role }" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;strokeWidth=1;" edge="1" parent="1">
+        <mxCell id="m12" value="12. access_token (JWT, expiresIn 24h)" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="545" y="530" as="sourcePoint" />
-            <mxPoint x="390" y="530" as="targetPoint" />
+            <mxPoint x="1010" y="555" as="sourcePoint" />
+            <mxPoint x="575" y="555" as="targetPoint" />
           </mxGeometry>
         </mxCell>
 
-        <mxCell id="m13" value="13. 200 OK JSON" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;strokeWidth=1;" edge="1" parent="1">
+        <mxCell id="m13" value="13. { access_token, expiresIn, role }" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="390" y="565" as="sourcePoint" />
-            <mxPoint x="235" y="565" as="targetPoint" />
+            <mxPoint x="575" y="590" as="sourcePoint" />
+            <mxPoint x="420" y="590" as="targetPoint" />
           </mxGeometry>
         </mxCell>
 
-        <mxCell id="m14" value="14. localStorage.setItem('access_token')&#xa;setItem('user_role')" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;strokeWidth=1;strokeColor=#666666;dashed=1;" edge="1" parent="1">
+        <mxCell id="m14" value="14. 200 OK" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="235" y="600" as="sourcePoint" />
-            <mxPoint x="235" y="625" as="targetPoint" />
+            <mxPoint x="420" y="625" as="sourcePoint" />
+            <mxPoint x="265" y="625" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m15" value="15. stocke access_token et user_role (localStorage)" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;strokeColor=#666666;dashed=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="265" y="660" as="sourcePoint" />
+            <mxPoint x="265" y="685" as="targetPoint" />
             <Array as="points">
-              <mxPoint x="260" y="600" />
-              <mxPoint x="260" y="625" />
+              <mxPoint x="290" y="660" />
+              <mxPoint x="290" y="685" />
             </Array>
           </mxGeometry>
         </mxCell>
 
-        <mxCell id="m15" value="15. redirection selon rôle&#xa;admin → /admin | tech → /technician | client → /dashboard" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;strokeWidth=1;" edge="1" parent="1">
+        <mxCell id="m16" value="16. redirection selon rôle&#xa;admin→/admin | technician→/technician | client→/dashboard" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;" edge="1" parent="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="235" y="650" as="sourcePoint" />
-            <mxPoint x="90" y="650" as="targetPoint" />
+            <mxPoint x="265" y="710" as="sourcePoint" />
+            <mxPoint x="105" y="710" as="targetPoint" />
           </mxGeometry>
         </mxCell>
 
-        <!-- Alt : échec auth -->
-        <mxCell id="alt-frame" value="alt" style="shape=umlFrame;whiteSpace=wrap;html=1;width=60;height=30;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;align=left;verticalAlign=top;spacingLeft=8;" vertex="1" parent="1">
-          <mxGeometry x="300" y="700" width="720" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="alt-cond" value="[ identifiants invalides ]" style="text;html=1;align=left;fontSize=10;fontStyle=2" vertex="1" parent="1">
-          <mxGeometry x="310" y="735" width="200" height="20" as="geometry" />
-        </mxCell>
-        <mxCell id="alt-msg" value="UnauthorizedException 401 — « Email ou mot de passe incorrect »" style="text;html=1;align=left;fontSize=10;" vertex="1" parent="1">
-          <mxGeometry x="310" y="755" width="450" height="20" as="geometry" />
+        <!-- Scénarios alternatifs -->
+        <mxCell id="frame-alt" value="Scénarios alternatifs" style="shape=umlFrame;whiteSpace=wrap;html=1;width=160;height=30;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;align=left;verticalAlign=top;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="30" y="650" width="1040" height="370" as="geometry" />
         </mxCell>
 
-        <!-- Note @Public -->
-        <mxCell id="note-public" value="Route @Public()&#xa;JwtAuthGuard contourné" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;size=12;fillColor=#ffffcc;strokeColor=#999999;align=left;spacingLeft=6;fontSize=10;" vertex="1" parent="1">
-          <mxGeometry x="330" y="115" width="130" height="45" as="geometry" />
+        <mxCell id="alt1-frame" value="alt" style="shape=umlFrame;whiteSpace=wrap;html=1;width=40;height=25;fillColor=#ffffff;strokeColor=#b85450;fontStyle=1;align=left;verticalAlign=top;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="50" y="690" width="1000" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="alt1-cond" value="[A1 — Identifiants incorrects ou utilisateur inconnu]" style="text;html=1;align=left;fontSize=10;fontStyle=2" vertex="1" parent="1">
+          <mxGeometry x="60" y="695" width="320" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="alt1-msg" value="AuthService → UnauthorizedException 401 « Email ou mot de passe incorrect » → Frontend affiche message d'erreur sur /login" style="text;html=1;align=left;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="60" y="715" width="700" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="alt2-frame" value="alt" style="shape=umlFrame;whiteSpace=wrap;html=1;width=40;height=25;fillColor=#ffffff;strokeColor=#b85450;fontStyle=1;align=left;verticalAlign=top;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="50" y="755" width="1000" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="alt2-cond" value="[A2 — Erreur de saisie (validation côté serveur)]" style="text;html=1;align=left;fontSize=10;fontStyle=2" vertex="1" parent="1">
+          <mxGeometry x="60" y="760" width="320" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="alt2-msg" value="Email invalide ou mot de passe &lt; 6 caractères → 400 Bad Request (class-validator) → message affiché à l'utilisateur" style="text;html=1;align=left;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="60" y="780" width="750" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="alt3-frame" value="alt" style="shape=umlFrame;whiteSpace=wrap;html=1;width=40;height=25;fillColor=#ffffff;strokeColor=#b85450;fontStyle=1;align=left;verticalAlign=top;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="50" y="820" width="1000" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="alt3-cond" value="[A3 — Backend injoignable / erreur réseau]" style="text;html=1;align=left;fontSize=10;fontStyle=2" vertex="1" parent="1">
+          <mxGeometry x="60" y="825" width="320" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="alt3-msg" value="Échec fetch → Frontend : « Impossible de joindre le serveur » — l'utilisateur reste sur /login" style="text;html=1;align=left;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="60" y="845" width="700" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="alt4-frame" value="alt" style="shape=umlFrame;whiteSpace=wrap;html=1;width=40;height=25;fillColor=#ffffff;strokeColor=#b85450;fontStyle=1;align=left;verticalAlign=top;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="50" y="885" width="1000" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="alt4-cond" value="[A4 — Accès à un espace protégé sans token]" style="text;html=1;align=left;fontSize=10;fontStyle=2" vertex="1" parent="1">
+          <mxGeometry x="60" y="890" width="320" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="alt4-msg" value="useRequireAuth : absence de access_token → redirection automatique vers /login" style="text;html=1;align=left;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="60" y="910" width="650" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="alt5-frame" value="alt" style="shape=umlFrame;whiteSpace=wrap;html=1;width=40;height=25;fillColor=#ffffff;strokeColor=#b85450;fontStyle=1;align=left;verticalAlign=top;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="50" y="950" width="1000" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="alt5-cond" value="[A5 — Rôle incompatible avec l'espace demandé]" style="text;html=1;align=left;fontSize=10;fontStyle=2" vertex="1" parent="1">
+          <mxGeometry x="60" y="955" width="320" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="alt5-msg" value="useRequireAuth : rôle stocké ≠ rôle requis → redirection vers l'espace autorisé (RBAC côté client)" style="text;html=1;align=left;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="60" y="975" width="750" height="20" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
