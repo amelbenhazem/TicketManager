@@ -1,0 +1,36 @@
+<mxfile host="app.diagrams.net" agent="TicketManager" version="22.1.0">
+  <diagram id="facade" name="Patron Facade">
+    <mxGraphModel dx="1100" dy="700" grid="1" gridSize="10" page="1" pageWidth="900" pageHeight="620" background="#ffffff">
+      <root>
+        <mxCell id="0"/><mxCell id="1" parent="0"/>
+        <mxCell id="title" value="Patron Façade — diagramme de classes (traitement d'un ticket)" style="text;html=1;align=center;fontSize=13;fontStyle=1;fontColor=#000000;" vertex="1" parent="1"><mxGeometry x="180" y="15" width="540" height="25" as="geometry"/></mxCell>
+
+        <mxCell id="client" value="ControleurTickets" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#000000;" vertex="1" parent="1"><mxGeometry x="40" y="220" width="200" height="78" as="geometry"/></mxCell>
+        <mxCell id="client-a" value="- serviceTickets : ServiceTickets" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;overflow=hidden;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="client"><mxGeometry y="26" width="200" height="26" as="geometry"/></mxCell>
+        <mxCell id="client-m" value="+ creerTicket(dto) : Ticket" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;overflow=hidden;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="client"><mxGeometry y="52" width="200" height="26" as="geometry"/></mxCell>
+
+        <mxCell id="facade" value="&lt;&lt;Façade&gt;&gt;&#xa;ServiceTickets" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;" vertex="1" parent="1"><mxGeometry x="320" y="180" width="240" height="130" as="geometry"/></mxCell>
+        <mxCell id="facade-a" value="- depotTickets : DepotTickets&#xa;- serviceNotif : ServiceNotifications&#xa;- passerelle : PasserelleEvenements" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;overflow=hidden;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="facade"><mxGeometry y="40" width="240" height="52" as="geometry"/></mxCell>
+        <mxCell id="facade-m" value="+ creerTicket(dto) : Ticket&#xa;+ assignerTicket(id, tech) : Ticket" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;overflow=hidden;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="facade"><mxGeometry y="92" width="240" height="38" as="geometry"/></mxCell>
+
+        <mxCell id="s1" value="DepotTickets" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#000000;" vertex="1" parent="1"><mxGeometry x="640" y="80" width="200" height="78" as="geometry"/></mxCell>
+        <mxCell id="s1-m" value="+ sauvegarder(ticket) : Ticket&#xa;+ rechercher(id) : Ticket" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;overflow=hidden;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="s1"><mxGeometry y="26" width="200" height="52" as="geometry"/></mxCell>
+
+        <mxCell id="s2" value="ServiceNotifications" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#000000;" vertex="1" parent="1"><mxGeometry x="640" y="200" width="200" height="78" as="geometry"/></mxCell>
+        <mxCell id="s2-m" value="+ enregistrer(notif) : void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;overflow=hidden;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="s2"><mxGeometry y="26" width="200" height="52" as="geometry"/></mxCell>
+
+        <mxCell id="s3" value="PasserelleEvenements" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#000000;" vertex="1" parent="1"><mxGeometry x="640" y="320" width="200" height="78" as="geometry"/></mxCell>
+        <mxCell id="s3-m" value="+ publier(evenement) : void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;overflow=hidden;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="s3"><mxGeometry y="26" width="200" height="52" as="geometry"/></mxCell>
+
+        <mxCell id="e-client-facade" value="utilise" style="endArrow=open;dashed=1;html=1;strokeColor=#333333;fontSize=10;" edge="1" parent="1" source="client" target="facade"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e-f-s1" value="" style="endArrow=open;dashed=1;html=1;strokeColor=#666666;startArrow=diamondThin;startFill=1;" edge="1" parent="1" source="facade" target="s1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e-f-s2" value="" style="endArrow=open;dashed=1;html=1;strokeColor=#666666;startArrow=diamondThin;startFill=1;" edge="1" parent="1" source="facade" target="s2"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e-f-s3" value="" style="endArrow=open;dashed=1;html=1;strokeColor=#666666;startArrow=diamondThin;startFill=1;" edge="1" parent="1" source="facade" target="s3"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <mxCell id="leg1" value="◆ composition" style="text;html=1;fontSize=10;fontColor=#666666;" vertex="1" parent="1"><mxGeometry x="40" y="420" width="90" height="20" as="geometry"/></mxCell>
+        <mxCell id="leg2" value="---▷ dépendance" style="text;html=1;fontSize=10;fontColor=#666666;" vertex="1" parent="1"><mxGeometry x="140" y="420" width="100" height="20" as="geometry"/></mxCell>
+        <mxCell id="note" value="Le contrôleur ne voit que la façade ; les sous-systèmes (persistance, notifications, événements) restent encapsulés." style="text;html=1;fontSize=10;fontColor=#666666;" vertex="1" parent="1"><mxGeometry x="40" y="450" width="800" height="30" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

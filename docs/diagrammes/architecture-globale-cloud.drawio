@@ -1,0 +1,224 @@
+<mxfile host="65bd71144e">
+    <diagram id="arch-cloud" name="Architecture globale cloud">
+        <mxGraphModel dx="692" dy="368" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1280" pageHeight="920" background="#ffffff" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="bg" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry width="1280" height="920" as="geometry"/>
+                </mxCell>
+                <mxCell id="fig-title" value="Architecture globale de l'infrastructure Cloud — TicketManager (Azure Stack Hub)" style="text;html=1;align=center;fontSize=14;fontStyle=1;fontColor=#000000;fillColor=#ffffff;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="280" y="12" width="720" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="user" value="" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="55" y="55" width="30" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="user-lbl" value="Utilisateur&#10;final" style="text;html=1;align=center;fontColor=#000000;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="30" y="115" width="80" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="internet" value="Internet" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#000000;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="130" y="60" width="100" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="admin" value="" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="1085" y="55" width="30" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="admin-lbl" value="Administrateur&#10;/ Développeur" style="text;html=1;align=center;fontColor=#000000;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="1040" y="115" width="120" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="vscode" value="Visual Studio&#10;Code" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#000000;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="960" y="55" width="90" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="repos" value="GitHub /&#10;Azure Repos" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontColor=#000000;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="960" y="110" width="90" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="pipelines" value="Azure&#10;Pipelines" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontColor=#000000;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="960" y="165" width="90" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="cloudinary" value="Cloudinary&#10;(stockage PJ)" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#000000;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="130" y="155" width="110" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="rg" value="Groupe de ressources — (Azure Stack Hub)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#000000;fontStyle=1;verticalAlign=top;spacingTop=8;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="220" width="1200" height="660" as="geometry"/>
+                </mxCell>
+                <mxCell id="vnet" value="Réseau virtuel — ticketmanager-iac-vnet&amp;nbsp;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#000000;fontStyle=1;verticalAlign=top;spacingTop=8;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="70" y="260" width="1140" height="590" as="geometry"/>
+                </mxCell>
+                <mxCell id="aks-cluster" value="Cluster Kubernetes — AKS Engine (subnet aks )" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontColor=#000000;fontStyle=1;verticalAlign=top;spacingTop=8;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="100" y="300" width="760" height="380" as="geometry"/>
+                </mxCell>
+                <mxCell id="master" value="Nœud Master — plan de contrôle" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;fontColor=#000000;fontStyle=1;verticalAlign=top;spacingTop=6;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="120" y="340" width="340" height="150" as="geometry"/>
+                </mxCell>
+                <mxCell id="m-api" value="API Server" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#000000;fontSize=9;" parent="1" vertex="1">
+                    <mxGeometry x="135" y="375" width="75" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="m-etcd" value="etcd" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#000000;fontSize=9;" parent="1" vertex="1">
+                    <mxGeometry x="220" y="375" width="55" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="m-sched" value="Scheduler" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#000000;fontSize=9;" parent="1" vertex="1">
+                    <mxGeometry x="285" y="375" width="70" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="m-ctrl" value="Controller&#10;Manager" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#000000;fontSize=9;" parent="1" vertex="1">
+                    <mxGeometry x="365" y="375" width="75" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="m-ccm" value="Cloud Controller&#10;Manager" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#000000;fontSize=9;" parent="1" vertex="1">
+                    <mxGeometry x="135" y="415" width="90" height="32" as="geometry"/>
+                </mxCell>
+                <mxCell id="m-kube" value="kubectl /&#10;kubeconfig" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#000000;fontSize=9;" parent="1" vertex="1">
+                    <mxGeometry x="240" y="415" width="80" height="32" as="geometry"/>
+                </mxCell>
+                <mxCell id="nsg-aks1" value="NSG aks" style="shape=mxgraph.aws4.network_firewall;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#000000;fontSize=8;" parent="1" vertex="1">
+                    <mxGeometry x="430" y="350" width="24" height="24" as="geometry"/>
+                </mxCell>
+                <mxCell id="worker" value="Nœud Worker — charges applicatives (Pods)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;fontColor=#000000;fontStyle=1;verticalAlign=top;spacingTop=6;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="120" y="510" width="720" height="150" as="geometry"/>
+                </mxCell>
+                <mxCell id="p-fe" value="Pod&#10;Frontend&#10;(Next.js)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#000000;fontSize=9;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="140" y="545" width="80" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="p-be" value="Pod&#10;Backend&#10;(NestJS)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontSize=9;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="240" y="545" width="80" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="p-sonar" value="Pod&#10;SonarQube" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontColor=#000000;fontSize=9;" parent="1" vertex="1">
+                    <mxGeometry x="340" y="545" width="75" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="p-nexus" value="Pod&#10;Nexus&#10;Repository" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontColor=#000000;fontSize=9;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="430" y="545" width="80" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="p-graf" value="Pod&#10;Grafana" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontColor=#000000;fontSize=9;" parent="1" vertex="1">
+                    <mxGeometry x="530" y="545" width="70" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="p-prom" value="Pod&#10;Prometheus" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontColor=#000000;fontSize=9;" parent="1" vertex="1">
+                    <mxGeometry x="620" y="545" width="75" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="p-trivy" value="Pod / Job&#10;Trivy&#10;(scan)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#000000;fontSize=9;" parent="1" vertex="1">
+                    <mxGeometry x="710" y="545" width="70" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="nsg-aks2" value="NSG aks" style="shape=mxgraph.aws4.network_firewall;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#000000;fontSize=8;" parent="1" vertex="1">
+                    <mxGeometry x="820" y="520" width="24" height="24" as="geometry"/>
+                </mxCell>
+                <mxCell id="snet-mgmt" value="Subnet mgmt&amp;nbsp;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#000000;fontStyle=1;verticalAlign=top;spacingTop=6;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="100" y="700" width="360" height="130" as="geometry"/>
+                </mxCell>
+                <mxCell id="vm-gestion" value="VM-gestion" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontStyle=1;verticalAlign=top;spacingTop=4;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="120" y="735" width="320" height="75" as="geometry"/>
+                </mxCell>
+                <mxCell id="vmg1" value="Ansible" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;fontColor=#000000;fontSize=9;" parent="1" vertex="1">
+                    <mxGeometry x="135" y="760" width="55" height="22" as="geometry"/>
+                </mxCell>
+                <mxCell id="vmg2" value="Docker" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;fontColor=#000000;fontSize=9;" parent="1" vertex="1">
+                    <mxGeometry x="200" y="760" width="50" height="22" as="geometry"/>
+                </mxCell>
+                <mxCell id="vmg3" value="AKS Engine" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;fontColor=#000000;fontSize=9;" parent="1" vertex="1">
+                    <mxGeometry x="260" y="760" width="70" height="22" as="geometry"/>
+                </mxCell>
+                <mxCell id="vmg4" value="Agent Azure DevOps" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;fontColor=#000000;fontSize=9;" parent="1" vertex="1">
+                    <mxGeometry x="340" y="760" width="85" height="22" as="geometry"/>
+                </mxCell>
+                <mxCell id="nsg-mgmt" value="NSG mgmt" style="shape=mxgraph.aws4.network_firewall;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=8;" parent="1" vertex="1">
+                    <mxGeometry x="430" y="710" width="24" height="24" as="geometry"/>
+                </mxCell>
+                <mxCell id="snet-db" value="Subnet db&amp;nbsp;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#000000;fontStyle=1;verticalAlign=top;spacingTop=6;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="500" y="700" width="360" height="130" as="geometry"/>
+                </mxCell>
+                <mxCell id="vm-db" value="VM-db" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontColor=#000000;fontStyle=1;verticalAlign=top;spacingTop=4;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="520" y="735" width="320" height="75" as="geometry"/>
+                </mxCell>
+                <mxCell id="mongo" value="MongoDB&lt;br&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d79b00;fontColor=#000000;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="600" y="760" width="100" height="35" as="geometry"/>
+                </mxCell>
+                <mxCell id="nsg-db" value="NSG db" style="shape=mxgraph.aws4.network_firewall;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=8;" parent="1" vertex="1">
+                    <mxGeometry x="830" y="710" width="24" height="24" as="geometry"/>
+                </mxCell>
+                <mxCell id="tf-box" value="Provisionnement Terraform&#10;VNet · Subnets · NSG · NIC · VMs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#000000;fontSize=10;dashed=1;" parent="1" vertex="1">
+                    <mxGeometry x="900" y="300" width="280" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="cicd-box" value="Pipeline CI/CD&#10;Build → Tests → SonarQube → Docker → Trivy → Nexus → Deploy K8s" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontColor=#000000;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="900" y="370" width="280" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="leg-box" value="Légende&#10;Vert : backend · Jaune : frontend / CI&#10;Violet : K8s · Orange : données / registry&#10;Bleu : réseau · Gris : contrôle / externe" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontColor=#000000;fontSize=9;align=left;spacingLeft=8;" parent="1" vertex="1">
+                    <mxGeometry x="900" y="440" width="280" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="e-user-net" style="endArrow=block;html=1;strokeColor=#000000;" parent="1" source="user" target="internet" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e-net-fe" style="endArrow=block;html=1;strokeColor=#000000;" parent="1" source="internet" target="p-fe" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="180" y="280"/>
+                            <mxPoint x="180" y="572"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e-admin-vsc" style="endArrow=block;html=1;strokeColor=#000000;" parent="1" source="admin" target="vscode" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e-vsc-repo" style="endArrow=block;html=1;strokeColor=#000000;" parent="1" source="vscode" target="repos" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e-repo-pipe" style="endArrow=block;html=1;strokeColor=#000000;" parent="1" source="repos" target="pipelines" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e-pipe-nexus" style="endArrow=block;html=1;strokeColor=#d79b00;dashed=1;" parent="1" source="pipelines" target="p-nexus" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="920" y="185"/>
+                            <mxPoint x="920" y="572"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e-pipe-sonar" style="endArrow=block;dashed=1;html=1;strokeColor=#9673a6;" parent="1" source="pipelines" target="p-sonar" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="900" y="200"/>
+                            <mxPoint x="900" y="572"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e-fe-be" style="endArrow=open;html=1;strokeColor=#666666;" parent="1" source="p-fe" target="p-be" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e-be-mongo" style="endArrow=block;html=1;strokeColor=#d79b00;" parent="1" source="p-be" target="mongo" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="280" y="680"/>
+                            <mxPoint x="650" y="680"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e-be-cloud" style="endArrow=block;dashed=1;html=1;strokeColor=#666666;" parent="1" source="p-be" target="cloudinary" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="280" y="200"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e-gestion-aks" style="endArrow=open;dashed=1;html=1;strokeColor=#82b366;fontSize=9;fontColor=#000000;labelBackgroundColor=#ffffff;" parent="1" source="vmg3" target="master" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="-1" as="offset"/>
+                        <Array as="points">
+                            <mxPoint x="295" y="690"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e-agent-pipe" style="endArrow=open;dashed=1;html=1;strokeColor=#d79b00;" parent="1" source="vmg4" target="pipelines" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="500" y="770"/>
+                            <mxPoint x="500" y="185"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e-prom-graf" style="endArrow=open;html=1;strokeColor=#9673a6;dashed=1;" parent="1" source="p-prom" target="p-graf" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e-be-prom" style="endArrow=open;dashed=1;html=1;strokeColor=#9673a6;" parent="1" source="p-be" target="p-prom" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="footer" value="Figure — Architecture globale de l'infrastructure Cloud (TicketManager)" style="text;html=1;align=center;fontSize=11;fontColor=#000000;fontStyle=2;" parent="1" vertex="1">
+                    <mxGeometry x="380" y="890" width="520" height="20" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

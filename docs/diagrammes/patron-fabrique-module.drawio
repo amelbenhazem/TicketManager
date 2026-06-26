@@ -1,0 +1,42 @@
+<mxfile host="app.diagrams.net" agent="TicketManager" version="22.1.0">
+  <diagram id="factory" name="Patron Fabrique module">
+    <mxGraphModel dx="1100" dy="750" grid="1" gridSize="10" page="1" pageWidth="950" pageHeight="680" background="#ffffff">
+      <root>
+        <mxCell id="0"/><mxCell id="1" parent="0"/>
+        <mxCell id="bg" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=none;" vertex="1" parent="1"><mxGeometry x="0" y="0" width="950" height="680" as="geometry"/></mxCell>
+        <mxCell id="title" value="Patron Fabrique (module) — diagramme de classes" style="text;html=1;align=center;fontSize=13;fontStyle=1;fontColor=#000000;fillColor=#ffffff;strokeColor=none;" vertex="1" parent="1"><mxGeometry x="220" y="15" width="510" height="25" as="geometry"/></mxCell>
+
+        <mxCell id="app" value="ModuleApplication" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#e1d5e7;strokeColor=#9673a6;fontColor=#000000;" vertex="1" parent="1"><mxGeometry x="375" y="55" width="200" height="78" as="geometry"/></mxCell>
+        <mxCell id="app-a" value="- modules : Module[]" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontColor=#000000;html=1;" vertex="1" parent="app"><mxGeometry y="26" width="200" height="26" as="geometry"/></mxCell>
+        <mxCell id="app-m" value="+ importer(m : Module) : void" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontColor=#000000;html=1;" vertex="1" parent="app"><mxGeometry y="52" width="200" height="26" as="geometry"/></mxCell>
+
+        <mxCell id="mod-abstract" value="&lt;&lt;abstract&gt;&gt;&#xa;Module" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#000000;" vertex="1" parent="1"><mxGeometry x="375" y="180" width="200" height="91" as="geometry"/></mxCell>
+        <mxCell id="mod-m" value="+ declarerControleurs() : Type[]&#xa;+ declarerServices() : Type[]&#xa;+ declarerExports() : Type[]" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontColor=#000000;html=1;" vertex="1" parent="mod-abstract"><mxGeometry y="40" width="200" height="51" as="geometry"/></mxCell>
+
+        <mxCell id="m1" value="ModuleAuth" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;" vertex="1" parent="1"><mxGeometry x="40" y="360" width="190" height="104" as="geometry"/></mxCell>
+        <mxCell id="m1-m" value="+ declarerControleurs()&#xa;+ declarerServices()&#xa;- fabriquerJWT() : ModuleJWT" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontColor=#000000;html=1;" vertex="1" parent="m1"><mxGeometry y="26" width="190" height="78" as="geometry"/></mxCell>
+
+        <mxCell id="m2" value="ModuleTickets" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;" vertex="1" parent="1"><mxGeometry x="260" y="360" width="190" height="104" as="geometry"/></mxCell>
+        <mxCell id="m2-m" value="+ declarerControleurs()&#xa;+ declarerServices()&#xa;+ declarerExports()" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontColor=#000000;html=1;" vertex="1" parent="m2"><mxGeometry y="26" width="190" height="78" as="geometry"/></mxCell>
+
+        <mxCell id="m3" value="ModuleUtilisateurs" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;" vertex="1" parent="1"><mxGeometry x="480" y="360" width="190" height="104" as="geometry"/></mxCell>
+        <mxCell id="m3-m" value="+ declarerControleurs()&#xa;+ declarerServices()&#xa;+ declarerExports()" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontColor=#000000;html=1;" vertex="1" parent="m3"><mxGeometry y="26" width="190" height="78" as="geometry"/></mxCell>
+
+        <mxCell id="m4" value="ModuleNotifications" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#e1d5e7;strokeColor=#9673a6;fontColor=#000000;" vertex="1" parent="1"><mxGeometry x="700" y="360" width="200" height="104" as="geometry"/></mxCell>
+        <mxCell id="m4-m" value="+ declarerControleurs()&#xa;+ declarerServices()&#xa;+ declarerExports()" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontColor=#000000;html=1;" vertex="1" parent="m4"><mxGeometry y="26" width="200" height="78" as="geometry"/></mxCell>
+
+        <mxCell id="comp" value="ServiceTickets" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;" vertex="1" parent="1"><mxGeometry x="260" y="530" width="190" height="65" as="geometry"/></mxCell>
+        <mxCell id="comp-m" value="+ creerTicket() : Ticket" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontColor=#000000;html=1;" vertex="1" parent="comp"><mxGeometry y="26" width="190" height="39" as="geometry"/></mxCell>
+
+        <mxCell id="e-app-mod" value="1..*" style="endArrow=open;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;startArrow=diamondThin;startFill=1;" edge="1" parent="1" source="app" target="mod-abstract"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e-m1" value="" style="endArrow=block;endFill=0;html=1;strokeColor=#000000;" edge="1" parent="1" source="m1" target="mod-abstract"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e-m2" value="" style="endArrow=block;endFill=0;html=1;strokeColor=#000000;" edge="1" parent="1" source="m2" target="mod-abstract"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e-m3" value="" style="endArrow=block;endFill=0;html=1;strokeColor=#000000;" edge="1" parent="1" source="m3" target="mod-abstract"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e-m4" value="" style="endArrow=block;endFill=0;html=1;strokeColor=#000000;" edge="1" parent="1" source="m4" target="mod-abstract"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e-m2-comp" value="fabrique" style="endArrow=open;dashed=1;html=1;strokeColor=#666666;fontColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="m2" target="comp"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <mxCell id="leg" value="▷ héritage  |  ◆ composition  |  ---▷ dépendance" style="text;html=1;fontSize=10;fontColor=#000000;fillColor=#ffffff;strokeColor=none;" vertex="1" parent="1"><mxGeometry x="310" y="620" width="330" height="20" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

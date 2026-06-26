@@ -2,11 +2,13 @@
 
 subscription_id             = "YOUR_SUBSCRIPTION_ID"
 tenant_id                   = "YOUR_TENANT_ID"
-stack_metadata_host         = "management.YOUR_LOCATION.xpressazure.com"
-stack_arm_environment_name  = "AzureStack-User-YOUR-GUID"
+client_id                   = "YOUR_CLIENT_ID"
+client_secret               = "YOUR_CLIENT_SECRET"
+stack_metadata_host         = "management.dc2.xpressazure.com"
+stack_arm_environment_name  = "AzureStack-User-ee8e5b2b-3e31-4a83-93b6-28f3739efd6d"
 
-resource_group_name = "YOUR_RESOURCE_GROUP"
-location            = "YOUR_LOCATION"
+resource_group_name = "AmalBH-RG"
+location            = "dc2"
 
 # Préfixe pour éviter collision avec un VNet existant (ex. ticketmanager-vnet).
 project_prefix = "ticketmanager-iac"

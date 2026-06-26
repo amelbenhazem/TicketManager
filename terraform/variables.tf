@@ -36,9 +36,9 @@ variable "stack_arm_environment_name" {
 }
 
 variable "resource_group_name" {
-  description = "Groupe de ressources existant où déployer l'infrastructure (ex. AmalBH)."
+  description = "Groupe de ressources existant où déployer l'infrastructure (ex. AmalBH-RG)."
   type        = string
-  default     = "AmalBH"
+  default     = "AmalBH-RG"
 }
 
 variable "location" {

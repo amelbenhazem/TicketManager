@@ -1,0 +1,43 @@
+<mxfile host="app.diagrams.net" agent="TicketManager" version="22.1.0">
+  <diagram id="chain" name="Patron Chaine responsabilite">
+    <mxGraphModel dx="1100" dy="700" grid="1" gridSize="10" page="1" pageWidth="950" pageHeight="620" background="#ffffff">
+      <root>
+        <mxCell id="0"/><mxCell id="1" parent="0"/>
+        <mxCell id="bg" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=none;" vertex="1" parent="1"><mxGeometry x="0" y="0" width="950" height="620" as="geometry"/></mxCell>
+        <mxCell id="title" value="Patron Chaîne de responsabilité — diagramme de classes" style="text;html=1;align=center;fontSize=13;fontStyle=1;fontColor=#000000;fillColor=#ffffff;strokeColor=none;" vertex="1" parent="1"><mxGeometry x="180" y="15" width="590" height="25" as="geometry"/></mxCell>
+
+        <mxCell id="abstract" value="&lt;&lt;abstract&gt;&gt;&#xa;GestionnaireRequete" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#000000;" vertex="1" parent="1"><mxGeometry x="360" y="70" width="230" height="117" as="geometry"/></mxCell>
+        <mxCell id="abstract-a" value="# successeur : GestionnaireRequete" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontStyle=2;fontColor=#000000;html=1;" vertex="1" parent="abstract"><mxGeometry y="40" width="230" height="26" as="geometry"/></mxCell>
+        <mxCell id="abstract-m" value="+ definirSuccesseur(g) : void&#xa;+ traiter(requete) : boolean {abstract}" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontColor=#000000;html=1;" vertex="1" parent="abstract"><mxGeometry y="66" width="230" height="51" as="geometry"/></mxCell>
+
+        <mxCell id="h1" value="FiltreIdentification" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;" vertex="1" parent="1"><mxGeometry x="80" y="280" width="200" height="78" as="geometry"/></mxCell>
+        <mxCell id="h1-m" value="+ traiter(requete) : boolean&#xa;- verifierJeton(requete) : boolean" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontColor=#000000;html=1;" vertex="1" parent="h1"><mxGeometry y="26" width="200" height="52" as="geometry"/></mxCell>
+
+        <mxCell id="h2" value="FiltreRole" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;" vertex="1" parent="1"><mxGeometry x="375" y="280" width="200" height="78" as="geometry"/></mxCell>
+        <mxCell id="h2-m" value="+ traiter(requete) : boolean&#xa;- verifierRoles(requete) : boolean" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontColor=#000000;html=1;" vertex="1" parent="h2"><mxGeometry y="26" width="200" height="52" as="geometry"/></mxCell>
+
+        <mxCell id="h3" value="FiltreRessource" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;" vertex="1" parent="1"><mxGeometry x="670" y="280" width="210" height="78" as="geometry"/></mxCell>
+        <mxCell id="h3-m" value="+ traiter(requete) : boolean&#xa;- verifierPropriete(requete) : boolean" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontColor=#000000;html=1;" vertex="1" parent="h3"><mxGeometry y="26" width="210" height="52" as="geometry"/></mxCell>
+
+        <mxCell id="ctrl" value="ControleurMetier" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;" vertex="1" parent="1"><mxGeometry x="375" y="460" width="200" height="65" as="geometry"/></mxCell>
+        <mxCell id="ctrl-m" value="+ executer(requete) : Reponse" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontColor=#000000;html=1;" vertex="1" parent="ctrl"><mxGeometry y="26" width="200" height="39" as="geometry"/></mxCell>
+
+        <mxCell id="req" value="RequeteHTTP" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#000000;" vertex="1" parent="1"><mxGeometry x="80" y="460" width="160" height="65" as="geometry"/></mxCell>
+        <mxCell id="req-m" value="+ utilisateur : Utilisateur&#xa;+ ressource : String" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontColor=#000000;html=1;" vertex="1" parent="req"><mxGeometry y="26" width="160" height="39" as="geometry"/></mxCell>
+
+        <mxCell id="reject" value="Rejet (401 / 403)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontColor=#000000;fontSize=11;" vertex="1" parent="1"><mxGeometry x="670" y="460" width="130" height="40" as="geometry"/></mxCell>
+
+        <mxCell id="e-h1-abs" value="" style="endArrow=block;endFill=0;html=1;strokeColor=#000000;" edge="1" parent="1" source="h1" target="abstract"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e-h2-abs" value="" style="endArrow=block;endFill=0;html=1;strokeColor=#000000;" edge="1" parent="1" source="h2" target="abstract"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e-h3-abs" value="" style="endArrow=block;endFill=0;html=1;strokeColor=#000000;" edge="1" parent="1" source="h3" target="abstract"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e-h1-h2" value="successeur" style="endArrow=open;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="h1" target="h2"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e-h2-h3" value="successeur" style="endArrow=open;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="h2" target="h3"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e-h3-ctrl" value="si OK" style="endArrow=open;dashed=1;html=1;strokeColor=#82b366;fontColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="h3" target="ctrl"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e-req-h1" value="" style="endArrow=open;dashed=1;html=1;strokeColor=#666666;" edge="1" parent="1" source="req" target="h1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e-h2-rej" value="sinon" style="endArrow=open;dashed=1;html=1;strokeColor=#d79b00;fontColor=#000000;fontSize=10;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="h2" target="reject"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <mxCell id="leg" value="▷ héritage  |  → association  |  ---▷ dépendance" style="text;html=1;fontSize=10;fontColor=#000000;fillColor=#ffffff;strokeColor=none;" vertex="1" parent="1"><mxGeometry x="320" y="560" width="310" height="20" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

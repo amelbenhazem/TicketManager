@@ -1,0 +1,47 @@
+<mxfile host="app.diagrams.net" agent="TicketManager" version="22.1.0">
+  <diagram id="cycle-general" name="Cycle vie ticket - general">
+    <mxGraphModel dx="900" dy="1100" grid="1" gridSize="10" page="1" pageWidth="720" pageHeight="920" background="#ffffff">
+      <root>
+        <mxCell id="0"/><mxCell id="1" parent="0"/>
+        <mxCell id="bg" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=none;" vertex="1" parent="1"><mxGeometry x="0" y="0" width="720" height="920" as="geometry"/></mxCell>
+        <mxCell id="title" value="Cycle de vie d'un ticket — vue générale" style="text;html=1;align=center;fontSize=14;fontStyle=1;fontColor=#000000;fillColor=#ffffff;strokeColor=none;" vertex="1" parent="1"><mxGeometry x="110" y="20" width="500" height="30" as="geometry"/></mxCell>
+
+        <mxCell id="start" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="1"><mxGeometry x="345" y="65" width="30" height="30" as="geometry"/></mxCell>
+
+        <mxCell id="a1" value="Création du ticket&#xa;(Client)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#000000;" vertex="1" parent="1"><mxGeometry x="260" y="120" width="200" height="50" as="geometry"/></mxCell>
+        <mxCell id="s1" value="Statut : Ouvert" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#000000;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="280" y="195" width="160" height="36" as="geometry"/></mxCell>
+
+        <mxCell id="a2" value="Assignation à un technicien&#xa;(Administrateur)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;" vertex="1" parent="1"><mxGeometry x="240" y="260" width="240" height="50" as="geometry"/></mxCell>
+
+        <mxCell id="a3" value="Prise en charge et traitement&#xa;(Technicien assigné)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#000000;" vertex="1" parent="1"><mxGeometry x="240" y="340" width="240" height="50" as="geometry"/></mxCell>
+        <mxCell id="s2" value="Statut : En cours" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#000000;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="280" y="415" width="160" height="36" as="geometry"/></mxCell>
+
+        <mxCell id="a4" value="Résolution de l'incident&#xa;(Technicien assigné)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;" vertex="1" parent="1"><mxGeometry x="240" y="480" width="240" height="50" as="geometry"/></mxCell>
+        <mxCell id="s3" value="Statut : Résolu" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="280" y="555" width="160" height="36" as="geometry"/></mxCell>
+
+        <mxCell id="a5" value="Clôture du ticket&#xa;(Administrateur)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;" vertex="1" parent="1"><mxGeometry x="260" y="620" width="200" height="50" as="geometry"/></mxCell>
+        <mxCell id="s4" value="Statut : Clôturé" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontColor=#000000;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="280" y="695" width="160" height="36" as="geometry"/></mxCell>
+
+        <mxCell id="end" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#ffffff;strokeColor=#000000;strokeWidth=3;" vertex="1" parent="1"><mxGeometry x="345" y="760" width="30" height="30" as="geometry"/></mxCell>
+        <mxCell id="end-inner" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="1"><mxGeometry x="352" y="767" width="16" height="16" as="geometry"/></mxCell>
+
+        <mxCell id="note" value="Transitions principales : Ouvert → En cours → Résolu → Clôturé&#xa;Seul l'administrateur peut clôturer un ticket." style="shape=note;whiteSpace=wrap;html=1;fillColor=#ffffcc;strokeColor=#999999;fontColor=#000000;fontSize=10;align=left;spacingLeft=6;" vertex="1" parent="1"><mxGeometry x="40" y="820" width="640" height="45" as="geometry"/></mxCell>
+
+        <mxCell id="e0" style="endArrow=block;html=1;strokeColor=#000000;" edge="1" parent="1" source="start" target="a1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e1" style="endArrow=block;html=1;strokeColor=#000000;" edge="1" parent="1" source="a1" target="s1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e2" style="endArrow=block;html=1;strokeColor=#000000;" edge="1" parent="1" source="s1" target="a2"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e3" style="endArrow=block;html=1;strokeColor=#000000;" edge="1" parent="1" source="a2" target="a3"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e4" style="endArrow=block;html=1;strokeColor=#000000;" edge="1" parent="1" source="a3" target="s2"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e5" style="endArrow=block;html=1;strokeColor=#000000;" edge="1" parent="1" source="s2" target="a4"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e6" style="endArrow=block;html=1;strokeColor=#000000;" edge="1" parent="1" source="a4" target="s3"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e7" style="endArrow=block;html=1;strokeColor=#000000;" edge="1" parent="1" source="s3" target="a5"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e8" style="endArrow=block;html=1;strokeColor=#000000;" edge="1" parent="1" source="a5" target="s4"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e9" style="endArrow=block;html=1;strokeColor=#000000;" edge="1" parent="1" source="s4" target="end"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <mxCell id="leg-client" value="Client" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#000000;fontSize=10;" vertex="1" parent="1"><mxGeometry x="40" y="120" width="70" height="24" as="geometry"/></mxCell>
+        <mxCell id="leg-admin" value="Administrateur" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontSize=10;" vertex="1" parent="1"><mxGeometry x="40" y="150" width="100" height="24" as="geometry"/></mxCell>
+        <mxCell id="leg-tech" value="Technicien" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#000000;fontSize=10;" vertex="1" parent="1"><mxGeometry x="40" y="180" width="80" height="24" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

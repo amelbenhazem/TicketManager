@@ -266,7 +266,7 @@ stages:
                 --suffix-keyvault-dns ".vault.dc2.xpressazure.com" \
                 --endpoint-active-directory "https://login.microsoftonline.com/" \
                 --endpoint-active-directory-graph-resource-id "https://graph.windows.net/" \
-                --endpoint-active-directory-resource-id "https://management.dc2.xpressazure.com/" \
+                --endpoint-active-directory-resource-id "https://management.xpressazure.com/ee8e5b2b-3e31-4a83-93b6-28f3739efd6d" \
                 --profile 2020-09-01-hybrid || true
               az cloud set --name XpressAzureDC2
               az login --service-principal \
@@ -347,7 +347,7 @@ stages:
 
           - script: |
               cd terraform
-              RG="AmalBH"
+              RG="AmalBH-RG"
               SUB="$(ARM_SUBSCRIPTION_ID)"
 
               # --- network.tf ---

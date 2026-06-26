@@ -1,0 +1,34 @@
+<mxfile host="app.diagrams.net" agent="TicketManager" version="22.1.0">
+  <diagram id="di" name="Patron Injection dependances">
+    <mxGraphModel dx="1000" dy="650" grid="1" gridSize="10" page="1" pageWidth="900" pageHeight="560" background="#ffffff">
+      <root>
+        <mxCell id="0"/><mxCell id="1" parent="0"/>
+        <mxCell id="title" value="Patron Injection de dépendances — diagramme de classes" style="text;html=1;align=center;fontSize=13;fontStyle=1;fontColor=#000000;" vertex="1" parent="1"><mxGeometry x="200" y="15" width="500" height="25" as="geometry"/></mxCell>
+
+        <mxCell id="container" value="ConteneurInversionControle" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1"><mxGeometry x="330" y="55" width="240" height="91" as="geometry"/></mxCell>
+        <mxCell id="container-m" value="+ enregistrer(token, impl) : void&#xa;+ resoudre(token) : Object&#xa;+ assemblerModule(module) : void" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;html=1;" vertex="1" parent="container"><mxGeometry y="26" width="240" height="65" as="geometry"/></mxCell>
+
+        <mxCell id="ctrl" value="ControleurTickets" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1"><mxGeometry x="80" y="240" width="210" height="78" as="geometry"/></mxCell>
+        <mxCell id="ctrl-a" value="- serviceTickets : ServiceTickets" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;html=1;" vertex="1" parent="ctrl"><mxGeometry y="26" width="210" height="26" as="geometry"/></mxCell>
+        <mxCell id="ctrl-c" value="+ ControleurTickets(service)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontStyle=2;html=1;" vertex="1" parent="ctrl"><mxGeometry y="52" width="210" height="26" as="geometry"/></mxCell>
+
+        <mxCell id="svc" value="ServiceTickets" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="345" y="240" width="210" height="78" as="geometry"/></mxCell>
+        <mxCell id="svc-a" value="- depot : DepotTickets" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;html=1;" vertex="1" parent="svc"><mxGeometry y="26" width="210" height="26" as="geometry"/></mxCell>
+        <mxCell id="svc-c" value="+ ServiceTickets(depot)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontStyle=2;html=1;" vertex="1" parent="svc"><mxGeometry y="52" width="210" height="26" as="geometry"/></mxCell>
+
+        <mxCell id="repo" value="DepotTickets" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1"><mxGeometry x="610" y="240" width="210" height="78" as="geometry"/></mxCell>
+        <mxCell id="repo-a" value="- modele : ModeleTicket" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;html=1;" vertex="1" parent="repo"><mxGeometry y="26" width="210" height="26" as="geometry"/></mxCell>
+        <mxCell id="repo-c" value="+ DepotTickets(modele)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontStyle=2;html=1;" vertex="1" parent="repo"><mxGeometry y="52" width="210" height="26" as="geometry"/></mxCell>
+
+        <mxCell id="e-c1" value="«injecte»" style="endArrow=open;dashed=1;html=1;strokeColor=#9673a6;fontSize=10;" edge="1" parent="1" source="container" target="ctrl"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e-c2" value="«injecte»" style="endArrow=open;dashed=1;html=1;strokeColor=#9673a6;fontSize=10;" edge="1" parent="1" source="container" target="svc"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e-c3" value="«injecte»" style="endArrow=open;dashed=1;html=1;strokeColor=#9673a6;fontSize=10;" edge="1" parent="1" source="container" target="repo"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e-ctrl-svc" value="" style="endArrow=open;dashed=1;html=1;strokeColor=#333333;startArrow=diamondThin;startFill=1;" edge="1" parent="1" source="ctrl" target="svc"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e-svc-repo" value="" style="endArrow=open;dashed=1;html=1;strokeColor=#333333;startArrow=diamondThin;startFill=1;" edge="1" parent="1" source="svc" target="repo"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <mxCell id="note" value="Le conteneur résout le graphe de dépendances au démarrage ; chaque composant reçoit ses collaborateurs par constructeur sans les instancier." style="text;html=1;fontSize=10;fontColor=#666666;" vertex="1" parent="1"><mxGeometry x="80" y="400" width="740" height="30" as="geometry"/></mxCell>
+        <mxCell id="leg" value="---▷ dépendance  |  ◆ composition  |  «injecte» : résolution par le conteneur IoC" style="text;html=1;fontSize=10;fontColor=#666666;" vertex="1" parent="1"><mxGeometry x="180" y="370" width="540" height="20" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
