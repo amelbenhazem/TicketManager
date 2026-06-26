@@ -116,10 +116,11 @@ stages:
               docker run --rm \
                 --network host \
                 -e SONAR_HOST_URL=http://localhost:9000 \
-                -e SONAR_TOKEN="$SONAR_TOKEN" \
                 -v "$(System.DefaultWorkingDirectory):/usr/src" \
                 -w /usr/src \
                 sonarsource/sonar-scanner-cli \
+                -Dsonar.login="$SONAR_TOKEN" \
+                -Dsonar.host.url=http://localhost:9000 \
                 -Dsonar.projectKey=ticket-manager \
                 -Dsonar.projectName=TicketManager \
                 -Dsonar.sources=backend/src,frontend \
