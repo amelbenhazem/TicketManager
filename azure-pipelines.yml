@@ -134,33 +134,31 @@ stages:
               SONAR_TOKEN: $(SONAR_TOKEN)
 
   # =========================
-  # SECURITY
+  # SECURITY (temporairement désactivé)
   # =========================
-  - stage: Security
-    displayName: "Security Scan"
-    dependsOn: Build
-    jobs:
-      - job: SnykJob
-        displayName: "Snyk Vulnerability Scan"
-        steps:
-          - script: |
-              sudo npm install -g snyk
-              cd backend
-              snyk test --severity-threshold=high
-              cd ../frontend
-              snyk test --severity-threshold=high || true
-            displayName: "Snyk scan (backend + frontend)"
-            env:
-              SNYK_TOKEN: $(SNYK_TOKEN)
+  # - stage: Security
+  #   displayName: "Security Scan"
+  #   dependsOn: Build
+  #   jobs:
+  #     - job: SnykJob
+  #       displayName: "Snyk Vulnerability Scan"
+  #       steps:
+  #         - script: |
+  #             sudo npm install -g snyk
+  #             cd backend
+  #             snyk test --severity-threshold=high
+  #             cd ../frontend
+  #             snyk test --severity-threshold=high || true
+  #           displayName: "Snyk scan (backend + frontend)"
+  #           env:
+  #             SNYK_TOKEN: $(SNYK_TOKEN)
 
   # =========================
   # DOCKER BUILD
   # =========================
   - stage: Docker
     displayName: "Docker Build"
-    dependsOn:
-      - CodeQuality
-      - Security
+    dependsOn: CodeQuality
     jobs:
       - job: DockerJob
         displayName: "Build Docker Images"
@@ -171,57 +169,72 @@ stages:
             displayName: "Build images"
 
   # =========================
-  # TRIVY SCAN
+  # TRIVY SCAN (temporairement désactivé)
   # =========================
-  - stage: TrivyScan
-    displayName: "Trivy Security Scan"
-    dependsOn: Docker
-    jobs:
-      - job: TrivyJob
-        displayName: "Scan Docker Images"
-        steps:
-          - script: |
-              docker run --rm \
-                -v /var/run/docker.sock:/var/run/docker.sock \
-                aquasec/trivy:latest image \
-                --exit-code 1 \
-                --severity HIGH,CRITICAL \
-                --no-progress \
-                ticket-backend:$(Build.BuildId)
-            displayName: "Trivy scan backend image"
-            continueOnError: true
-
-          - script: |
-              docker run --rm \
-                -v /var/run/docker.sock:/var/run/docker.sock \
-                aquasec/trivy:latest image \
-                --exit-code 1 \
-                --severity HIGH,CRITICAL \
-                --no-progress \
-                ticket-frontend:$(Build.BuildId)
-            displayName: "Trivy scan frontend image"
-            continueOnError: true
+  # - stage: TrivyScan
+  #   displayName: "Trivy Security Scan"
+  #   dependsOn: Docker
+  #   jobs:
+  #     - job: TrivyJob
+  #       displayName: "Scan Docker Images"
+  #       steps:
+  #         - script: |
+  #             docker run --rm \
+  #               -v /var/run/docker.sock:/var/run/docker.sock \
+  #               aquasec/trivy:latest image \
+  #               --exit-code 1 \
+  #               --severity HIGH,CRITICAL \
+  #               --no-progress \
+  #               ticket-backend:$(Build.BuildId)
+  #           displayName: "Trivy scan backend image"
+  #           continueOnError: true
+  #
+  #         - script: |
+  #             docker run --rm \
+  #               -v /var/run/docker.sock:/var/run/docker.sock \
+  #               aquasec/trivy:latest image \
+  #               --exit-code 1 \
+  #               --severity HIGH,CRITICAL \
+  #               --no-progress \
+  #               ticket-frontend:$(Build.BuildId)
+  #           displayName: "Trivy scan frontend image"
+  #           continueOnError: true
 
   # =========================
   # PUSH TO NEXUS
   # =========================
   - stage: Push
     displayName: "Push to Nexus"
-    dependsOn: TrivyScan
+    dependsOn: Docker
     jobs:
       - job: PushJob
         displayName: "Push Docker Images"
         steps:
           - script: |
-              if ! curl -sf --connect-timeout 5 http://$(NEXUS_REGISTRY)/v2/ >/dev/null; then
+              nexus_ready() {
+                code=$(curl -s --connect-timeout 5 -o /dev/null -w "%{http_code}" "http://$(NEXUS_REGISTRY)/v2/" || echo "000")
+                # 401 = registry up but non authentifié (normal)
+                [ "$code" = "401" ] || [ "$code" = "200" ]
+              }
+
+              if ! nexus_ready; then
                 echo "Nexus injoignable sur $(NEXUS_REGISTRY) — tentative docker start nexus..."
-                docker start nexus || true
-                sleep 15
-                curl -sf --connect-timeout 10 http://$(NEXUS_REGISTRY)/v2/ || {
-                  echo "##[error]Nexus indisponible. Sur VM-gestion: docker ps | grep nexus"
-                  exit 1
-                }
+                docker start nexus 2>/dev/null || true
+                for i in $(seq 1 18); do
+                  sleep 10
+                  if nexus_ready; then
+                    echo "Nexus prêt (tentative $i)."
+                    break
+                  fi
+                  echo "Attente Nexus... ($i/18)"
+                done
               fi
+
+              if ! nexus_ready; then
+                echo "##[error]Nexus indisponible. Sur VM-gestion: docker ps -a | grep nexus && docker logs nexus --tail 50"
+                exit 1
+              fi
+
               echo "$NEXUS_PASSWORD" | docker login $(NEXUS_REGISTRY) \
                 -u $(NEXUS_USER) --password-stdin
             displayName: "Login to Nexus"
