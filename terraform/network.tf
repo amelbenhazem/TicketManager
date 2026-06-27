@@ -44,12 +44,26 @@ resource "azurestack_network_security_rule" "mgmt_ssh" {
   network_security_group_name = azurestack_network_security_group.mgmt.name
 }
 
-# --- NSG base de données (MongoDB : uniquement depuis mgmt et sous-réseau AKS)
+# --- NSG base de données (SSH depuis mgmt ; MongoDB depuis mgmt et AKS)
 resource "azurestack_network_security_group" "db" {
   name                = local.nsg_db_name
   location            = var.location
   resource_group_name = data.azurestack_resource_group.main.name
   tags                = local.tags
+}
+
+resource "azurestack_network_security_rule" "db_ssh_from_mgmt" {
+  name                        = "AllowSSHFromMgmt"
+  priority                    = 100
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "Tcp"
+  source_port_range           = "*"
+  destination_port_range      = "22"
+  source_address_prefix       = var.subnet_mgmt_cidr
+  destination_address_prefix  = "*"
+  resource_group_name         = data.azurestack_resource_group.main.name
+  network_security_group_name = azurestack_network_security_group.db.name
 }
 
 resource "azurestack_network_security_rule" "db_mongo_from_mgmt" {
