@@ -1,0 +1,89 @@
+---
+# Déploie MongoDB (Docker) sur VM-db — subnet 10.1.2.0/24
+#
+# Usage (sur VM-gestion, dossier ansible du repo) :
+#   sudo apt update && sudo apt install -y python3-pip
+#   pip3 install --user ansible
+#   export PATH="$HOME/.local/bin:$PATH"
+#   ansible-playbook playbooks/mongodb.yml
+#
+# URI backend : mongodb://10.1.2.4:27017/ticketmanager
+
+- name: Deploy MongoDB on VM-db
+  hosts: db
+  become: true
+  vars:
+    mongodb_volume: mongodb_data
+    mongodb_image: mongo:8
+    mongodb_container_name: mongodb
+    mongodb_port: 27017
+    mongodb_database: ticketmanager
+
+  tasks:
+    - name: Install Docker packages
+      ansible.builtin.apt:
+        name:
+          - docker.io
+        state: present
+        update_cache: true
+
+    - name: Enable and start Docker service
+      ansible.builtin.systemd:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Add admin user to docker group
+      ansible.builtin.user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: true
+
+    - name: Check existing MongoDB container
+      ansible.builtin.command:
+        cmd: docker ps -a --filter name={{ mongodb_container_name }} -q
+      register: existing_container
+      changed_when: false
+
+    - name: Pull MongoDB image
+      ansible.builtin.command:
+        cmd: docker pull {{ mongodb_image }}
+      changed_when: true
+
+    - name: Create and start MongoDB container
+      ansible.builtin.command:
+        cmd: >
+          docker run -d
+          --name {{ mongodb_container_name }}
+          --restart unless-stopped
+          -p {{ mongodb_port }}:27017
+          -v {{ mongodb_volume }}:/data/db
+          {{ mongodb_image }}
+      when: existing_container.stdout | length == 0
+
+    - name: Start MongoDB container if already exists
+      ansible.builtin.command:
+        cmd: docker start {{ mongodb_container_name }}
+      when: existing_container.stdout | length > 0
+
+    - name: Wait for MongoDB TCP port
+      ansible.builtin.wait_for:
+        port: "{{ mongodb_port }}"
+        host: 127.0.0.1
+        delay: 5
+        timeout: 120
+
+    - name: Verify MongoDB responds to ping
+      ansible.builtin.command:
+        cmd: >
+          docker exec {{ mongodb_container_name }}
+          mongosh --quiet --eval "db.adminCommand('ping').ok"
+      register: mongodb_ping
+      changed_when: false
+      retries: 6
+      delay: 10
+      until: mongodb_ping.stdout | trim == "1"
+
+    - name: Show connection URI
+      ansible.builtin.debug:
+        msg: "mongodb://{{ ansible_host }}:{{ mongodb_port }}/{{ mongodb_database }}"

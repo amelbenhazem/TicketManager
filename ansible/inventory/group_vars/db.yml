@@ -1,0 +1,4 @@
+mongodb_image: mongo:8
+mongodb_container_name: mongodb
+mongodb_port: 27017
+mongodb_database: ticketmanager
