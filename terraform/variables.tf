@@ -88,14 +88,20 @@ variable "ssh_public_key" {
   type        = string
 }
 
+variable "vm_gestion_attach_existing_os_disk" {
+  description = "Si true, recrée vm-gestion en rattachant le disque OS existant (préserve les installations)."
+  type        = bool
+  default     = true
+}
+
 variable "vm_size_gestion" {
-  description = "Taille de la VM d'administration."
+  description = "Taille de la VM d'administration (réduire si FabricVmPlacementError sur Stack Hub)."
   type        = string
-  default     = "Standard_D2s_v3"
+  default     = "Standard_D1_v2"
 }
 
 variable "vm_size_db" {
-  description = "Taille de la VM base de données."
+  description = "Taille de la VM base de données. Le resize nécessite l'arrêt de la VM (deallocate) sur Stack Hub."
   type        = string
   default     = "Standard_D2s_v3"
 }

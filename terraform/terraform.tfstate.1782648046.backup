@@ -1,0 +1,764 @@
+{
+  "version": 4,
+  "terraform_version": "1.15.6",
+  "serial": 17,
+  "lineage": "7c087a3d-a42a-4306-2478-5b01dc9fa096",
+  "outputs": {
+    "mongodb_connection_hint": {
+      "value": "mongodb://10.1.2.4:27017/ticketmanager",
+      "type": "string"
+    },
+    "resource_group_name": {
+      "value": "AmalBH-RG",
+      "type": "string"
+    },
+    "subnet_aks_id": {
+      "value": "/subscriptions/b55f73e9-9312-4a0a-b46b-44d350cf1fcc/resourceGroups/AmalBH-RG/providers/Microsoft.Network/virtualNetworks/ticketmanager-iac-vnet/subnets/ticketmanager-iac-snet-aks",
+      "type": "string"
+    },
+    "subnet_db_id": {
+      "value": "/subscriptions/b55f73e9-9312-4a0a-b46b-44d350cf1fcc/resourceGroups/AmalBH-RG/providers/Microsoft.Network/virtualNetworks/ticketmanager-iac-vnet/subnets/ticketmanager-iac-snet-db",
+      "type": "string"
+    },
+    "subnet_mgmt_id": {
+      "value": "/subscriptions/b55f73e9-9312-4a0a-b46b-44d350cf1fcc/resourceGroups/AmalBH-RG/providers/Microsoft.Network/virtualNetworks/ticketmanager-iac-vnet/subnets/ticketmanager-iac-snet-mgmt",
+      "type": "string"
+    },
+    "virtual_network_id": {
+      "value": "/subscriptions/b55f73e9-9312-4a0a-b46b-44d350cf1fcc/resourceGroups/AmalBH-RG/providers/Microsoft.Network/virtualNetworks/ticketmanager-iac-vnet",
+      "type": "string"
+    },
+    "virtual_network_name": {
+      "value": "ticketmanager-iac-vnet",
+      "type": "string"
+    },
+    "vm_db_private_ip": {
+      "value": "10.1.2.4",
+      "type": "string"
+    },
+    "vm_gestion_private_ip": {
+      "value": "10.1.1.4",
+      "type": "string"
+    },
+    "vm_gestion_public_ip": {
+      "value": "",
+      "type": "string"
+    }
+  },
+  "resources": [
+    {
+      "mode": "data",
+      "type": "azurestack_resource_group",
+      "name": "main",
+      "provider": "provider[\"registry.terraform.io/hashicorp/azurestack\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "/subscriptions/b55f73e9-9312-4a0a-b46b-44d350cf1fcc/resourceGroups/AmalBH-RG",
+            "location": "dc2",
+            "name": "AmalBH-RG",
+            "tags": {},
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "azurestack_network_interface",
+      "name": "db",
+      "provider": "provider[\"registry.terraform.io/hashicorp/azurestack\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "applied_dns_servers": [],
+            "dns_servers": [],
+            "enable_ip_forwarding": false,
+            "id": "/subscriptions/b55f73e9-9312-4a0a-b46b-44d350cf1fcc/resourceGroups/AmalBH-RG/providers/Microsoft.Network/networkInterfaces/ticketmanager-iac-vm-db-nic",
+            "internal_domain_name_suffix": "iln1jkllsw4ulbri1kp44p5rad.a--x.internal.cloudapp.net",
+            "ip_configuration": [
+              {
+                "name": "primary",
+                "primary": true,
+                "private_ip_address": "10.1.2.4",
+                "private_ip_address_allocation": "Dynamic",
+                "private_ip_address_version": "IPv4",
+                "public_ip_address_id": "",
+                "subnet_id": "/subscriptions/b55f73e9-9312-4a0a-b46b-44d350cf1fcc/resourceGroups/AmalBH-RG/providers/Microsoft.Network/virtualNetworks/ticketmanager-iac-vnet/subnets/ticketmanager-iac-snet-db"
+              }
+            ],
+            "location": "dc2",
+            "mac_address": "",
+            "name": "ticketmanager-iac-vm-db-nic",
+            "private_ip_address": "10.1.2.4",
+            "private_ip_addresses": [
+              "10.1.2.4"
+            ],
+            "resource_group_name": "AmalBH-RG",
+            "tags": {
+              "composant": "infra-iac",
+              "owner": "PFE",
+              "projet": "TicketManager"
+            },
+            "timeouts": null,
+            "virtual_machine_id": ""
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxODAwMDAwMDAwMDAwLCJkZWxldGUiOjE4MDAwMDAwMDAwMDAsInJlYWQiOjMwMDAwMDAwMDAwMCwidXBkYXRlIjoxODAwMDAwMDAwMDAwfX0=",
+          "dependencies": [
+            "azurestack_subnet.db",
+            "azurestack_virtual_network.main",
+            "data.azurestack_resource_group.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "azurestack_network_interface",
+      "name": "gestion",
+      "provider": "provider[\"registry.terraform.io/hashicorp/azurestack\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "applied_dns_servers": [],
+            "dns_servers": [],
+            "enable_ip_forwarding": false,
+            "id": "/subscriptions/b55f73e9-9312-4a0a-b46b-44d350cf1fcc/resourceGroups/AmalBH-RG/providers/Microsoft.Network/networkInterfaces/ticketmanager-iac-vm-gestion-nic",
+            "internal_domain_name_suffix": "iln1jkllsw4ulbri1kp44p5rad.a--x.internal.cloudapp.net",
+            "ip_configuration": [
+              {
+                "name": "primary",
+                "primary": true,
+                "private_ip_address": "10.1.1.4",
+                "private_ip_address_allocation": "Dynamic",
+                "private_ip_address_version": "IPv4",
+                "public_ip_address_id": "/subscriptions/b55f73e9-9312-4a0a-b46b-44d350cf1fcc/resourceGroups/AmalBH-RG/providers/Microsoft.Network/publicIPAddresses/ticketmanager-iac-vm-gestion-pip",
+                "subnet_id": "/subscriptions/b55f73e9-9312-4a0a-b46b-44d350cf1fcc/resourceGroups/AmalBH-RG/providers/Microsoft.Network/virtualNetworks/ticketmanager-iac-vnet/subnets/ticketmanager-iac-snet-mgmt"
+              }
+            ],
+            "location": "dc2",
+            "mac_address": "",
+            "name": "ticketmanager-iac-vm-gestion-nic",
+            "private_ip_address": "10.1.1.4",
+            "private_ip_addresses": [
+              "10.1.1.4"
+            ],
+            "resource_group_name": "AmalBH-RG",
+            "tags": {
+              "composant": "infra-iac",
+              "owner": "PFE",
+              "projet": "TicketManager"
+            },
+            "timeouts": null,
+            "virtual_machine_id": ""
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxODAwMDAwMDAwMDAwLCJkZWxldGUiOjE4MDAwMDAwMDAwMDAsInJlYWQiOjMwMDAwMDAwMDAwMCwidXBkYXRlIjoxODAwMDAwMDAwMDAwfX0=",
+          "dependencies": [
+            "azurestack_public_ip.gestion",
+            "azurestack_subnet.mgmt",
+            "azurestack_virtual_network.main",
+            "data.azurestack_resource_group.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "azurestack_network_security_group",
+      "name": "aks",
+      "provider": "provider[\"registry.terraform.io/hashicorp/azurestack\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "/subscriptions/b55f73e9-9312-4a0a-b46b-44d350cf1fcc/resourceGroups/AmalBH-RG/providers/Microsoft.Network/networkSecurityGroups/ticketmanager-iac-nsg-aks",
+            "location": "dc2",
+            "name": "ticketmanager-iac-nsg-aks",
+            "resource_group_name": "AmalBH-RG",
+            "security_rule": [],
+            "tags": {
+              "composant": "infra-iac",
+              "owner": "PFE",
+              "projet": "TicketManager"
+            },
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxODAwMDAwMDAwMDAwLCJkZWxldGUiOjE4MDAwMDAwMDAwMDAsInJlYWQiOjMwMDAwMDAwMDAwMCwidXBkYXRlIjoxODAwMDAwMDAwMDAwfX0=",
+          "dependencies": [
+            "data.azurestack_resource_group.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "azurestack_network_security_group",
+      "name": "db",
+      "provider": "provider[\"registry.terraform.io/hashicorp/azurestack\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "/subscriptions/b55f73e9-9312-4a0a-b46b-44d350cf1fcc/resourceGroups/AmalBH-RG/providers/Microsoft.Network/networkSecurityGroups/ticketmanager-iac-nsg-db",
+            "location": "dc2",
+            "name": "ticketmanager-iac-nsg-db",
+            "resource_group_name": "AmalBH-RG",
+            "security_rule": [],
+            "tags": {
+              "composant": "infra-iac",
+              "owner": "PFE",
+              "projet": "TicketManager"
+            },
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxODAwMDAwMDAwMDAwLCJkZWxldGUiOjE4MDAwMDAwMDAwMDAsInJlYWQiOjMwMDAwMDAwMDAwMCwidXBkYXRlIjoxODAwMDAwMDAwMDAwfX0=",
+          "dependencies": [
+            "data.azurestack_resource_group.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "azurestack_network_security_group",
+      "name": "mgmt",
+      "provider": "provider[\"registry.terraform.io/hashicorp/azurestack\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "/subscriptions/b55f73e9-9312-4a0a-b46b-44d350cf1fcc/resourceGroups/AmalBH-RG/providers/Microsoft.Network/networkSecurityGroups/ticketmanager-iac-nsg-mgmt",
+            "location": "dc2",
+            "name": "ticketmanager-iac-nsg-mgmt",
+            "resource_group_name": "AmalBH-RG",
+            "security_rule": [],
+            "tags": {
+              "composant": "infra-iac",
+              "owner": "PFE",
+              "projet": "TicketManager"
+            },
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxODAwMDAwMDAwMDAwLCJkZWxldGUiOjE4MDAwMDAwMDAwMDAsInJlYWQiOjMwMDAwMDAwMDAwMCwidXBkYXRlIjoxODAwMDAwMDAwMDAwfX0=",
+          "dependencies": [
+            "data.azurestack_resource_group.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "azurestack_network_security_rule",
+      "name": "aks_allow_internal",
+      "provider": "provider[\"registry.terraform.io/hashicorp/azurestack\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "access": "Allow",
+            "description": "",
+            "destination_address_prefix": "*",
+            "destination_address_prefixes": null,
+            "destination_port_range": "*",
+            "destination_port_ranges": null,
+            "direction": "Inbound",
+            "id": "/subscriptions/b55f73e9-9312-4a0a-b46b-44d350cf1fcc/resourceGroups/AmalBH-RG/providers/Microsoft.Network/networkSecurityGroups/ticketmanager-iac-nsg-aks/securityRules/AllowVnetInbound",
+            "name": "AllowVnetInbound",
+            "network_security_group_name": "ticketmanager-iac-nsg-aks",
+            "priority": 100,
+            "protocol": "*",
+            "resource_group_name": "AmalBH-RG",
+            "source_address_prefix": "10.1.0.0/16",
+            "source_address_prefixes": null,
+            "source_port_range": "*",
+            "source_port_ranges": null,
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxODAwMDAwMDAwMDAwLCJkZWxldGUiOjE4MDAwMDAwMDAwMDAsInJlYWQiOjMwMDAwMDAwMDAwMCwidXBkYXRlIjoxODAwMDAwMDAwMDAwfX0=",
+          "dependencies": [
+            "azurestack_network_security_group.aks",
+            "data.azurestack_resource_group.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "azurestack_network_security_rule",
+      "name": "db_mongo_from_aks",
+      "provider": "provider[\"registry.terraform.io/hashicorp/azurestack\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "access": "Allow",
+            "description": "",
+            "destination_address_prefix": "*",
+            "destination_address_prefixes": null,
+            "destination_port_range": "27017",
+            "destination_port_ranges": null,
+            "direction": "Inbound",
+            "id": "/subscriptions/b55f73e9-9312-4a0a-b46b-44d350cf1fcc/resourceGroups/AmalBH-RG/providers/Microsoft.Network/networkSecurityGroups/ticketmanager-iac-nsg-db/securityRules/AllowMongoFromAksSubnet",
+            "name": "AllowMongoFromAksSubnet",
+            "network_security_group_name": "ticketmanager-iac-nsg-db",
+            "priority": 120,
+            "protocol": "Tcp",
+            "resource_group_name": "AmalBH-RG",
+            "source_address_prefix": "10.1.3.0/24",
+            "source_address_prefixes": null,
+            "source_port_range": "*",
+            "source_port_ranges": null,
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxODAwMDAwMDAwMDAwLCJkZWxldGUiOjE4MDAwMDAwMDAwMDAsInJlYWQiOjMwMDAwMDAwMDAwMCwidXBkYXRlIjoxODAwMDAwMDAwMDAwfX0=",
+          "dependencies": [
+            "azurestack_network_security_group.db",
+            "data.azurestack_resource_group.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "azurestack_network_security_rule",
+      "name": "db_mongo_from_mgmt",
+      "provider": "provider[\"registry.terraform.io/hashicorp/azurestack\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "access": "Allow",
+            "description": "",
+            "destination_address_prefix": "*",
+            "destination_address_prefixes": null,
+            "destination_port_range": "27017",
+            "destination_port_ranges": null,
+            "direction": "Inbound",
+            "id": "/subscriptions/b55f73e9-9312-4a0a-b46b-44d350cf1fcc/resourceGroups/AmalBH-RG/providers/Microsoft.Network/networkSecurityGroups/ticketmanager-iac-nsg-db/securityRules/AllowMongoFromMgmtSubnet",
+            "name": "AllowMongoFromMgmtSubnet",
+            "network_security_group_name": "ticketmanager-iac-nsg-db",
+            "priority": 110,
+            "protocol": "Tcp",
+            "resource_group_name": "AmalBH-RG",
+            "source_address_prefix": "10.1.1.0/24",
+            "source_address_prefixes": null,
+            "source_port_range": "*",
+            "source_port_ranges": null,
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxODAwMDAwMDAwMDAwLCJkZWxldGUiOjE4MDAwMDAwMDAwMDAsInJlYWQiOjMwMDAwMDAwMDAwMCwidXBkYXRlIjoxODAwMDAwMDAwMDAwfX0=",
+          "dependencies": [
+            "azurestack_network_security_group.db",
+            "data.azurestack_resource_group.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "azurestack_network_security_rule",
+      "name": "mgmt_ssh",
+      "provider": "provider[\"registry.terraform.io/hashicorp/azurestack\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "access": "Allow",
+            "description": "",
+            "destination_address_prefix": "*",
+            "destination_address_prefixes": null,
+            "destination_port_range": "22",
+            "destination_port_ranges": null,
+            "direction": "Inbound",
+            "id": "/subscriptions/b55f73e9-9312-4a0a-b46b-44d350cf1fcc/resourceGroups/AmalBH-RG/providers/Microsoft.Network/networkSecurityGroups/ticketmanager-iac-nsg-mgmt/securityRules/AllowSSH",
+            "name": "AllowSSH",
+            "network_security_group_name": "ticketmanager-iac-nsg-mgmt",
+            "priority": 100,
+            "protocol": "Tcp",
+            "resource_group_name": "AmalBH-RG",
+            "source_address_prefix": "*",
+            "source_address_prefixes": null,
+            "source_port_range": "*",
+            "source_port_ranges": null,
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxODAwMDAwMDAwMDAwLCJkZWxldGUiOjE4MDAwMDAwMDAwMDAsInJlYWQiOjMwMDAwMDAwMDAwMCwidXBkYXRlIjoxODAwMDAwMDAwMDAwfX0=",
+          "dependencies": [
+            "azurestack_network_security_group.mgmt",
+            "data.azurestack_resource_group.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "azurestack_public_ip",
+      "name": "gestion",
+      "provider": "provider[\"registry.terraform.io/hashicorp/azurestack\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "allocation_method": "Dynamic",
+            "domain_name_label": null,
+            "fqdn": null,
+            "id": "/subscriptions/b55f73e9-9312-4a0a-b46b-44d350cf1fcc/resourceGroups/AmalBH-RG/providers/Microsoft.Network/publicIPAddresses/ticketmanager-iac-vm-gestion-pip",
+            "idle_timeout_in_minutes": 4,
+            "ip_address": "",
+            "ip_version": "IPv4",
+            "location": "dc2",
+            "name": "ticketmanager-iac-vm-gestion-pip",
+            "public_ip_address_allocation": "Dynamic",
+            "resource_group_name": "AmalBH-RG",
+            "reverse_fqdn": null,
+            "sku": "Basic",
+            "tags": {
+              "composant": "infra-iac",
+              "owner": "PFE",
+              "projet": "TicketManager"
+            },
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxODAwMDAwMDAwMDAwLCJkZWxldGUiOjE4MDAwMDAwMDAwMDAsInJlYWQiOjMwMDAwMDAwMDAwMCwidXBkYXRlIjoxODAwMDAwMDAwMDAwfX0=",
+          "dependencies": [
+            "data.azurestack_resource_group.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "azurestack_subnet",
+      "name": "aks",
+      "provider": "provider[\"registry.terraform.io/hashicorp/azurestack\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "address_prefix": "10.1.3.0/24",
+            "id": "/subscriptions/b55f73e9-9312-4a0a-b46b-44d350cf1fcc/resourceGroups/AmalBH-RG/providers/Microsoft.Network/virtualNetworks/ticketmanager-iac-vnet/subnets/ticketmanager-iac-snet-aks",
+            "name": "ticketmanager-iac-snet-aks",
+            "resource_group_name": "AmalBH-RG",
+            "timeouts": null,
+            "virtual_network_name": "ticketmanager-iac-vnet"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxODAwMDAwMDAwMDAwLCJkZWxldGUiOjE4MDAwMDAwMDAwMDAsInJlYWQiOjMwMDAwMDAwMDAwMCwidXBkYXRlIjoxODAwMDAwMDAwMDAwfX0=",
+          "dependencies": [
+            "azurestack_virtual_network.main",
+            "data.azurestack_resource_group.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "azurestack_subnet",
+      "name": "db",
+      "provider": "provider[\"registry.terraform.io/hashicorp/azurestack\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "address_prefix": "10.1.2.0/24",
+            "id": "/subscriptions/b55f73e9-9312-4a0a-b46b-44d350cf1fcc/resourceGroups/AmalBH-RG/providers/Microsoft.Network/virtualNetworks/ticketmanager-iac-vnet/subnets/ticketmanager-iac-snet-db",
+            "name": "ticketmanager-iac-snet-db",
+            "resource_group_name": "AmalBH-RG",
+            "timeouts": null,
+            "virtual_network_name": "ticketmanager-iac-vnet"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxODAwMDAwMDAwMDAwLCJkZWxldGUiOjE4MDAwMDAwMDAwMDAsInJlYWQiOjMwMDAwMDAwMDAwMCwidXBkYXRlIjoxODAwMDAwMDAwMDAwfX0=",
+          "dependencies": [
+            "azurestack_virtual_network.main",
+            "data.azurestack_resource_group.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "azurestack_subnet",
+      "name": "mgmt",
+      "provider": "provider[\"registry.terraform.io/hashicorp/azurestack\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "address_prefix": "10.1.1.0/24",
+            "id": "/subscriptions/b55f73e9-9312-4a0a-b46b-44d350cf1fcc/resourceGroups/AmalBH-RG/providers/Microsoft.Network/virtualNetworks/ticketmanager-iac-vnet/subnets/ticketmanager-iac-snet-mgmt",
+            "name": "ticketmanager-iac-snet-mgmt",
+            "resource_group_name": "AmalBH-RG",
+            "timeouts": null,
+            "virtual_network_name": "ticketmanager-iac-vnet"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxODAwMDAwMDAwMDAwLCJkZWxldGUiOjE4MDAwMDAwMDAwMDAsInJlYWQiOjMwMDAwMDAwMDAwMCwidXBkYXRlIjoxODAwMDAwMDAwMDAwfX0=",
+          "dependencies": [
+            "azurestack_virtual_network.main",
+            "data.azurestack_resource_group.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "azurestack_virtual_machine",
+      "name": "db",
+      "provider": "provider[\"registry.terraform.io/hashicorp/azurestack\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "availability_set_id": null,
+            "boot_diagnostics": [],
+            "delete_data_disks_on_termination": false,
+            "delete_os_disk_on_termination": false,
+            "id": "/subscriptions/b55f73e9-9312-4a0a-b46b-44d350cf1fcc/resourceGroups/AmalBH-RG/providers/Microsoft.Compute/virtualMachines/ticketmanager-iac-vm-db",
+            "identity": [],
+            "license_type": null,
+            "location": "dc2",
+            "name": "ticketmanager-iac-vm-db",
+            "network_interface_ids": [
+              "/subscriptions/b55f73e9-9312-4a0a-b46b-44d350cf1fcc/resourceGroups/AmalBH-RG/providers/Microsoft.Network/networkInterfaces/ticketmanager-iac-vm-db-nic"
+            ],
+            "os_profile": [
+              {
+                "admin_password": "",
+                "admin_username": "azureuser",
+                "computer_name": "ticketmanager-iac-vm-db",
+                "custom_data": ""
+              }
+            ],
+            "os_profile_linux_config": [
+              {
+                "disable_password_authentication": true,
+                "ssh_keys": [
+                  {
+                    "key_data": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC7xJZ/hvz8EdyNUYYE+/6+BOhZAeAqdcSBk38nnffaepxy7Ty5TRvACniznxYcFxEF5mvAzYBW3QCZ+T4POdJsYBu9wKJUolrfcO0oTX+9TyrC/oK4jqlvdECV2Anannle36Gmih+/0pQYzLUBYfmwxAu7epn/LXDCiPWnkcrLReQDe7oAv+EOPlLMMy/1cLi748bBEwhIZxODoMQyAEHu3POFU4S9i3jijTgNYhrKzYUsKxhEBc/omNKknHyIucfdOcZvTci0GJOGC5M86RMA6eJKvmC2bftuVJylV+ZK0QBAG1M23oEQYxh2XTAeV+5Y6eUrZBe1LePs792Wekm4JRzp195sAWb/qSA6RBQjqn7Wysf+2b1l4Zd+eBnUMSjDav+G6Ao7fYTAtFsAho0zyqEX3dCeJ1gNtRLzZeUKkJSnDtwMEZVF/+eNBDN7VeWf2i4779+79JV48ZhDuHUhsXZg5Lq0ZcHl29iUqk8tPAUt0zQnE4ip7AtKvuVteYGhjmh4MLFd/yWx9Ve9ErFw/7u23KnSrrFu1aMyWR4YnvJXFRcrMu23PPOa20lR6Ok1644LZcOAE7kyM+XV/38Ul28wgcgXR4577rQpM0z+teNsbgTCz+4grJofE4e9Ll79IyokkiMoHjFM0om3FUUhXgMHG7OXtsMIbQmgREJE7Q== dell@DESKTOP-KLBD37A",
+                    "path": "/home/azureuser/.ssh/authorized_keys"
+                  }
+                ]
+              }
+            ],
+            "os_profile_secrets": [],
+            "os_profile_windows_config": [],
+            "plan": [],
+            "primary_network_interface_id": null,
+            "resource_group_name": "AmalBH-RG",
+            "storage_data_disk": [],
+            "storage_image_reference": [
+              {
+                "id": "",
+                "offer": "0001-com-ubuntu-server-focal",
+                "publisher": "canonical",
+                "sku": "20_04-lts",
+                "version": "latest"
+              }
+            ],
+            "storage_os_disk": [
+              {
+                "caching": "ReadWrite",
+                "create_option": "FromImage",
+                "disk_size_gb": 30,
+                "image_uri": "",
+                "managed_disk_id": "/subscriptions/b55f73e9-9312-4a0a-b46b-44d350cf1fcc/resourceGroups/AmalBH-RG/providers/Microsoft.Compute/disks/ticketmanager-iac-vm-db-os",
+                "managed_disk_type": "Standard_LRS",
+                "name": "ticketmanager-iac-vm-db-os",
+                "os_type": "Linux",
+                "vhd_uri": "",
+                "write_accelerator_enabled": false
+              }
+            ],
+            "tags": {
+              "composant": "infra-iac",
+              "owner": "PFE",
+              "projet": "TicketManager"
+            },
+            "timeouts": null,
+            "vm_size": "Standard_D2s_v3",
+            "zones": null
+          },
+          "sensitive_attributes": [
+            [
+              {
+                "type": "get_attr",
+                "value": "os_profile"
+              }
+            ]
+          ],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjozNjAwMDAwMDAwMDAwLCJkZWxldGUiOjM2MDAwMDAwMDAwMDAsInJlYWQiOjMwMDAwMDAwMDAwMCwidXBkYXRlIjozNjAwMDAwMDAwMDAwfX0=",
+          "dependencies": [
+            "azurestack_network_interface.db",
+            "azurestack_subnet.db",
+            "azurestack_virtual_network.main",
+            "data.azurestack_resource_group.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "azurestack_virtual_machine",
+      "name": "gestion",
+      "provider": "provider[\"registry.terraform.io/hashicorp/azurestack\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "availability_set_id": null,
+            "boot_diagnostics": [],
+            "delete_data_disks_on_termination": false,
+            "delete_os_disk_on_termination": false,
+            "id": "/subscriptions/b55f73e9-9312-4a0a-b46b-44d350cf1fcc/resourceGroups/AmalBH-RG/providers/Microsoft.Compute/virtualMachines/ticketmanager-iac-vm-gestion",
+            "identity": [],
+            "license_type": null,
+            "location": "dc2",
+            "name": "ticketmanager-iac-vm-gestion",
+            "network_interface_ids": [
+              "/subscriptions/b55f73e9-9312-4a0a-b46b-44d350cf1fcc/resourceGroups/AmalBH-RG/providers/Microsoft.Network/networkInterfaces/ticketmanager-iac-vm-gestion-nic"
+            ],
+            "os_profile": [
+              {
+                "admin_password": "",
+                "admin_username": "azureuser",
+                "computer_name": "ticketmanager-iac-vm-gestion",
+                "custom_data": ""
+              }
+            ],
+            "os_profile_linux_config": [
+              {
+                "disable_password_authentication": true,
+                "ssh_keys": [
+                  {
+                    "key_data": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC7xJZ/hvz8EdyNUYYE+/6+BOhZAeAqdcSBk38nnffaepxy7Ty5TRvACniznxYcFxEF5mvAzYBW3QCZ+T4POdJsYBu9wKJUolrfcO0oTX+9TyrC/oK4jqlvdECV2Anannle36Gmih+/0pQYzLUBYfmwxAu7epn/LXDCiPWnkcrLReQDe7oAv+EOPlLMMy/1cLi748bBEwhIZxODoMQyAEHu3POFU4S9i3jijTgNYhrKzYUsKxhEBc/omNKknHyIucfdOcZvTci0GJOGC5M86RMA6eJKvmC2bftuVJylV+ZK0QBAG1M23oEQYxh2XTAeV+5Y6eUrZBe1LePs792Wekm4JRzp195sAWb/qSA6RBQjqn7Wysf+2b1l4Zd+eBnUMSjDav+G6Ao7fYTAtFsAho0zyqEX3dCeJ1gNtRLzZeUKkJSnDtwMEZVF/+eNBDN7VeWf2i4779+79JV48ZhDuHUhsXZg5Lq0ZcHl29iUqk8tPAUt0zQnE4ip7AtKvuVteYGhjmh4MLFd/yWx9Ve9ErFw/7u23KnSrrFu1aMyWR4YnvJXFRcrMu23PPOa20lR6Ok1644LZcOAE7kyM+XV/38Ul28wgcgXR4577rQpM0z+teNsbgTCz+4grJofE4e9Ll79IyokkiMoHjFM0om3FUUhXgMHG7OXtsMIbQmgREJE7Q== dell@DESKTOP-KLBD37A",
+                    "path": "/home/azureuser/.ssh/authorized_keys"
+                  }
+                ]
+              }
+            ],
+            "os_profile_secrets": [],
+            "os_profile_windows_config": [],
+            "plan": [],
+            "primary_network_interface_id": null,
+            "resource_group_name": "AmalBH-RG",
+            "storage_data_disk": [],
+            "storage_image_reference": [
+              {
+                "id": "",
+                "offer": "0001-com-ubuntu-server-focal",
+                "publisher": "canonical",
+                "sku": "20_04-lts",
+                "version": "latest"
+              }
+            ],
+            "storage_os_disk": [
+              {
+                "caching": "ReadWrite",
+                "create_option": "FromImage",
+                "disk_size_gb": 30,
+                "image_uri": "",
+                "managed_disk_id": "/subscriptions/b55f73e9-9312-4a0a-b46b-44d350cf1fcc/resourceGroups/AmalBH-RG/providers/Microsoft.Compute/disks/ticketmanager-iac-vm-gestion-os",
+                "managed_disk_type": "Standard_LRS",
+                "name": "ticketmanager-iac-vm-gestion-os",
+                "os_type": "Linux",
+                "vhd_uri": "",
+                "write_accelerator_enabled": false
+              }
+            ],
+            "tags": {
+              "composant": "infra-iac",
+              "owner": "PFE",
+              "projet": "TicketManager"
+            },
+            "timeouts": null,
+            "vm_size": "Standard_D2s_v3",
+            "zones": null
+          },
+          "sensitive_attributes": [
+            [
+              {
+                "type": "get_attr",
+                "value": "os_profile"
+              }
+            ]
+          ],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjozNjAwMDAwMDAwMDAwLCJkZWxldGUiOjM2MDAwMDAwMDAwMDAsInJlYWQiOjMwMDAwMDAwMDAwMCwidXBkYXRlIjozNjAwMDAwMDAwMDAwfX0=",
+          "dependencies": [
+            "azurestack_network_interface.gestion",
+            "azurestack_public_ip.gestion",
+            "azurestack_subnet.mgmt",
+            "azurestack_virtual_network.main",
+            "data.azurestack_resource_group.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "azurestack_virtual_network",
+      "name": "main",
+      "provider": "provider[\"registry.terraform.io/hashicorp/azurestack\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "address_space": [
+              "10.1.0.0/16"
+            ],
+            "dns_servers": [],
+            "guid": "a9b4db42-956b-45bd-8628-da9fef3ff103",
+            "id": "/subscriptions/b55f73e9-9312-4a0a-b46b-44d350cf1fcc/resourceGroups/AmalBH-RG/providers/Microsoft.Network/virtualNetworks/ticketmanager-iac-vnet",
+            "location": "dc2",
+            "name": "ticketmanager-iac-vnet",
+            "resource_group_name": "AmalBH-RG",
+            "subnet": [],
+            "tags": {
+              "composant": "infra-iac",
+              "owner": "PFE",
+              "projet": "TicketManager"
+            },
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxODAwMDAwMDAwMDAwLCJkZWxldGUiOjE4MDAwMDAwMDAwMDAsInJlYWQiOjMwMDAwMDAwMDAwMCwidXBkYXRlIjoxODAwMDAwMDAwMDAwfX0=",
+          "dependencies": [
+            "data.azurestack_resource_group.main"
+          ]
+        }
+      ]
+    }
+  ],
+  "check_results": null
+}

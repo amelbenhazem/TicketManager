@@ -12,6 +12,9 @@ variables:
   # Agent sur VM-gestion : Nexus écoute en local (évite dépendance à l'IP publique)
   NEXUS_REGISTRY: localhost:8082
   NEXUS_REPO: docker-ticketmanager
+  # Réduit pour Stack Hub Dev/Test (FabricVmPlacementError si quota insuffisant)
+  VM_SIZE_GESTION: Standard_D1_v2
+  VM_SIZE_DB: Standard_D2s_v3
 
 stages:
 
@@ -325,7 +328,9 @@ stages:
                 -var="client_id=$(ARM_CLIENT_ID)" \
                 -var="client_secret=$ARM_CLIENT_SECRET" \
                 -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
-                -var="ssh_public_key=$(SSH_PUBLIC_KEY)"
+                -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
+                -var="vm_size_gestion=$(VM_SIZE_GESTION)" \
+                -var="vm_size_db=$(VM_SIZE_DB)"
             displayName: "Terraform Plan"
             env:
               ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
@@ -565,6 +570,8 @@ stages:
                 -var="client_secret=$ARM_CLIENT_SECRET" \
                 -var="stack_arm_environment_name=$(STACK_ARM_ENVIRONMENT_NAME)" \
                 -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
+                -var="vm_size_gestion=$(VM_SIZE_GESTION)" \
+                -var="vm_size_db=$(VM_SIZE_DB)" \
                 -out=tfplan-apply
 
               terraform apply -input=false -auto-approve tfplan-apply

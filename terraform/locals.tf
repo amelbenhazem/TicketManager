@@ -21,4 +21,6 @@ locals {
 
   vm_gestion_name = "${var.project_prefix}-vm-gestion"
   vm_db_name      = "${var.project_prefix}-vm-db"
+
+  vm_gestion_os_disk_id = "/subscriptions/${var.subscription_id}/resourceGroups/${var.resource_group_name}/providers/Microsoft.Compute/disks/${var.project_prefix}-vm-gestion-os"
 }
