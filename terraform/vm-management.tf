@@ -33,8 +33,10 @@ resource "azurestack_virtual_machine" "gestion" {
   name                  = local.vm_gestion_name
   location              = var.location
   resource_group_name   = data.azurestack_resource_group.main.name
-  network_interface_ids = [azurestack_network_interface.gestion.id]
-  vm_size               = var.vm_size_gestion
+  network_interface_ids            = [azurestack_network_interface.gestion.id]
+  vm_size                          = var.vm_size_gestion
+  delete_os_disk_on_termination    = false
+  delete_data_disks_on_termination = false
 
   dynamic "storage_image_reference" {
     for_each = var.vm_gestion_attach_existing_os_disk ? [] : [1]
@@ -80,6 +82,8 @@ resource "azurestack_virtual_machine" "gestion" {
     ignore_changes = [
       os_profile,
       os_profile_linux_config,
+      storage_os_disk,
+      storage_image_reference,
     ]
   }
 }

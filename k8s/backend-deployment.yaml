@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ticket-backend
+  namespace: ticketmanager
+  labels:
+    app: ticket-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ticket-backend
+  template:
+    metadata:
+      labels:
+        app: ticket-backend
+    spec:
+      imagePullSecrets:
+        - name: nexus-registry
+      containers:
+        - name: backend
+          image: 10.1.1.4:8082/docker-ticketmanager/ticket-backend:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 3001
+          envFrom:
+            - secretRef:
+                name: backend-secret
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

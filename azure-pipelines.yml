@@ -15,6 +15,13 @@ variables:
   # Réduit pour Stack Hub Dev/Test (FabricVmPlacementError si quota insuffisant)
   VM_SIZE_GESTION: Standard_D1_v2
   VM_SIZE_DB: Standard_D2s_v3
+  # URL API vue par le navigateur (NodePort backend K8s sur worker)
+  FRONTEND_API_URL: http://10.1.3.4:30081
+  # Kubernetes CD — registre vu depuis les nœuds (pas localhost)
+  K8S_REGISTRY: 10.1.1.4:8082
+  K8S_KUBECONFIG: /home/azureuser/kubernetes/ticketmanager-k8s/kubeconfig/kubeconfig.dc2.json
+  K8S_MONGODB_URI: mongodb://10.1.2.4:27017/ticketmanager
+  K8S_CORS_ORIGIN: http://10.1.3.4:30080,http://10.1.3.5:30080
 
 stages:
 
@@ -168,7 +175,9 @@ stages:
         steps:
           - script: |
               docker build -t ticket-backend:$(Build.BuildId) ./backend
-              docker build -t ticket-frontend:$(Build.BuildId) ./frontend
+              docker build \
+                --build-arg NEXT_PUBLIC_API_URL=$(FRONTEND_API_URL) \
+                -t ticket-frontend:$(Build.BuildId) ./frontend
             displayName: "Build images"
 
   # =========================
@@ -584,3 +593,49 @@ stages:
             inputs:
               targetPath: $(System.DefaultWorkingDirectory)/terraform/terraform.tfstate
               artifact: tfstate
+
+  # =========================
+  # DEPLOY KUBERNETES (CD)
+  # =========================
+  - stage: DeployK8s
+    displayName: "Deploy to Kubernetes"
+    dependsOn: Push
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    jobs:
+
+      - job: K8sManualApproval
+        displayName: "Approval gate (K8s deploy)"
+        pool: server
+        steps:
+          - task: ManualValidation@0
+            inputs:
+              instructions: "Approuver le déploiement TicketManager sur le cluster Kubernetes (images Build $(Build.BuildId))."
+              notifyUsers: "$(TF_APPROVERS)"
+              onTimeout: "reject"
+            timeoutInMinutes: 1440
+
+      - job: K8sDeploy
+        displayName: "kubectl apply + rollout"
+        dependsOn: K8sManualApproval
+        pool:
+          name: ticketmanager-pool
+        steps:
+          - checkout: self
+            displayName: "Checkout (manifests k8s/)"
+
+          - script: |
+              chmod +x k8s/deploy-pipeline.sh
+              export KUBECONFIG="$(K8S_KUBECONFIG)"
+              export K8S_REGISTRY="$(K8S_REGISTRY)"
+              export NEXUS_REPO="$(NEXUS_REPO)"
+              export IMAGE_TAG="latest"
+              export NEXUS_USER="$(NEXUS_USER)"
+              export NEXUS_PASSWORD="$NEXUS_PASSWORD"
+              export K8S_MONGODB_URI="$(K8S_MONGODB_URI)"
+              export K8S_CORS_ORIGIN="$(K8S_CORS_ORIGIN)"
+              export JWT_SECRET="$JWT_SECRET"
+              ./k8s/deploy-pipeline.sh
+            displayName: "Deploy TicketManager to K8s"
+            env:
+              NEXUS_PASSWORD: $(NEXUS_PASSWORD)
+              JWT_SECRET: $(JWT_SECRET)

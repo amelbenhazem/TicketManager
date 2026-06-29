@@ -22,6 +22,8 @@ terraform/terraform.tfstate.backup
 terraform/.terraform.lock.hcl
 terraform/_provider_schema.json
 kubernetes/apimodel.json
+k8s/backend-secret.yaml
+k8s/nexus-pull-secret.yaml
 
 # Logs & debug
 *.log
