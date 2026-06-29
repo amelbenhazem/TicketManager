@@ -10,7 +10,11 @@ Manifests pour le namespace `ticketmanager` : backend NestJS, frontend Next.js, 
 
 ## 1. Registre insecure sur les nœuds workers
 
-Les agents doivent pull depuis `10.1.1.4:8082` (HTTP). Sur **chaque nœud** (SSH vers les VMs agent ou via `aks-engine`):
+Les agents doivent pull depuis `10.1.1.4:8082` (HTTP). **Automatisé** par le pipeline (`Configure insecure registry on K8s workers`) via `k8s/scripts/setup-worker-insecure-registry.sh`.
+
+Prérequis : l'agent Azure DevOps sur vm-gestion doit pouvoir `ssh azureuser@10.1.3.4` (et `.5`) avec la clé privée du cluster AKS Engine.
+
+Configuration manuelle (dépannage) :
 
 ```bash
 # Exemple containerd — adapter si votre cluster utilise une autre config
@@ -135,11 +139,11 @@ Flux : Build → SonarQube → Docker → Push Nexus → **Deploy K8s** (en para
 | `SONAR_TOKEN` | oui | (existant) |
 | `TF_APPROVERS` | non | Emails approbation Terraform + K8s |
 
-Variables déjà dans `azure-pipelines.yml` : `K8S_REGISTRY`, `K8S_KUBECONFIG`, `K8S_MONGODB_URI`, `K8S_CORS_ORIGIN`, `FRONTEND_API_URL`.
+Variables déjà dans `azure-pipelines.yml` : `K8S_REGISTRY`, `K8S_KUBECONFIG`, `K8S_MONGODB_URI`, `K8S_CORS_ORIGIN`, `K8S_WORKER_IPS`, `FRONTEND_API_URL`.
 
 ### Première exécution
 
-1. Configurer le registre **insecure** sur les nœuds workers (section 1).
-2. Ajouter `JWT_SECRET` dans les variables du pipeline.
-3. Push sur `main` → approuver le stage **Deploy to Kubernetes**.
+1. Ajouter `JWT_SECRET` dans les variables du pipeline.
+2. Vérifier que l'agent (`vm-gestion`) peut SSH vers les workers (`K8S_WORKER_IPS`) sans mot de passe.
+3. Push sur `main` → approuver le stage **Deploy to Kubernetes** (le pipeline configure automatiquement le registre insecure sur les workers).
 4. Vérifier : `kubectl get pods -n ticketmanager` sur vm-gestion.

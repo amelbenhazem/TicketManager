@@ -80,6 +80,7 @@ resource "azurestack_virtual_machine" "gestion" {
 
   lifecycle {
     ignore_changes = [
+      vm_size,
       os_profile,
       os_profile_linux_config,
       storage_os_disk,

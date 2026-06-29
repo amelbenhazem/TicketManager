@@ -66,8 +66,21 @@ kubectl set image deployment/ticket-frontend \
   frontend="$FRONTEND_IMAGE"
 
 echo "==> Rollout"
-kubectl rollout status deployment/ticket-backend -n ticketmanager --timeout=300s
-kubectl rollout status deployment/ticket-frontend -n ticketmanager --timeout=300s
+if ! kubectl rollout status deployment/ticket-backend -n ticketmanager --timeout=600s; then
+  echo "##[error]Rollout backend échoué — diagnostic:"
+  kubectl get pods -n ticketmanager -o wide
+  kubectl describe pods -n ticketmanager -l app=ticket-backend | tail -80
+  kubectl get events -n ticketmanager --sort-by='.lastTimestamp' | tail -20
+  exit 1
+fi
+
+if ! kubectl rollout status deployment/ticket-frontend -n ticketmanager --timeout=600s; then
+  echo "##[error]Rollout frontend échoué — diagnostic:"
+  kubectl get pods -n ticketmanager -o wide
+  kubectl describe pods -n ticketmanager -l app=ticket-frontend | tail -80
+  kubectl get events -n ticketmanager --sort-by='.lastTimestamp' | tail -20
+  exit 1
+fi
 
 echo "==> État final"
 kubectl get pods,svc -n ticketmanager

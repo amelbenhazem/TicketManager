@@ -51,4 +51,12 @@ resource "azurestack_virtual_machine" "db" {
   }
 
   tags = local.tags
+
+  lifecycle {
+    ignore_changes = [
+      vm_size,
+      storage_os_disk,
+      storage_image_reference,
+    ]
+  }
 }

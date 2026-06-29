@@ -13,7 +13,7 @@ variables:
   NEXUS_REGISTRY: localhost:8082
   NEXUS_REPO: docker-ticketmanager
   # Réduit pour Stack Hub Dev/Test (FabricVmPlacementError si quota insuffisant)
-  VM_SIZE_GESTION: Standard_D1_v2
+  VM_SIZE_GESTION: Standard_D2s_v3
   VM_SIZE_DB: Standard_D2s_v3
   # URL API vue par le navigateur (NodePort backend K8s sur worker)
   FRONTEND_API_URL: http://10.1.3.4:30081
@@ -22,6 +22,8 @@ variables:
   K8S_KUBECONFIG: /home/azureuser/kubernetes/ticketmanager-k8s/kubeconfig/kubeconfig.dc2.json
   K8S_MONGODB_URI: mongodb://10.1.2.4:27017/ticketmanager
   K8S_CORS_ORIGIN: http://10.1.3.4:30080,http://10.1.3.5:30080
+  # IPs des nœuds workers (pull images depuis Nexus HTTP)
+  K8S_WORKER_IPS: 10.1.3.4 10.1.3.5
 
 stages:
 
@@ -622,6 +624,13 @@ stages:
         steps:
           - checkout: self
             displayName: "Checkout (manifests k8s/)"
+
+          - script: |
+              chmod +x k8s/scripts/setup-worker-insecure-registry.sh
+              export K8S_REGISTRY="$(K8S_REGISTRY)"
+              export K8S_WORKER_IPS="$(K8S_WORKER_IPS)"
+              ./k8s/scripts/setup-worker-insecure-registry.sh
+            displayName: "Configure insecure registry on K8s workers"
 
           - script: |
               chmod +x k8s/deploy-pipeline.sh
