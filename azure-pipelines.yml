@@ -8,7 +8,8 @@ pool:
   name: ticketmanager-pool
 
 variables:
-  NPM_CACHE_FOLDER: $(Pipeline.Workspace)/.npm
+  # Cache npm local sur vm-gestion (évite Cache@2 Azure DevOps ~700 Mo upload/download)
+  NPM_CACHE_FOLDER: /home/azureuser/.cache/ticketmanager-npm
   # Agent sur VM-gestion : Nexus écoute en local (évite dépendance à l'IP publique)
   NEXUS_REGISTRY: localhost:8082
   NEXUS_REPO: docker-ticketmanager
@@ -37,20 +38,15 @@ stages:
         displayName: "Build Backend & Frontend"
         steps:
 
-          - task: Cache@2
-            displayName: "Cache npm (not node_modules)"
-            inputs:
-              key: 'npm | "$(Agent.OS)" | backend/package-lock.json | frontend/package-lock.json'
-              path: $(NPM_CACHE_FOLDER)
-              restoreKeys: |
-                npm | "$(Agent.OS)"
+          - script: mkdir -p "$(NPM_CACHE_FOLDER)"
+            displayName: "Prepare local npm cache"
 
           - script: |
-              cd backend && npm ci --cache "$(NPM_CACHE_FOLDER)" --prefer-offline && npm run build
+              cd backend && npm ci --cache "$(NPM_CACHE_FOLDER)" && npm run build
             displayName: "Backend build"
 
           - script: |
-              cd frontend && npm ci --cache "$(NPM_CACHE_FOLDER)" --prefer-offline && npm run build
+              cd frontend && npm ci --cache "$(NPM_CACHE_FOLDER)" && npm run build
             displayName: "Frontend build"
 
   # =========================
