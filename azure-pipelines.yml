@@ -638,7 +638,7 @@ stages:
               export NEXUS_PASSWORD="$NEXUS_PASSWORD"
               export K8S_MONGODB_URI="$(K8S_MONGODB_URI)"
               export K8S_CORS_ORIGIN="$(K8S_CORS_ORIGIN)"
-              export JWT_SECRET="$JWT_SECRET"
+              export JWT_SECRET="$JWT_SECRET" 
               ./k8s/deploy-pipeline.sh
             displayName: "Deploy TicketManager to K8s"
             env:
