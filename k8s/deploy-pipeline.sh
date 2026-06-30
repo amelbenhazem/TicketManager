@@ -85,6 +85,13 @@ fi
 echo "==> État final"
 kubectl get pods,svc -n ticketmanager
 
+NODE_IP="${K8S_NODE_IP:-10.1.3.4}"
 echo ""
-echo "Frontend NodePort: http://10.1.3.4:30080"
-echo "Backend NodePort:  http://10.1.3.4:30081/api"
+echo "Frontend NodePort: http://${NODE_IP}:30080"
+echo "Backend NodePort:  http://${NODE_IP}:30081"
+
+if [[ -f "$K8S_DIR/post-deploy.sh" ]]; then
+  chmod +x "$K8S_DIR/post-deploy.sh"
+  export K8S_NODE_IP="$NODE_IP"
+  "$K8S_DIR/post-deploy.sh"
+fi

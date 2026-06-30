@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# Seed MongoDB (idempotent) + smoke tests NodePort après rollout K8s.
+# Variables : K8S_MONGODB_URI, K8S_NODE_IP, NPM_CACHE_FOLDER (optionnel)
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+NPM_CACHE="${NPM_CACHE_FOLDER:-/home/azureuser/.cache/ticketmanager-npm}"
+
+: "${K8S_MONGODB_URI:?K8S_MONGODB_URI requis}"
+: "${K8S_NODE_IP:?K8S_NODE_IP requis (ex. 10.1.3.4)}"
+
+FRONTEND_URL="http://${K8S_NODE_IP}:30080"
+BACKEND_URL="http://${K8S_NODE_IP}:30081"
+
+echo "==> Seed MongoDB (upsert users, tickets si collection vide)"
+mkdir -p "$NPM_CACHE"
+cd "$ROOT/backend"
+npm ci --cache "$NPM_CACHE" --prefer-offline
+MONGODB_URI="$K8S_MONGODB_URI" npm run seed
+
+echo "==> Smoke test: backend NodePort ${BACKEND_URL}"
+curl -sf "${BACKEND_URL}/" | grep -q "Hello World"
+
+echo "==> Smoke test: frontend NodePort ${FRONTEND_URL}"
+frontend_code="$(curl -s -o /dev/null -w "%{http_code}" "${FRONTEND_URL}/")"
+if [[ "$frontend_code" != "200" && "$frontend_code" != "307" ]]; then
+  echo "##[error]Frontend NodePort attendu 200/307, obtenu: ${frontend_code}" >&2
+  exit 1
+fi
+echo "Frontend HTTP ${frontend_code}"
+
+echo "==> Smoke test: POST /auth/login"
+login_response="$(curl -sf -X POST "${BACKEND_URL}/auth/login" \
+  -H "Content-Type: application/json" \
+  -H "Origin: ${FRONTEND_URL}" \
+  -d '{"email":"admin@rfc.com","password":"Admin123!"}')"
+if ! echo "$login_response" | grep -q "access_token"; then
+  echo "##[error]Login smoke test échoué: ${login_response}" >&2
+  exit 1
+fi
+echo "Login OK (access_token reçu)"
+
+echo ""
+echo "==> Post-deploy verification OK"
+echo "    Frontend: ${FRONTEND_URL}"
+echo "    Backend:  ${BACKEND_URL}"
