@@ -1,0 +1,52 @@
+<mxfile host="65bd71144e">
+    <diagram id="uc-dashboard-admin" name="CU - Tableau de bord Admin">
+        <mxGraphModel dx="794" dy="488" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="600" background="#ffffff" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="bg" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry width="850" height="600" as="geometry"/>
+                </mxCell>
+                <mxCell id="title" value="Cas d'utilisation raffiné — Consulter le tableau de bord (Administrateur)" style="text;html=1;strokeColor=none;fillColor=#ffffff;align=center;verticalAlign=middle;fontSize=15;fontStyle=1;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="80" y="15" width="690" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="system" value="Système TicketManager" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fontStyle=1;fontSize=13;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=2;fontColor=#000000;dashed=1;dashPattern=8 8;" parent="1" vertex="1">
+                    <mxGeometry x="220" y="85" width="520" height="420" as="geometry"/>
+                </mxCell>
+                <mxCell id="actor-admin" value="Administrateur" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="80" y="220" width="40" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="uc-dashboard" value="Consulter le tableau de bord&#10;administrateur" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=12;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="350" y="220" width="220" height="65" as="geometry"/>
+                </mxCell>
+                <mxCell id="uc-stats" value="Consulter les statistiques&#10;globales" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="365" y="330" width="200" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="uc-stats-users" value="Statistiques utilisateurs&lt;br&gt;" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#82b366;fontSize=11;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="260" y="430" width="180" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="uc-stats-tickets" value="Statistiques tickets&lt;br&gt;" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#82b366;fontSize=11;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="480" y="430" width="210" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="uc-auth" value="S'authentifier (JWT)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="380" y="125" width="170" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="inc-stats" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;strokeColor=#000000;fontSize=10;fontColor=#000000;labelBackgroundColor=#ffffff;" parent="1" source="uc-dashboard" target="uc-stats" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="inc-users" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;strokeColor=#000000;fontSize=10;fontColor=#000000;labelBackgroundColor=#ffffff;" parent="1" source="uc-stats" target="uc-stats-users" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="inc-tickets" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;strokeColor=#000000;fontSize=10;fontColor=#000000;labelBackgroundColor=#ffffff;" parent="1" source="uc-stats" target="uc-stats-tickets" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="inc-auth" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;strokeColor=#000000;fontSize=10;fontColor=#000000;labelBackgroundColor=#ffffff;" parent="1" source="uc-dashboard" target="uc-auth" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="l-admin" style="endArrow=none;html=1;strokeColor=#82b366;strokeWidth=2;" parent="1" source="actor-admin" target="uc-dashboard" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

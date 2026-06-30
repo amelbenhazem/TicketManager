@@ -318,9 +318,9 @@ L'interface admin centralise la liste paginée des utilisateurs avec recherche e
 
 
 % ============================================================
-% US07 — Tableau de bord et statistiques
+% US07 — Tableau de bord administrateur
 % ============================================================
-\subsubsection{Description textuelle du cas d'utilisation « Consulter le tableau de bord »}
+\subsubsection{Description textuelle du cas d'utilisation « Consulter le tableau de bord — Administrateur »}
 
 \begin{table}[H]
 \centering
@@ -331,44 +331,59 @@ L'interface admin centralise la liste paginée des utilisateurs avec recherche e
 \hline
 \textbf{Élément} & \textbf{Description} \\
 \hline
-Cas d'utilisation & Consulter le tableau de bord et les statistiques \\
+Cas d'utilisation & Consulter le tableau de bord administrateur \\
 \hline
 Acteurs & Administrateur \\
 \hline
-Précondition & L'administrateur est authentifié (rôle \textit{admin}). \\
+Objectif & Consulter les statistiques globales sur un tableau de bord afin de suivre l'activité du système. \\
+\hline
+Précondition & L'administrateur est authentifié (rôle \textit{admin}, JWT valide). \\
 \hline
 Postcondition & Les indicateurs agrégés sont affichés : utilisateurs par rôle, tickets par statut, priorité et technicien. \\
 \hline
+Cas inclus & \texttt{Consulter les statistiques globales} (\texttt{<<include>>}) \\
+\hline
 Scénario nominal &
-1. L'administrateur accède au dashboard \texttt{/admin}.\\
-& 2. \texttt{GET /users/stats} retourne \texttt{\{ total, byRole \}}.\\
-& 3. \texttt{GET /tickets/stats} retourne \texttt{\{ byStatus, byPriority, byTechnician, total \}}.\\
-& 4. Affichage via \texttt{StatsCards} et graphiques Chart.js (Doughnut, Bar).\\
+1. L'administrateur accède au tableau de bord \texttt{/admin}.\\
+& 2. Le système inclut \textit{Consulter les statistiques globales}.\\
+& 3. \texttt{GET /users/stats} retourne \texttt{\{ total, byRole \}}.\\
+& 4. \texttt{GET /tickets/stats} retourne \texttt{\{ byStatus, byPriority, byTechnician, total \}}.\\
+& 5. Affichage via \texttt{StatsCards} et graphiques Chart.js (Doughnut, Bar).\\
 \hline
 Scénarios alternatifs &
 • Base vide (compteurs à zéro).\\
 & • Erreur chargement API (401/500).\\
 \hline
+Hors périmètre &
+Alertes temps réel (WebSocket), historique et gestion des notifications (cas d'utilisation distincts).\\
+\hline
 \end{tabular}
-\caption{Description textuelle du cas d'utilisation : Consulter le tableau de bord}
+\caption{Description textuelle du cas d'utilisation : Consulter le tableau de bord — Administrateur}
 \label{tab:cu-dashboard}
 \end{table}
 
-La figure~\ref{fig:seq-dashboard} illustre ce scénario.
+La figure~\ref{fig:cu-dashboard-admin} présente le raffinement UML de ce cas d'utilisation. La figure~\ref{fig:seq-dashboard} illustre le scénario nominal.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/cas-utilisation-tableau-bord-admin.png}
+    \caption{Diagramme de cas d'utilisation raffiné — Tableau de bord administrateur}
+    \label{fig:cu-dashboard-admin}
+\end{figure}
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.85\textwidth]{img/seq-tableau-de-bord.png}
-    \caption{Diagramme de séquence -- Tableau de bord et statistiques}
+    \caption{Diagramme de séquence — Tableau de bord et statistiques globales}
     \label{fig:seq-dashboard}
 \end{figure}
 
 \subsubsection{Développement et intégration de l'interface du tableau de bord}
-Le tableau de bord admin agrège les statistiques utilisateurs et tickets via deux endpoints dédiés. Les graphiques Chart.js visualisent la répartition par statut, par priorité et le volume par technicien assigné.
+Le cas d'utilisation \textit{Consulter le tableau de bord administrateur} agrège les statistiques via le cas inclus \textit{Consulter les statistiques globales}. Deux endpoints dédiés alimentent l'interface : \texttt{GET /users/stats} et \texttt{GET /tickets/stats}. Les graphiques Chart.js visualisent la répartition par statut, par priorité et le volume par technicien assigné.
 
 
 % ============================================================
-% US08 — Notifications persistantes et alertes temps réel
+% US08 — Recevoir des notifications
 % ============================================================
 \subsubsection{Description textuelle du cas d'utilisation « Recevoir des notifications »}
 
@@ -381,48 +396,51 @@ Le tableau de bord admin agrège les statistiques utilisateurs et tickets via de
 \hline
 \textbf{Élément} & \textbf{Description} \\
 \hline
-Cas d'utilisation & Recevoir des notifications et alertes temps réel \\
+Cas d'utilisation & Recevoir des notifications \\
 \hline
 Acteurs & Client, Technicien, Administrateur \\
 \hline
-Précondition & L'acteur est authentifié. Connexion Socket.IO établie sur le namespace \texttt{/notifications} (JWT). \\
+Précondition & L'acteur est connecté au système de diffusion temps réel (Socket.IO \texttt{/notifications}, JWT). \\
 \hline
-Postcondition & L'acteur reçoit une alerte temps réel (toast) et peut consulter l'historique persistant via \texttt{NotificationsBell}. \\
+Postcondition & La notification est reçue et persistée. \\
 \hline
 Scénario nominal &
-1. À la connexion, le frontend ouvre Socket.IO avec le JWT.\\
-& 2. Un événement ticket se produit (\texttt{ticket.created}, \texttt{ticket.assigned}, \texttt{ticket.status\_changed}).\\
-& 3. \texttt{TicketsNotificationsGateway} émet l'événement WS vers les rooms ciblées.\\
-& 4. \texttt{NotificationsService} persiste la notification en MongoDB.\\
-& 5. \texttt{NotificationsBell} affiche le compteur et la liste (\texttt{GET /notifications}).\\
+1. Un événement significatif survient sur un incident.\\
+& 2. Le système notifie les acteurs concernés en temps réel.\\
+& 3. La notification est persistée et consultable via la cloche de notifications.\\
 \hline
 Scénarios alternatifs &
-• Perte WebSocket (reconnexion automatique Socket.IO).\\
-& • Notifications non lues consultables à la reconnexion (persistance).\\
-& • Token expiré (déconnexion et redirection \texttt{/login}).\\
+Perte de connexion temps réel ; reprise via l'historique persistant (\texttt{GET /notifications}).\\
 \hline
 \end{tabular}
-\caption{Description textuelle du cas d'utilisation : Recevoir des notifications}
+\caption{Description textuelle du cas d'utilisation : Recevoir des notifications (tableau~3.9)}
 \label{tab:cu-notifications}
 \end{table}
 
-La figure~\ref{fig:seq-notifications} illustre ce scénario.
+La figure~\ref{fig:cu-notifications} présente le raffinement UML de ce cas d'utilisation, commun aux trois profils. La figure~\ref{fig:seq-notifications} illustre la diffusion en temps réel d'un événement vers les acteurs concernés.
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.85\textwidth]{img/seq-notifications.png}
-    \caption{Diagramme de séquence -- Notifications temps réel (WebSocket)}
+    \includegraphics[width=0.9\textwidth]{img/cas-utilisation-notifications.png}
+    \caption{Diagramme de cas d'utilisation raffiné — Recevoir des notifications}
+    \label{fig:cu-notifications}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{img/seq-notifications.png}
+    \caption{Diagramme de séquence — Recevoir des notifications}
     \label{fig:seq-notifications}
 \end{figure}
 
 \subsubsection{Développement et intégration du système de notifications}
-Le système combine Socket.IO (alertes instantanées + rafraîchissement des listes) et persistance MongoDB (cloche \texttt{NotificationsBell}, marquage lu/non lu via \texttt{PATCH /notifications/read-all}).
+Le système combine Socket.IO (alertes instantanées via \texttt{TicketsNotificationsGateway}) et persistance MongoDB (\texttt{NotificationsService}, cloche \texttt{NotificationsBell}, marquage lu/non lu via \texttt{PATCH /notifications/read-all}).
 
 
 % ============================================================
 % US09 — Historique et traçabilité
 % ============================================================
-\subsubsection{Description textuelle du cas d'utilisation « Consulter l'historique »}
+\subsubsection{Description textuelle du cas d'utilisation « Consulter l'historique et la traçabilité »}
 
 \begin{table}[H]
 \centering
@@ -433,36 +451,40 @@ Le système combine Socket.IO (alertes instantanées + rafraîchissement des lis
 \hline
 \textbf{Élément} & \textbf{Description} \\
 \hline
-Cas d'utilisation & Consulter l'historique et la traçabilité d'un ticket \\
+Cas d'utilisation & Consulter l'historique et la traçabilité d'un incident \\
 \hline
 Acteurs & Client, Technicien, Administrateur \\
 \hline
-Précondition & L'acteur est authentifié et a accès au ticket (propriétaire, assigné ou admin). \\
+Précondition & L'acteur est autorisé à consulter l'incident concerné. \\
 \hline
-Postcondition & La chronologie des actions (\texttt{history[]}) est affichée dans la modal de détail. \\
+Postcondition & La chronologie complète de l'incident est affichée. \\
 \hline
 Scénario nominal &
-1. L'acteur sélectionne un ticket dans sa liste.\\
-& 2. \texttt{GET /tickets/:id} retourne le ticket avec le tableau \texttt{history[]}.\\
-& 3. \texttt{TicketDetailModal} affiche la timeline horodatée.\\
-& 4. Chaque entrée indique l'acteur, l'action (\texttt{created}, \texttt{updated}, \texttt{status\_changed}, \texttt{assigned\_changed}) et les valeurs avant/après.\\
+1. L'acteur ouvre le détail d'un incident autorisé.\\
+& 2. Le système affiche la chronologie des actions enregistrées.\\
+& 3. Chaque entrée indique l'acteur, l'action et la date.\\
 \hline
 Scénarios alternatifs &
-• Historique vide (ticket sans entrée — cas rare).\\
-& • Ticket introuvable ou accès refusé (403/404).\\
-& • Session expirée (401).\\
+Aucun historique disponible ; accès refusé si l'incident n'appartient pas à l'acteur.\\
 \hline
 \end{tabular}
-\caption{Description textuelle du cas d'utilisation : Consulter l'historique}
+\caption{Description textuelle du cas d'utilisation : Historique et traçabilité (tableau~3.10)}
 \label{tab:cu-history}
 \end{table}
 
-La figure~\ref{fig:seq-history} illustre ce scénario.
+La figure~\ref{fig:cu-history} présente le raffinement UML de ce cas d'utilisation. La figure~\ref{fig:seq-history} illustre le scénario nominal et les scénarios alternatifs.
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.85\textwidth]{img/seq-historique.png}
-    \caption{Diagramme de séquence -- Historique et traçabilité}
+    \includegraphics[width=0.9\textwidth]{img/cas-utilisation-historique.png}
+    \caption{Diagramme de cas d'utilisation raffiné — Historique et traçabilité}
+    \label{fig:cu-history}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/seq-historique.png}
+    \caption{Diagramme de séquence — Historique et traçabilité}
     \label{fig:seq-history}
 \end{figure}
 

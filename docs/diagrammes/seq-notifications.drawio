@@ -1,26 +1,115 @@
-<mxfile host="app.diagrams.net" agent="TicketManager" version="22.1.0">
-  <diagram id="seq-notif" name="Séquence - Notifications">
-    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" page="1" pageWidth="1100" pageHeight="700" background="#ffffff">
-      <root>
-        <mxCell id="0"/><mxCell id="1" parent="0"/>
-        <mxCell id="bg" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=none;" vertex="1" parent="1"><mxGeometry width="1100" height="700" as="geometry"/></mxCell>
-        <mxCell id="title" value="Notifications persistantes et alertes temps réel (WebSocket)" style="text;html=1;strokeColor=none;fillColor=#ffffff;align=center;fontSize=14;fontStyle=1;fontColor=#000000;" vertex="1" parent="1"><mxGeometry x="250" y="15" width="600" height="30" as="geometry"/></mxCell>
-        <mxCell id="p-user" value=":Utilisateur" style="shape=umlLifeline;whiteSpace=wrap;html=1;size=40;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#000000;fontStyle=1" vertex="1" parent="1"><mxGeometry x="30" y="60" width="100" height="600" as="geometry"/></mxCell>
-        <mxCell id="p-fe" value=":Frontend" style="shape=umlLifeline;whiteSpace=wrap;html=1;size=40;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#000000;fontStyle=1" vertex="1" parent="1"><mxGeometry x="160" y="60" width="100" height="600" as="geometry"/></mxCell>
-        <mxCell id="p-gw" value=":TicketsNotifications&#xa;Gateway" style="shape=umlLifeline;whiteSpace=wrap;html=1;size=40;fillColor=#e1d5e7;strokeColor=#9673a6;fontColor=#000000;fontStyle=1" vertex="1" parent="1"><mxGeometry x="300" y="60" width="130" height="600" as="geometry"/></mxCell>
-        <mxCell id="p-svc" value=":TicketsService" style="shape=umlLifeline;whiteSpace=wrap;html=1;size=40;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontStyle=1" vertex="1" parent="1"><mxGeometry x="470" y="60" width="110" height="600" as="geometry"/></mxCell>
-        <mxCell id="p-notif" value=":NotificationsService" style="shape=umlLifeline;whiteSpace=wrap;html=1;size=40;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontStyle=1" vertex="1" parent="1"><mxGeometry x="620" y="60" width="130" height="600" as="geometry"/></mxCell>
-        <mxCell id="p-db" value=":MongoDB" style="shape=umlLifeline;whiteSpace=wrap;html=1;size=40;fillColor=#ffe6cc;strokeColor=#d79b00;fontColor=#000000;fontStyle=1" vertex="1" parent="1"><mxGeometry x="790" y="60" width="100" height="600" as="geometry"/></mxCell>
-        <mxCell id="m1" value="connexion Socket.IO /notifications (JWT)" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="210" y="110" as="sourcePoint"/><mxPoint x="365" y="110" as="targetPoint"/></mxGeometry></mxCell>
-        <mxCell id="m2" value="notifications.ready" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="365" y="145" as="sourcePoint"/><mxPoint x="210" y="145" as="targetPoint"/></mxGeometry></mxCell>
-        <mxCell id="m3" value="événement ticket (created / assigned / status_changed)" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="525" y="190" as="sourcePoint"/><mxPoint x="685" y="190" as="targetPoint"/></mxGeometry></mxCell>
-        <mxCell id="m4" value="createMany / createForAdmins" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="685" y="230" as="sourcePoint"/><mxPoint x="840" y="230" as="targetPoint"/></mxGeometry></mxCell>
-        <mxCell id="m5" value="notifyTicket*() emit WS" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="525" y="270" as="sourcePoint"/><mxPoint x="365" y="270" as="targetPoint"/></mxGeometry></mxCell>
-        <mxCell id="m6" value="toast + rafraîchissement liste" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="365" y="310" as="sourcePoint"/><mxPoint x="80" y="310" as="targetPoint"/></mxGeometry></mxCell>
-        <mxCell id="m7" value="ouvre NotificationsBell" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="80" y="360" as="sourcePoint"/><mxPoint x="210" y="360" as="targetPoint"/></mxGeometry></mxCell>
-        <mxCell id="m8" value="GET /notifications?page&amp;limit" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="210" y="400" as="sourcePoint"/><mxPoint x="685" y="400" as="targetPoint"/></mxGeometry></mxCell>
-        <mxCell id="m9" value="historique notifications persistantes" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="685" y="440" as="sourcePoint"/><mxPoint x="80" y="440" as="targetPoint"/></mxGeometry></mxCell>
-      </root>
-    </mxGraphModel>
-  </diagram>
+<mxfile host="65bd71144e">
+    <diagram id="seq-notif" name="Séquence - Recevoir des notifications">
+        <mxGraphModel dx="1323" dy="813" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="780" background="#ffffff" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="bg" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry width="1100" height="780" as="geometry"/>
+                </mxCell>
+                <mxCell id="title" value="Diagramme de séquence — Recevoir des notifications (Client, Technicien, Administrateur)" style="text;html=1;strokeColor=none;fillColor=#ffffff;align=center;fontSize=14;fontStyle=1;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="150" y="15" width="800" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="p-user" value=":Acteur&#10;(Client / Technicien / Admin)" style="shape=umlLifeline;whiteSpace=wrap;html=1;size=40;fillColor=#e1d5e7;strokeColor=#9673a6;fontColor=#000000;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="30" y="60" width="130" height="680" as="geometry"/>
+                </mxCell>
+                <mxCell id="p-fe" value=":Frontend" style="shape=umlLifeline;whiteSpace=wrap;html=1;size=40;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#000000;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="190" y="60" width="100" height="680" as="geometry"/>
+                </mxCell>
+                <mxCell id="p-gw" value=":TicketsNotifications&#10;Gateway" style="shape=umlLifeline;whiteSpace=wrap;html=1;size=40;fillColor=#e1d5e7;strokeColor=#9673a6;fontColor=#000000;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="330" y="60" width="130" height="680" as="geometry"/>
+                </mxCell>
+                <mxCell id="p-svc" value=":TicketsService" style="shape=umlLifeline;whiteSpace=wrap;html=1;size=40;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="500" y="60" width="110" height="680" as="geometry"/>
+                </mxCell>
+                <mxCell id="p-notif" value=":NotificationsService" style="shape=umlLifeline;whiteSpace=wrap;html=1;size=40;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="650" y="60" width="130" height="680" as="geometry"/>
+                </mxCell>
+                <mxCell id="p-db" value=":MongoDB" style="shape=umlLifeline;whiteSpace=wrap;html=1;size=40;fillColor=#ffe6cc;strokeColor=#d79b00;fontColor=#000000;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="820" y="60" width="100" height="680" as="geometry"/>
+                </mxCell>
+                <mxCell id="m1" value="connexion Socket.IO /notifications (JWT)" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="240" y="130" as="sourcePoint"/>
+                        <mxPoint x="395" y="130" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="m2" value="notifications.ready" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="395" y="160" as="sourcePoint"/>
+                        <mxPoint x="240" y="160" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="m3" value="1. événement significatif sur un incident&#10;(created / assigned / status_changed)" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="555" y="240" as="sourcePoint"/>
+                        <mxPoint x="715" y="240" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="m4" value="createMany / createForAdmins" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="715" y="275" as="sourcePoint"/>
+                        <mxPoint x="870" y="275" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="m5" value="2. notifyTicket*() — émission WS vers acteurs concernés" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="555" y="310" as="sourcePoint"/>
+                        <mxPoint x="395" y="310" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="m6" value="ticket.* (payload)" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="395" y="345" as="sourcePoint"/>
+                        <mxPoint x="240" y="345" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="m7" value="toast temps réel (alerte)" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="240" y="375" as="sourcePoint"/>
+                        <mxPoint x="95" y="375" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="m8" value="3. ouvre cloche NotificationsBell" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="95" y="410" as="sourcePoint"/>
+                        <mxPoint x="240" y="410" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="m9" value="GET /notifications?page&amp;limit" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="240" y="445" as="sourcePoint"/>
+                        <mxPoint x="715" y="445" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="m10" value="historique persistant (notification reçue et persistée)" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="715" y="480" as="sourcePoint"/>
+                        <mxPoint x="95" y="480" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="frame-alt" value="alt [perte connexion temps réel]" style="shape=umlFrame;whiteSpace=wrap;html=1;width=160;height=30;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#000000;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="170" y="495" width="760" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="m11" value="déconnexion WebSocket" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="395" y="530" as="sourcePoint"/>
+                        <mxPoint x="240" y="530" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="m12" value="reconnexion automatique Socket.IO" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="240" y="560" as="sourcePoint"/>
+                        <mxPoint x="395" y="560" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="m13" value="reprise via GET /notifications (historique persistant)" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="240" y="595" as="sourcePoint"/>
+                        <mxPoint x="715" y="595" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
 </mxfile>
