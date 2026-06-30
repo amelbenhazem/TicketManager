@@ -42,5 +42,4 @@
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^3.2.0"
-  }
-}
+  } 
