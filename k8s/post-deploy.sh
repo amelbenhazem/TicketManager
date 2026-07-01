@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Seed MongoDB (idempotent) + smoke tests NodePort après rollout K8s.
-# Variables : K8S_MONGODB_URI, K8S_NODE_IP, NPM_CACHE_FOLDER (optionnel)
+# Variables : K8S_MONGODB_URI, K8S_NODE_IP, K8S_WORKER_PUBLIC_IP (optionnel), NPM_CACHE_FOLDER
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -11,6 +11,11 @@ NPM_CACHE="${NPM_CACHE_FOLDER:-/home/azureuser/.cache/ticketmanager-npm}"
 
 FRONTEND_URL="http://${K8S_NODE_IP}:30080"
 BACKEND_URL="http://${K8S_NODE_IP}:30081"
+
+PUBLIC_IP="${K8S_WORKER_PUBLIC_IP:-}"
+if [[ "$PUBLIC_IP" == "PUT_WORKER_PIP_HERE" || -z "$PUBLIC_IP" ]]; then
+  PUBLIC_IP=""
+fi
 
 echo "==> Seed MongoDB (upsert users, tickets si collection vide)"
 mkdir -p "$NPM_CACHE"
@@ -40,7 +45,30 @@ if ! echo "$login_response" | grep -q "access_token"; then
 fi
 echo "Login OK (access_token reçu)"
 
+if [[ -n "$PUBLIC_IP" ]]; then
+  PUBLIC_FRONTEND="http://${PUBLIC_IP}:30080"
+  PUBLIC_BACKEND="http://${PUBLIC_IP}:30081"
+  echo "==> Smoke test (accès public): frontend ${PUBLIC_FRONTEND}"
+  public_frontend_code="$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 10 "${PUBLIC_FRONTEND}/")"
+  if [[ "$public_frontend_code" != "200" && "$public_frontend_code" != "307" ]]; then
+    echo "##[warning]Frontend via PIP attendu 200/307, obtenu: ${public_frontend_code} (NSG ou PIP worker ?)" >&2
+  else
+    echo "Frontend public HTTP ${public_frontend_code}"
+  fi
+
+  echo "==> Smoke test (accès public): backend ${PUBLIC_BACKEND}"
+  if curl -sf --connect-timeout 10 "${PUBLIC_BACKEND}/" | grep -q "Hello World"; then
+    echo "Backend public OK"
+  else
+    echo "##[warning]Backend via PIP inaccessible (vérifier NSG aks ports 30080/30081)" >&2
+  fi
+fi
+
 echo ""
 echo "==> Post-deploy verification OK"
-echo "    Frontend: ${FRONTEND_URL}"
-echo "    Backend:  ${BACKEND_URL}"
+echo "    Frontend (interne): ${FRONTEND_URL}"
+echo "    Backend  (interne): ${BACKEND_URL}"
+if [[ -n "$PUBLIC_IP" ]]; then
+  echo "    Frontend (public):  http://${PUBLIC_IP}:30080"
+  echo "    Backend  (public):  http://${PUBLIC_IP}:30081"
+fi

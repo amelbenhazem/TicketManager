@@ -86,12 +86,24 @@ echo "==> État final"
 kubectl get pods,svc -n ticketmanager
 
 NODE_IP="${K8S_NODE_IP:-10.1.3.4}"
+PUBLIC_IP="${K8S_WORKER_PUBLIC_IP:-}"
+if [[ "$PUBLIC_IP" == "PUT_WORKER_PIP_HERE" ]]; then
+  PUBLIC_IP=""
+fi
+
 echo ""
-echo "Frontend NodePort: http://${NODE_IP}:30080"
-echo "Backend NodePort:  http://${NODE_IP}:30081"
+echo "Frontend NodePort (interne): http://${NODE_IP}:30080"
+echo "Backend NodePort  (interne): http://${NODE_IP}:30081"
+if [[ -n "$PUBLIC_IP" ]]; then
+  echo "Frontend NodePort (public):  http://${PUBLIC_IP}:30080"
+  echo "Backend NodePort  (public):  http://${PUBLIC_IP}:30081"
+else
+  echo "Accès public: définir K8S_WORKER_PUBLIC_IP dans azure-pipelines.yml (PIP worker + NSG)"
+fi
 
 if [[ -f "$K8S_DIR/post-deploy.sh" ]]; then
   chmod +x "$K8S_DIR/post-deploy.sh"
   export K8S_NODE_IP="$NODE_IP"
+  export K8S_WORKER_PUBLIC_IP="${PUBLIC_IP}"
   "$K8S_DIR/post-deploy.sh"
 fi

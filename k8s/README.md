@@ -88,10 +88,18 @@ kubectl get svc -n ticketmanager
 
 ## 5. Accès application
 
-| Service  | NodePort | URL (exemple)              |
-|----------|----------|----------------------------|
-| Frontend | 30080    | http://10.1.3.4:30080      |
-| Backend  | 30081    | http://10.1.3.4:30081/api  |
+| Service  | NodePort | URL interne (VNet)     | URL publique (PIP worker)        |
+|----------|----------|------------------------|----------------------------------|
+| Frontend | 30080    | http://10.1.3.4:30080  | http://\<PIP-worker\>:30080     |
+| Backend  | 30081    | http://10.1.3.4:30081  | http://\<PIP-worker\>:30081     |
+
+### Accès Internet (NodePort + PIP worker — recommandation encadrant)
+
+1. Créer une **Adresse IP publique** dans `ticketmanager-k8s-rg` et l'associer à la NIC `k8s-agentpool-34739636-nic-1` (worker `10.1.3.4`).
+2. Ouvrir **NSG** `k8s-master-34739636-nsg` : TCP **30080** et **30081** (entrant).
+3. Mettre l'IP dans `azure-pipelines.yml` → variable **`K8S_WORKER_PUBLIC_IP`** (remplace `PUT_WORKER_PIP_HERE`).
+4. Push sur `main` → pipeline rebuild frontend (`FRONTEND_API_URL`) + redeploy (CORS backend).
+5. Navigateur : `http://<PIP-worker>:30080`
 
 Depuis le réseau interne / VPN. Seed MongoDB si base vide : exécuter `npm run seed` depuis vm-gestion ou un job K8s.
 
@@ -139,7 +147,7 @@ Flux : Build → SonarQube → Docker → Push Nexus → **Deploy K8s** (en para
 | `SONAR_TOKEN` | oui | (existant) |
 | `TF_APPROVERS` | non | Emails approbation Terraform + K8s |
 
-Variables déjà dans `azure-pipelines.yml` : `K8S_REGISTRY`, `K8S_KUBECONFIG`, `K8S_MONGODB_URI`, `K8S_CORS_ORIGIN`, `K8S_WORKER_IPS`, `FRONTEND_API_URL`.
+Variables déjà dans `azure-pipelines.yml` : `K8S_REGISTRY`, `K8S_KUBECONFIG`, `K8S_MONGODB_URI`, `K8S_CORS_ORIGIN`, `K8S_WORKER_IPS`, `K8S_WORKER_PUBLIC_IP`, `FRONTEND_API_URL`.
 
 ### Première exécution
 

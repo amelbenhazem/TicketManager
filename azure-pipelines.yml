@@ -16,16 +16,19 @@ variables:
   # Réduit pour Stack Hub Dev/Test (FabricVmPlacementError si quota insuffisant)
   VM_SIZE_GESTION: Standard_D2s_v3
   VM_SIZE_DB: Standard_D2s_v3
-  # URL API vue par le navigateur (NodePort backend K8s sur worker)
-  FRONTEND_API_URL: http://10.1.3.4:30081
+  # IP publique (PIP) du worker 10.1.3.4 — NSG k8s-master-34739636-nsg (30080, 30081)
+  K8S_WORKER_PUBLIC_IP: 102.141.206.164
+  # URL API vue par le navigateur (NodePort backend — doit utiliser la PIP pour accès Internet)
+  FRONTEND_API_URL: http://$(K8S_WORKER_PUBLIC_IP):30081
   # Kubernetes CD — registre vu depuis les nœuds (pas localhost)
   K8S_REGISTRY: 10.1.1.4:8082
   K8S_KUBECONFIG: /home/azureuser/kubernetes/ticketmanager-k8s/kubeconfig/kubeconfig.dc2.json
   K8S_MONGODB_URI: mongodb://10.1.2.4:27017/ticketmanager
-  K8S_CORS_ORIGIN: http://10.1.3.4:30080,http://10.1.3.5:30080
+  # CORS : PIP publique + IPs internes workers (tests depuis vm-gestion / VNet)
+  K8S_CORS_ORIGIN: http://$(K8S_WORKER_PUBLIC_IP):30080,http://10.1.3.4:30080,http://10.1.3.5:30080
   # IPs des nœuds workers (pull images depuis Nexus HTTP)
   K8S_WORKER_IPS: 10.1.3.4 10.1.3.5
-  # Nœud worker où le frontend NodePort répond (smoke tests post-deploy)
+  # Nœud worker privé où tournent les pods (smoke tests internes post-deploy)
   K8S_NODE_IP: 10.1.3.4
 
 stages:
@@ -641,6 +644,7 @@ stages:
               export K8S_MONGODB_URI="$(K8S_MONGODB_URI)"
               export K8S_CORS_ORIGIN="$(K8S_CORS_ORIGIN)"
               export K8S_NODE_IP="$(K8S_NODE_IP)"
+              export K8S_WORKER_PUBLIC_IP="$(K8S_WORKER_PUBLIC_IP)"
               export NPM_CACHE_FOLDER="$(NPM_CACHE_FOLDER)"
               export JWT_SECRET="$JWT_SECRET"
               ./k8s/deploy-pipeline.sh
