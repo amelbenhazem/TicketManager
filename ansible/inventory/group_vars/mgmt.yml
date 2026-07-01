@@ -1,0 +1,26 @@
+prometheus_image: prom/prometheus:v2.54.1
+grafana_image: grafana/grafana:11.3.0
+node_exporter_image: prom/node-exporter:v1.8.2
+blackbox_image: prom/blackbox-exporter:v0.25.0
+
+prometheus_container_name: ticketmanager-prometheus
+grafana_container_name: ticketmanager-grafana
+node_exporter_container_name: ticketmanager-node-exporter
+blackbox_container_name: ticketmanager-blackbox
+
+prometheus_port: 9090
+grafana_port: 3030
+node_exporter_port: 9100
+blackbox_port: 9115
+
+prometheus_config_dir: /opt/ticketmanager/prometheus
+blackbox_config_dir: /opt/ticketmanager/blackbox
+grafana_provisioning_dir: /opt/ticketmanager/grafana/provisioning
+
+grafana_admin_user: admin
+grafana_admin_password: admin
+
+# Cibles HTTP surveillées (blackbox) — réseau interne VNet
+monitor_http_targets:
+  - http://10.1.3.4:30080
+  - http://10.1.3.4:30081

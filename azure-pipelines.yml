@@ -654,3 +654,33 @@ stages:
             env:
               NEXUS_PASSWORD: $(NEXUS_PASSWORD)
               JWT_SECRET: $(JWT_SECRET)
+
+  # =========================
+  # DEPLOY MONITORING (Ansible)
+  # =========================
+  - stage: DeployMonitoring
+    displayName: "Deploy Monitoring"
+    dependsOn: DeployK8s
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    jobs:
+      - job: AnsibleMonitoring
+        displayName: "Prometheus + Grafana"
+        pool:
+          name: ticketmanager-pool
+        steps:
+          - checkout: self
+            displayName: "Checkout (ansible/)"
+
+          - script: |
+              export PATH="$HOME/.local/bin:$PATH"
+              cd ansible
+              ansible-playbook playbooks/monitoring.yml \
+                -e 'ansible_connection=local' \
+                --limit mgmt
+            displayName: "Deploy Prometheus + Grafana (Ansible)"
+
+          - script: |
+              curl -sf http://127.0.0.1:9090/-/ready | grep -q Ready
+              test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3030/login)" = "200"
+              echo "Monitoring OK: Prometheus :9090, Grafana :3030"
+            displayName: "Smoke test monitoring"

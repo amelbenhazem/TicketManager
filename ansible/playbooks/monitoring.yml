@@ -1,0 +1,233 @@
+---
+# Déploie Prometheus + Grafana (+ node/blackbox exporters) sur VM-gestion — subnet 10.1.1.0/24
+#
+# Usage (sur VM-gestion, dossier ansible du repo) :
+#   sudo apt update && sudo apt install -y python3-pip
+#   pip3 install --user ansible
+#   export PATH="$HOME/.local/bin:$PATH"
+#   ansible-playbook playbooks/monitoring.yml
+#
+# Accès (depuis le VNet ou tunnel SSH) :
+#   Prometheus : http://10.1.1.4:9090
+#   Grafana    : http://10.1.1.4:3030  (admin / admin — changer en prod)
+#
+# Pour démo depuis Internet : ouvrir NSG vm-gestion sur 9090/3030 ou
+#   ssh -L 9090:localhost:9090 -L 3030:localhost:3030 azureuser@102.141.206.166
+
+- name: Deploy monitoring stack on VM-gestion
+  hosts: mgmt
+  become: true
+
+  tasks:
+    - name: Install Docker packages
+      ansible.builtin.apt:
+        name:
+          - docker.io
+        state: present
+        update_cache: true
+
+    - name: Enable and start Docker service
+      ansible.builtin.systemd:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Add admin user to docker group
+      ansible.builtin.user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: true
+
+    - name: Create monitoring config directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: "0755"
+      loop:
+        - "{{ prometheus_config_dir }}"
+        - "{{ blackbox_config_dir }}"
+        - "{{ grafana_provisioning_dir }}/datasources"
+
+    - name: Deploy Prometheus configuration
+      ansible.builtin.template:
+        src: ../templates/prometheus.yml.j2
+        dest: "{{ prometheus_config_dir }}/prometheus.yml"
+        mode: "0644"
+      notify: Restart prometheus
+
+    - name: Deploy Blackbox configuration
+      ansible.builtin.copy:
+        src: ../files/blackbox/blackbox.yml
+        dest: "{{ blackbox_config_dir }}/blackbox.yml"
+        mode: "0644"
+      notify: Restart blackbox
+
+    - name: Deploy Grafana datasource provisioning
+      ansible.builtin.template:
+        src: ../templates/grafana-datasource.yml.j2
+        dest: "{{ grafana_provisioning_dir }}/datasources/prometheus.yml"
+        mode: "0644"
+      notify: Restart grafana
+
+    - name: Create Docker network for monitoring
+      ansible.builtin.command:
+        cmd: docker network create ticketmanager-monitoring
+      register: monitoring_network
+      failed_when: monitoring_network.rc != 0 and "already exists" not in monitoring_network.stderr
+      changed_when: monitoring_network.rc == 0
+
+    - name: Pull monitoring images
+      ansible.builtin.command:
+        cmd: docker pull {{ item }}
+      loop:
+        - "{{ prometheus_image }}"
+        - "{{ grafana_image }}"
+        - "{{ node_exporter_image }}"
+        - "{{ blackbox_image }}"
+      changed_when: true
+
+    - name: Check existing node_exporter container
+      ansible.builtin.command:
+        cmd: docker ps -a --filter name={{ node_exporter_container_name }} -q
+      register: existing_node_exporter
+      changed_when: false
+
+    - name: Create and start node_exporter container
+      ansible.builtin.command:
+        cmd: >
+          docker run -d
+          --name {{ node_exporter_container_name }}
+          --restart unless-stopped
+          --network ticketmanager-monitoring
+          -p {{ node_exporter_port }}:9100
+          {{ node_exporter_image }}
+      when: existing_node_exporter.stdout | length == 0
+
+    - name: Start node_exporter container if already exists
+      ansible.builtin.command:
+        cmd: docker start {{ node_exporter_container_name }}
+      when: existing_node_exporter.stdout | length > 0
+
+    - name: Check existing blackbox container
+      ansible.builtin.command:
+        cmd: docker ps -a --filter name={{ blackbox_container_name }} -q
+      register: existing_blackbox
+      changed_when: false
+
+    - name: Create and start blackbox container
+      ansible.builtin.command:
+        cmd: >
+          docker run -d
+          --name {{ blackbox_container_name }}
+          --restart unless-stopped
+          --network ticketmanager-monitoring
+          -p {{ blackbox_port }}:9115
+          -v {{ blackbox_config_dir }}/blackbox.yml:/etc/blackbox_exporter/config.yml
+          {{ blackbox_image }}
+          --config.file=/etc/blackbox_exporter/config.yml
+      when: existing_blackbox.stdout | length == 0
+
+    - name: Start blackbox container if already exists
+      ansible.builtin.command:
+        cmd: docker start {{ blackbox_container_name }}
+      when: existing_blackbox.stdout | length > 0
+
+    - name: Check existing prometheus container
+      ansible.builtin.command:
+        cmd: docker ps -a --filter name={{ prometheus_container_name }} -q
+      register: existing_prometheus
+      changed_when: false
+
+    - name: Create and start prometheus container
+      ansible.builtin.command:
+        cmd: >
+          docker run -d
+          --name {{ prometheus_container_name }}
+          --restart unless-stopped
+          --network ticketmanager-monitoring
+          -p {{ prometheus_port }}:9090
+          -v {{ prometheus_config_dir }}/prometheus.yml:/etc/prometheus/prometheus.yml
+          {{ prometheus_image }}
+          --config.file=/etc/prometheus/prometheus.yml
+          --storage.tsdb.path=/prometheus
+          --web.enable-lifecycle
+      when: existing_prometheus.stdout | length == 0
+
+    - name: Start prometheus container if already exists
+      ansible.builtin.command:
+        cmd: docker start {{ prometheus_container_name }}
+      when: existing_prometheus.stdout | length > 0
+
+    - name: Check existing grafana container
+      ansible.builtin.command:
+        cmd: docker ps -a --filter name={{ grafana_container_name }} -q
+      register: existing_grafana
+      changed_when: false
+
+    - name: Create and start grafana container
+      ansible.builtin.command:
+        cmd: >
+          docker run -d
+          --name {{ grafana_container_name }}
+          --restart unless-stopped
+          --network ticketmanager-monitoring
+          -p {{ grafana_port }}:3000
+          -v {{ grafana_provisioning_dir }}:/etc/grafana/provisioning
+          -e GF_SECURITY_ADMIN_USER={{ grafana_admin_user }}
+          -e GF_SECURITY_ADMIN_PASSWORD={{ grafana_admin_password }}
+          -e GF_USERS_ALLOW_SIGN_UP=false
+          {{ grafana_image }}
+      when: existing_grafana.stdout | length == 0
+
+    - name: Start grafana container if already exists
+      ansible.builtin.command:
+        cmd: docker start {{ grafana_container_name }}
+      when: existing_grafana.stdout | length > 0
+
+    - name: Wait for Prometheus TCP port
+      ansible.builtin.wait_for:
+        port: "{{ prometheus_port }}"
+        host: 127.0.0.1
+        delay: 3
+        timeout: 120
+
+    - name: Wait for Grafana TCP port
+      ansible.builtin.wait_for:
+        port: "{{ grafana_port }}"
+        host: 127.0.0.1
+        delay: 3
+        timeout: 120
+
+    - name: Verify Prometheus is ready
+      ansible.builtin.uri:
+        url: http://127.0.0.1:{{ prometheus_port }}/-/ready
+        status_code: 200
+      register: prometheus_ready
+      retries: 10
+      delay: 5
+      until: prometheus_ready.status == 200
+
+    - name: Show monitoring URLs
+      ansible.builtin.debug:
+        msg:
+          - "Prometheus: http://{{ ansible_host }}:{{ prometheus_port }}"
+          - "Grafana:    http://{{ ansible_host }}:{{ grafana_port }} ({{ grafana_admin_user }} / {{ grafana_admin_password }})"
+          - "Import dashboard Grafana ID 1860 (Node Exporter Full) ou 7587 (Blackbox)"
+
+  handlers:
+    - name: Restart prometheus
+      ansible.builtin.uri:
+        url: http://127.0.0.1:{{ prometheus_port }}/-/reload
+        method: POST
+        status_code: [200, 204]
+      failed_when: false
+
+    - name: Restart blackbox
+      ansible.builtin.command:
+        cmd: docker restart {{ blackbox_container_name }}
+      failed_when: false
+
+    - name: Restart grafana
+      ansible.builtin.command:
+        cmd: docker restart {{ grafana_container_name }}
+      failed_when: false
