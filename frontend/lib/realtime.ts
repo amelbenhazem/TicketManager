@@ -1,6 +1,6 @@
 import { io, Socket } from 'socket.io-client'
 import toast from 'react-hot-toast'
-import { env } from './env'
+import { getApiUrl } from './env'
 
 export type TicketRealtimeEvent =
   | 'ticket.created'
@@ -40,7 +40,7 @@ function getSocket(): Socket | null {
 
   if (socket) return socket
 
-  socket = io(`${env.apiUrl.replace(/\/$/, '')}/notifications`, {
+  socket = io(`${getApiUrl().replace(/\/$/, '')}/notifications`, {
     transports: ['websocket'],
     auth: { token },
     autoConnect: true,

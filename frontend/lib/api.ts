@@ -3,7 +3,7 @@
  * Logique métier des appels HTTP, pas d'UI.
  */
 
-import { env } from './env';
+import { getApiUrl } from './env';
 import { disconnectRealtime } from './realtime';
 
 export type LoginPayload = { email: string; password: string };
@@ -114,7 +114,7 @@ async function request<T>(
   options: RequestInit = {},
   authenticated = false,
 ): Promise<T> {
-  const url = `${env.apiUrl.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
+  const url = `${getApiUrl().replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(authenticated ? getAuthHeaders() : {}),
@@ -159,7 +159,7 @@ async function request<T>(
 }
 
 async function uploadRequest<T>(path: string, formData: FormData): Promise<T> {
-  const url = `${env.apiUrl.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
+  const url = `${getApiUrl().replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
   const res = await fetch(url, {
     method: 'POST',
     headers: getAuthHeaders(),

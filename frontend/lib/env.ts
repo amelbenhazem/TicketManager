@@ -20,20 +20,18 @@ const defaultApiUrl =
 
 /**
  * En production K8s NodePort : frontend :30080, backend :30081 sur la même IP.
- * Évite les appels vers localhost/10.1.3.x quand l'utilisateur ouvre l'IP publique.
+ * Priorité au hostname du navigateur (IP publique) pour éviter localhost au build Docker.
  */
-function resolveApiUrl(): string {
+export function getApiUrl(): string {
   if (typeof globalThis.window !== 'undefined') {
     const { hostname, protocol, port } = globalThis.window.location;
-    if (port === '30080') {
+    const isLocal =
+      hostname === 'localhost' || hostname === '127.0.0.1';
+
+    if (!isLocal) {
       return `${protocol}//${hostname}:30081`;
     }
-    if (
-      hostname !== 'localhost' &&
-      hostname !== '127.0.0.1' &&
-      port !== '3000' &&
-      port !== ''
-    ) {
+    if (port === '30080') {
       return `${protocol}//${hostname}:30081`;
     }
   }
@@ -42,6 +40,6 @@ function resolveApiUrl(): string {
 
 export const env = {
   get apiUrl(): string {
-    return resolveApiUrl();
+    return getApiUrl();
   },
 } as const;
