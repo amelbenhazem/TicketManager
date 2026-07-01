@@ -128,6 +128,8 @@ kubectl logs -n ticketmanager -l app=ticket-frontend --tail=100
 | `frontend-deployment.yaml` | Pod Next.js |
 | `frontend-service.yaml` | NodePort 30080 |
 | `deploy-pipeline.sh` | CD automatisé (Azure Pipelines) |
+| `reload-prod.sh` | Recharge prod manuelle (CORS + rollout pods) |
+| `fix-cors-public.sh` | Mise à jour CORS backend uniquement |
 | `deploy.sh` | Déploiement manuel local |
 | `*-secret.yaml.example` | Modèles secrets |
 
@@ -147,7 +149,24 @@ Flux : Build → SonarQube → Docker → Push Nexus → **Deploy K8s** (en para
 | `SONAR_TOKEN` | oui | (existant) |
 | `TF_APPROVERS` | non | Emails approbation Terraform + K8s |
 
-Variables déjà dans `azure-pipelines.yml` : `K8S_REGISTRY`, `K8S_KUBECONFIG`, `K8S_MONGODB_URI`, `K8S_CORS_ORIGIN`, `K8S_WORKER_IPS`, `K8S_WORKER_PUBLIC_IP`, `FRONTEND_API_URL`.
+Variables déjà dans `azure-pipelines.yml` : `K8S_REGISTRY`, `K8S_KUBECONFIG`, `K8S_MONGODB_URI`, `K8S_CORS_ORIGIN`, `K8S_WORKER_IPS`, `K8S_WORKER_PUBLIC_IP`, `K8S_NODE_HOSTNAME`, `FRONTEND_API_URL`.
+
+### Reload prod automatique (pipeline)
+
+Chaque **Deploy K8s** :
+- utilise le tag image **`$(Build.BuildId)`** (plus `latest` seul) → rollout garanti ;
+- applique **nodeSelector** `k8s-agentpool-34739636-1` (worker avec PIP) ;
+- **rollout restart** backend + frontend (CORS + nouvelle image).
+
+### Reload prod manuel (vm-gestion)
+
+```bash
+export KUBECONFIG=~/kubernetes/ticketmanager-k8s/kubeconfig/kubeconfig.dc2.json
+chmod +x k8s/reload-prod.sh
+K8S_WORKER_PUBLIC_IP=102.141.206.164 IMAGE_TAG=latest ./k8s/reload-prod.sh
+```
+
+Remplacer `IMAGE_TAG` par le numéro de build Azure DevOps si besoin.
 
 ### Première exécution
 

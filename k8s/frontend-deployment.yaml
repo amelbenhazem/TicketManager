@@ -15,6 +15,9 @@ spec:
       labels:
         app: ticket-frontend
     spec:
+      # Worker avec PIP publique (102.141.206.164) — évite timeout NodePort après rollout
+      nodeSelector:
+        kubernetes.io/hostname: k8s-agentpool-34739636-1
       imagePullSecrets:
         - name: nexus-registry
       containers:

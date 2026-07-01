@@ -65,6 +65,10 @@ kubectl set image deployment/ticket-frontend \
   -n ticketmanager \
   frontend="$FRONTEND_IMAGE"
 
+echo "==> Reload prod (pods) — CORS secret + image tag ${IMAGE_TAG}"
+kubectl rollout restart deployment/ticket-backend -n ticketmanager
+kubectl rollout restart deployment/ticket-frontend -n ticketmanager
+
 echo "==> Rollout"
 if ! kubectl rollout status deployment/ticket-backend -n ticketmanager --timeout=600s; then
   echo "##[error]Rollout backend échoué — diagnostic:"
