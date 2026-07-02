@@ -28,6 +28,11 @@ if ! kubectl get secret backend-secret -n ticketmanager &>/dev/null; then
   exit 1
 fi
 
+echo "==> MongoDB"
+kubectl apply -f "$K8S_DIR/mongodb-service.yaml"
+kubectl apply -f "$K8S_DIR/mongodb-statefulset.yaml"
+kubectl wait --for=condition=ready pod -l app=mongodb -n ticketmanager --timeout=300s
+
 echo "==> Workloads"
 kubectl apply -f "$K8S_DIR/backend-deployment.yaml"
 kubectl apply -f "$K8S_DIR/backend-service.yaml"

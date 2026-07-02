@@ -7,7 +7,8 @@
 #   export PATH="$HOME/.local/bin:$PATH"
 #   ansible-playbook playbooks/mongodb.yml
 #
-# URI backend : mongodb://10.1.2.4:27017/ticketmanager
+# URI legacy vm-db : mongodb://10.1.2.4:27017/ticketmanager
+# Production K8s : mongodb://mongodb:27017/ticketmanager (StatefulSet in-cluster)
 
 - name: Deploy MongoDB on VM-db
   hosts: db

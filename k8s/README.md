@@ -1,6 +1,8 @@
 # Déploiement TicketManager sur Kubernetes (AKS Engine / Azure Stack Hub)
 
-Manifests pour le namespace `ticketmanager` : backend NestJS, frontend Next.js, MongoDB externe (`10.1.2.4`).
+Manifests pour le namespace `ticketmanager` : backend NestJS, frontend Next.js, **MongoDB in-cluster** (StatefulSet).
+
+> **vm-db** (`10.1.2.4`) + Ansible `mongodb.yml` restent optionnels (legacy). L'application utilise désormais `mongodb://mongodb:27017/ticketmanager` dans le cluster.
 
 ## Prérequis
 
@@ -62,7 +64,7 @@ kubectl create secret docker-registry nexus-registry \
 
 kubectl create secret generic backend-secret \
   -n ticketmanager \
-  --from-literal=MONGODB_URI='mongodb://10.1.2.4:27017/ticketmanager' \
+  --from-literal=MONGODB_URI='mongodb://mongodb:27017/ticketmanager' \
   --from-literal=JWT_SECRET='change-me-production-secret' \
   --from-literal=JWT_EXPIRES_IN='7d' \
   --from-literal=NODE_ENV='production' \
@@ -73,10 +75,37 @@ kubectl create secret generic backend-secret \
 
 Les fichiers `*.yaml.example` servent de modèle ; ne commitez pas les secrets réels.
 
-## 4. Déployer
+## 4. MongoDB in-cluster (StatefulSet)
+
+```bash
+kubectl apply -f k8s/mongodb-service.yaml
+kubectl apply -f k8s/mongodb-statefulset.yaml
+kubectl wait --for=condition=ready pod -l app=mongodb -n ticketmanager --timeout=300s
+kubectl get pvc -n ticketmanager
+```
+
+Si le PVC `mongodb-data-mongodb-0` reste **Pending** (pas de StorageClass dynamique) :
+
+```bash
+# Sur le worker k8s-agentpool-34739636-1
+sudo mkdir -p /var/lib/ticketmanager/mongodb && sudo chown 999:999 /var/lib/ticketmanager/mongodb
+kubectl apply -f k8s/mongodb-pv-hostpath.yaml
+```
+
+### Migration depuis vm-db (données existantes)
+
+```bash
+chmod +x k8s/migrate-mongodb-from-vm-db.sh
+export KUBECONFIG=~/kubernetes/ticketmanager-k8s/kubeconfig/kubeconfig.dc2.json
+./k8s/migrate-mongodb-from-vm-db.sh
+```
+
+## 5. Déployer
 
 ```bash
 kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/mongodb-service.yaml
+kubectl apply -f k8s/mongodb-statefulset.yaml
 kubectl apply -f k8s/backend-deployment.yaml
 kubectl apply -f k8s/backend-service.yaml
 kubectl apply -f k8s/frontend-deployment.yaml
@@ -86,7 +115,7 @@ kubectl get pods -n ticketmanager -w
 kubectl get svc -n ticketmanager
 ```
 
-## 5. Accès application
+## 6. Accès application
 
 | Service  | NodePort | URL interne (VNet)     | URL publique (PIP worker)        |
 |----------|----------|------------------------|----------------------------------|
@@ -101,9 +130,11 @@ kubectl get svc -n ticketmanager
 4. Push sur `main` → pipeline rebuild frontend (`FRONTEND_API_URL`) + redeploy (CORS backend).
 5. Navigateur : `http://<PIP-worker>:30080`
 
-Depuis le réseau interne / VPN. Seed MongoDB si base vide : exécuter `npm run seed` depuis vm-gestion ou un job K8s.
+Depuis le réseau interne / VPN. Seed MongoDB si base vide : automatique via `post-deploy.sh` (pipeline) ou `npm run seed` avec port-forward.
 
-## 6. Dépannage
+**Démarrage quotidien** : allumer les **workers K8s** suffit pour l'app (plus besoin de vm-db). vm-gestion reste nécessaire pour le pipeline et le monitoring.
+
+## 7. Dépannage
 
 ```bash
 kubectl describe pod -n ticketmanager -l app=ticket-backend
@@ -113,6 +144,7 @@ kubectl logs -n ticketmanager -l app=ticket-frontend --tail=100
 
 | Symptôme | Cause probable |
 |----------|----------------|
+| Login 500 / timeout | MongoDB pod down ou PVC Pending — `kubectl get pods -n ticketmanager -l app=mongodb` |
 | `ImagePullBackOff` | Registre insecure non configuré sur nœuds ou secret `nexus-registry` |
 | `ErrImagePull` | Mauvais tag ou Nexus injoignable depuis worker |
 | Frontend OK, API en échec | `NEXT_PUBLIC_API_URL` incorrecte au build |
@@ -123,6 +155,10 @@ kubectl logs -n ticketmanager -l app=ticket-frontend --tail=100
 | Fichier | Rôle |
 |---------|------|
 | `namespace.yaml` | Namespace ticketmanager |
+| `mongodb-service.yaml` | Service ClusterIP MongoDB (`mongodb:27017`) |
+| `mongodb-statefulset.yaml` | StatefulSet MongoDB + PVC |
+| `mongodb-pv-hostpath.yaml` | PV hostPath optionnel (Stack Hub sans StorageClass) |
+| `migrate-mongodb-from-vm-db.sh` | Migration données vm-db → pod K8s |
 | `backend-deployment.yaml` | Pod API NestJS |
 | `backend-service.yaml` | NodePort 30081 |
 | `frontend-deployment.yaml` | Pod Next.js |

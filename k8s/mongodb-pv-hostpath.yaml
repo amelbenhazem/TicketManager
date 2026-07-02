@@ -1,0 +1,44 @@
+# Optionnel — si le PVC mongodb-data-mongodb-0 reste Pending (pas de StorageClass sur le cluster).
+# Appliquer AVANT le StatefulSet, sur le nœud k8s-agentpool-34739636-1 :
+#   ssh worker && sudo mkdir -p /var/lib/ticketmanager/mongodb && sudo chown 999:999 /var/lib/ticketmanager/mongodb
+#   kubectl apply -f k8s/mongodb-pv-hostpath.yaml
+#   kubectl apply -f k8s/mongodb-statefulset.yaml
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ticketmanager-mongodb-pv
+  labels:
+    app: mongodb
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ticketmanager-mongodb-local
+  hostPath:
+    path: /var/lib/ticketmanager/mongodb
+    type: DirectoryOrCreate
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - k8s-agentpool-34739636-1
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongodb-data-mongodb-0
+  namespace: ticketmanager
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ticketmanager-mongodb-local
+  resources:
+    requests:
+      storage: 5Gi
+  volumeName: ticketmanager-mongodb-pv

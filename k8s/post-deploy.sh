@@ -21,7 +21,29 @@ echo "==> Seed MongoDB (upsert users, tickets si collection vide)"
 mkdir -p "$NPM_CACHE"
 cd "$ROOT/backend"
 npm ci --cache "$NPM_CACHE" --prefer-offline
-MONGODB_URI="$K8S_MONGODB_URI" npm run seed
+
+SEED_URI="$K8S_MONGODB_URI"
+PF_PID=""
+cleanup_port_forward() {
+  if [[ -n "$PF_PID" ]]; then
+    kill "$PF_PID" 2>/dev/null || true
+    wait "$PF_PID" 2>/dev/null || true
+  fi
+}
+trap cleanup_port_forward EXIT
+
+# Depuis vm-gestion, le DNS K8s "mongodb" n'est pas résolu — port-forward local
+if [[ "$SEED_URI" == mongodb://mongodb:* ]]; then
+  kubectl wait --for=condition=ready pod -l app=mongodb -n ticketmanager --timeout=120s
+  kubectl port-forward -n ticketmanager "svc/mongodb" 127.0.0.1:27017:27017 &
+  PF_PID=$!
+  sleep 3
+  SEED_URI="mongodb://127.0.0.1:27017/ticketmanager"
+fi
+
+MONGODB_URI="$SEED_URI" npm run seed
+cleanup_port_forward
+trap - EXIT
 
 echo "==> Smoke test: backend NodePort ${BACKEND_URL}"
 curl -sf "${BACKEND_URL}/" | grep -q "Hello World"

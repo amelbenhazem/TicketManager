@@ -51,6 +51,17 @@ kubectl create secret generic backend-secret \
   --from-literal=CORS_ORIGIN="$K8S_CORS_ORIGIN" \
   --dry-run=client -o yaml | kubectl apply -f -
 
+echo "==> MongoDB (StatefulSet in-cluster)"
+kubectl apply -f "$K8S_DIR/mongodb-service.yaml"
+kubectl apply -f "$K8S_DIR/mongodb-statefulset.yaml"
+
+if ! kubectl wait --for=condition=ready pod -l app=mongodb -n ticketmanager --timeout=300s 2>/dev/null; then
+  echo "##[warning]PVC MongoDB peut être Pending — si pas de StorageClass, appliquer k8s/mongodb-pv-hostpath.yaml"
+  kubectl get pvc -n ticketmanager
+  kubectl describe pod -n ticketmanager -l app=mongodb | tail -40
+  exit 1
+fi
+
 echo "==> Manifests (services + deployments)"
 kubectl apply -f "$K8S_DIR/backend-service.yaml"
 kubectl apply -f "$K8S_DIR/frontend-service.yaml"
