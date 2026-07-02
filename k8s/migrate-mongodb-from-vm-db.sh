@@ -16,7 +16,7 @@ echo "==> Attente pod MongoDB K8s"
 kubectl wait --for=condition=ready pod -l app=mongodb -n "$NAMESPACE" --timeout=300s
 
 echo "==> Dump depuis vm-db : $SOURCE_URI"
-rm -rf "$DUMP_DIR"
+sudo rm -rf "$DUMP_DIR"
 mkdir -p "$DUMP_DIR"
 chmod 777 "$DUMP_DIR"
 docker run --rm --user root \
@@ -31,5 +31,5 @@ kubectl exec -n "$NAMESPACE" mongodb-0 -- \
   mongorestore --drop --db ticketmanager /tmp/ticketmanager-restore
 kubectl exec -n "$NAMESPACE" mongodb-0 -- rm -rf /tmp/ticketmanager-restore
 
-rm -rf "$DUMP_DIR"
+sudo rm -rf "$DUMP_DIR"
 echo "==> Migration terminée"
