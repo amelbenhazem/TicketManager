@@ -61,6 +61,7 @@ spec:
       spec:
         accessModes:
           - ReadWriteOnce
+        storageClassName: ticketmanager-mongodb-local
         resources:
           requests:
             storage: 5Gi
