@@ -18,10 +18,12 @@ kubectl wait --for=condition=ready pod -l app=mongodb -n "$NAMESPACE" --timeout=
 echo "==> Dump depuis vm-db : $SOURCE_URI"
 rm -rf "$DUMP_DIR"
 mkdir -p "$DUMP_DIR"
-docker run --rm \
+chmod 777 "$DUMP_DIR"
+docker run --rm --user root \
   -v "$DUMP_DIR:/dump" \
   mongo:8 \
   mongodump --uri="$SOURCE_URI" --out=/dump
+chmod -R a+rX "$DUMP_DIR"
 
 echo "==> Restore vers pod mongodb-0"
 kubectl cp "$DUMP_DIR/ticketmanager" "$NAMESPACE/mongodb-0:/tmp/ticketmanager-restore"
