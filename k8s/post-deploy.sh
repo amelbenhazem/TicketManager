@@ -35,7 +35,7 @@ trap cleanup_port_forward EXIT
 # Depuis vm-gestion, le DNS K8s "mongodb" n'est pas résolu — port-forward local
 if [[ "$SEED_URI" == mongodb://mongodb:* ]]; then
   kubectl wait --for=condition=ready pod -l app=mongodb -n ticketmanager --timeout=120s
-  kubectl port-forward -n ticketmanager "svc/mongodb" 127.0.0.1:27017:27017 &
+  kubectl port-forward -n ticketmanager --address 127.0.0.1 svc/mongodb 27017:27017 &
   PF_PID=$!
   sleep 3
   SEED_URI="mongodb://127.0.0.1:27017/ticketmanager"
