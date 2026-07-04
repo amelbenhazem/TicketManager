@@ -58,74 +58,60 @@ stages:
             displayName: "Frontend build"
 
   # =========================
-  # TEST (temporairement désactivé)
+  # TEST
   # =========================
-  # - stage: Test
-  #   displayName: "Tests"
-  #   dependsOn: Build
-  #   jobs:
-  #     - job: UnitTests
-  #       displayName: "Unit Tests"
-  #       steps:
-  #
-  #         - task: Cache@2
-  #           displayName: "Restore npm cache"
-  #           inputs:
-  #             key: 'npm | "$(Agent.OS)" | backend/package-lock.json | frontend/package-lock.json'
-  #             path: $(NPM_CACHE_FOLDER)
-  #             restoreKeys: |
-  #               npm | "$(Agent.OS)"
-  #
-  #         - script: |
-  #             cd backend
-  #             npm ci --cache "$(NPM_CACHE_FOLDER)" --prefer-offline
-  #             npm run test -- --forceExit
-  #           displayName: "Unit tests"
-  #
-  #         - script: |
-  #             cd backend
-  #             npm run test:cov -- --forceExit
-  #           displayName: "Coverage report"
-  #
-  #         - task: PublishTestResults@2
-  #           displayName: "Publish test results"
-  #           inputs:
-  #             testResultsFormat: JUnit
-  #             testResultsFiles: backend/coverage/junit.xml
-  #           condition: always()
-  #
-  #         - task: PublishCodeCoverageResults@1
-  #           displayName: "Publish coverage report"
-  #           inputs:
-  #             codeCoverageTool: Cobertura
-  #             summaryFileLocation: backend/coverage/cobertura-coverage.xml
-  #           condition: always()
-  #
-  #     - job: IntegrationTests
-  #       displayName: "Integration Tests"
-  #       steps:
-  #
-  #         - task: Cache@2
-  #           displayName: "Restore npm cache"
-  #           inputs:
-  #             key: 'npm | "$(Agent.OS)" | backend/package-lock.json | frontend/package-lock.json'
-  #             path: $(NPM_CACHE_FOLDER)
-  #             restoreKeys: |
-  #               npm | "$(Agent.OS)"
-  #
-  #         - script: |
-  #             cd backend
-  #             npm ci --cache "$(NPM_CACHE_FOLDER)" --prefer-offline
-  #             npm run test:int -- --forceExit --testTimeout=30000
-  #           displayName: "Integration tests"
-  #           continueOnError: true
+  - stage: Test
+    displayName: "Tests"
+    dependsOn: Build
+    jobs:
+      - job: UnitTests
+        displayName: "Unit Tests"
+        steps:
+          - script: |
+              cd backend
+              npm ci --cache "$(NPM_CACHE_FOLDER)"
+              npm run test -- --forceExit
+            displayName: "Unit tests"
+
+          - script: |
+              cd backend
+              npm run test:cov -- --forceExit \
+                --coverageReporters=lcov \
+                --coverageReporters=cobertura \
+                --coverageReporters=text
+            displayName: "Coverage report"
+
+          - task: PublishTestResults@2
+            displayName: "Publish test results"
+            continueOnError: true
+            inputs:
+              testResultsFormat: JUnit
+              testResultsFiles: backend/coverage/junit.xml
+            condition: always()
+
+          - task: PublishCodeCoverageResults@2
+            displayName: "Publish coverage report"
+            continueOnError: true
+            inputs:
+              summaryFileLocation: backend/coverage/cobertura-coverage.xml
+            condition: always()
+
+      - job: IntegrationTests
+        displayName: "Integration Tests"
+        steps:
+          - script: |
+              cd backend
+              npm ci --cache "$(NPM_CACHE_FOLDER)"
+              npm run test:int -- --forceExit --testTimeout=30000
+            displayName: "Integration tests"
+            continueOnError: true
 
   # =========================
   # CODE QUALITY
   # =========================
   - stage: CodeQuality
     displayName: "Code Quality"
-    dependsOn: Build
+    dependsOn: Test
     jobs:
       - job: SonarJob
         displayName: "SonarQube Analysis"
@@ -155,31 +141,33 @@ stages:
               SONAR_TOKEN: $(SONAR_TOKEN)
 
   # =========================
-  # SECURITY (temporairement désactivé)
+  # SECURITY (Snyk)
   # =========================
-  # - stage: Security
-  #   displayName: "Security Scan"
-  #   dependsOn: Build
-  #   jobs:
-  #     - job: SnykJob
-  #       displayName: "Snyk Vulnerability Scan"
-  #       steps:
-  #         - script: |
-  #             sudo npm install -g snyk
-  #             cd backend
-  #             snyk test --severity-threshold=high
-  #             cd ../frontend
-  #             snyk test --severity-threshold=high || true
-  #           displayName: "Snyk scan (backend + frontend)"
-  #           env:
-  #             SNYK_TOKEN: $(SNYK_TOKEN)
+  - stage: Security
+    displayName: "Security Scan"
+    dependsOn: Build
+    jobs:
+      - job: SnykJob
+        displayName: "Snyk Vulnerability Scan"
+        steps:
+          - script: |
+              sudo npm install -g snyk
+              cd backend
+              snyk test --severity-threshold=high
+              cd ../frontend
+              snyk test --severity-threshold=high || true
+            displayName: "Snyk scan (backend + frontend)"
+            env:
+              SNYK_TOKEN: $(SNYK_TOKEN)
 
   # =========================
   # DOCKER BUILD
   # =========================
   - stage: Docker
     displayName: "Docker Build"
-    dependsOn: CodeQuality
+    dependsOn:
+      - CodeQuality
+      - Security
     jobs:
       - job: DockerJob
         displayName: "Build Docker Images"
@@ -192,43 +180,43 @@ stages:
             displayName: "Build images"
 
   # =========================
-  # TRIVY SCAN (temporairement désactivé)
+  # TRIVY SCAN
   # =========================
-  # - stage: TrivyScan
-  #   displayName: "Trivy Security Scan"
-  #   dependsOn: Docker
-  #   jobs:
-  #     - job: TrivyJob
-  #       displayName: "Scan Docker Images"
-  #       steps:
-  #         - script: |
-  #             docker run --rm \
-  #               -v /var/run/docker.sock:/var/run/docker.sock \
-  #               aquasec/trivy:latest image \
-  #               --exit-code 1 \
-  #               --severity HIGH,CRITICAL \
-  #               --no-progress \
-  #               ticket-backend:$(Build.BuildId)
-  #           displayName: "Trivy scan backend image"
-  #           continueOnError: true
-  #
-  #         - script: |
-  #             docker run --rm \
-  #               -v /var/run/docker.sock:/var/run/docker.sock \
-  #               aquasec/trivy:latest image \
-  #               --exit-code 1 \
-  #               --severity HIGH,CRITICAL \
-  #               --no-progress \
-  #               ticket-frontend:$(Build.BuildId)
-  #           displayName: "Trivy scan frontend image"
-  #           continueOnError: true
+  - stage: TrivyScan
+    displayName: "Trivy Security Scan"
+    dependsOn: Docker
+    jobs:
+      - job: TrivyJob
+        displayName: "Scan Docker Images"
+        steps:
+          - script: |
+              docker run --rm \
+                -v /var/run/docker.sock:/var/run/docker.sock \
+                aquasec/trivy:latest image \
+                --exit-code 1 \
+                --severity HIGH,CRITICAL \
+                --no-progress \
+                ticket-backend:$(Build.BuildId)
+            displayName: "Trivy scan backend image"
+            continueOnError: true
+
+          - script: |
+              docker run --rm \
+                -v /var/run/docker.sock:/var/run/docker.sock \
+                aquasec/trivy:latest image \
+                --exit-code 1 \
+                --severity HIGH,CRITICAL \
+                --no-progress \
+                ticket-frontend:$(Build.BuildId)
+            displayName: "Trivy scan frontend image"
+            continueOnError: true
 
   # =========================
   # PUSH TO NEXUS
   # =========================
   - stage: Push
     displayName: "Push to Nexus"
-    dependsOn: Docker
+    dependsOn: TrivyScan
     jobs:
       - job: PushJob
         displayName: "Push Docker Images"

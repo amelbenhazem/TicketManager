@@ -57,11 +57,9 @@ IaC automatisé &
   \item infrastructure Terraform synchronisée via le stage IaC.
 \end{itemize}
 
-\paragraph{Note sur les stages temporairement désactivés.}
-Dans la version actuelle de \texttt{azure-pipelines.yml}, les stages \textbf{Test},
-\textbf{Snyk} et \textbf{Trivy} sont commentés pour accélérer les itérations. Le squelette
-du rapport prévoit leurs figures ; réactivez-les avant la soutenance si possible.
-
+\paragraph{Chaîne complète.}
+Le fichier \texttt{azure-pipelines.yml} enchaîne dix stages : tests, qualité, sécurité,
+conteneurisation, publication, infrastructure et déploiement (Kubernetes + monitoring).
 
 % ---------------------------------------------------------------------------
 \subsection{Backlog du Sprint 2}
@@ -156,8 +154,11 @@ présente la vue d'ensemble de ces étapes telles que définies dans \texttt{azu
 
 \begin{enumerate}
   \item \textbf{Build} — compilation backend et frontend ;
+  \item \textbf{Test} — tests unitaires, couverture et tests d'intégration ;
   \item \textbf{CodeQuality} — analyse SonarQube ;
+  \item \textbf{Security} — analyse des dépendances (Snyk) ;
   \item \textbf{Docker} — construction des images ;
+  \item \textbf{TrivyScan} — scan de vulnérabilités des images ;
   \item \textbf{Push} — publication vers Nexus ;
   \item \textbf{Terraform} — provisionnement IaC ;
   \item \textbf{DeployK8s} — déploiement Kubernetes (Sprint~3, branche \texttt{main}) ;
