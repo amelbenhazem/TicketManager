@@ -1,0 +1,75 @@
+<mxfile host="app.diagrams.net" agent="TicketManager" version="22.1.0">
+  <diagram id="state-pod" name="États — Pod Kubernetes">
+    <mxGraphModel dx="900" dy="600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="620" background="#ffffff">
+      <root>
+        <mxCell id="0"/><mxCell id="1" parent="0"/>
+        <mxCell id="title" value="Diagramme d'états-transitions UML — Cycle de vie d'un pod (namespace ticketmanager)" style="text;html=1;align=center;fontSize=14;fontStyle=1;fontColor=#000000;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="80" y="8" width="740" height="28" as="geometry"/>
+        </mxCell>
+        <mxCell id="sub" value="«stateMachine» Déploiement ticket-backend / ticket-frontend / mongodb" style="text;html=1;align=center;fontSize=10;fontColor=#000000;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="200" y="34" width="500" height="18" as="geometry"/>
+        </mxCell>
+
+        <!-- États -->
+        <mxCell id="init" value="" style="ellipse;fillColor=#000000;strokeColor=#000000;html=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="120" width="22" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="s-pending" value="Pending&#xa;(planification)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontColor=#000000;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="130" y="105" width="130" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="s-pull" value="ImagePullBackOff&#xa;/ ErrImagePull" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8CECC;strokeColor=#B85450;fontColor=#000000;fontSize=10;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="130" y="200" width="130" height="48" as="geometry"/>
+        </mxCell>
+        <mxCell id="s-creating" value="ContainerCreating" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontColor=#000000;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="320" y="105" width="140" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="s-running" value="Running&#xa;(Ready · probes OK)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontColor=#000000;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="520" y="105" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="s-crash" value="CrashLoopBackOff" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8CECC;strokeColor=#B85450;fontColor=#000000;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="520" y="200" width="130" height="44" as="geometry"/>
+        </mxCell>
+        <mxCell id="s-terminating" value="Terminating" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;fontColor=#000000;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="700" y="105" width="120" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="s-succeeded" value="Succeeded&#xa;(Job terminé)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#82B366;fontColor=#000000;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="700" y="200" width="120" height="48" as="geometry"/>
+        </mxCell>
+        <mxCell id="s-failed" value="Failed" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8CECC;strokeColor=#B85450;fontColor=#000000;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="700" y="280" width="100" height="44" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="final-o" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=3;" vertex="1" parent="1">
+          <mxGeometry x="846" y="117" width="26" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="final-i" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="852" y="123" width="14" height="14" as="geometry"/>
+        </mxCell>
+
+        <!-- Transitions -->
+        <mxCell id="t1" value="kubectl apply" style="endArrow=block;html=1;strokeColor=#000000;fontColor=#000000;fontSize=9;" edge="1" parent="1" source="init" target="s-pending"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="t2" value="image disponible" style="endArrow=block;html=1;strokeColor=#000000;fontColor=#000000;fontSize=9;" edge="1" parent="1" source="s-pending" target="s-creating"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="t3" value="pull Nexus OK" style="endArrow=block;html=1;strokeColor=#000000;fontColor=#000000;fontSize=9;" edge="1" parent="1" source="s-creating" target="s-running"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="t4" value="rollout / scale down" style="endArrow=block;html=1;strokeColor=#000000;fontColor=#000000;fontSize=9;" edge="1" parent="1" source="s-running" target="s-terminating"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="t5" value="pod supprimé" style="endArrow=block;html=1;strokeColor=#000000;fontColor=#000000;fontSize=9;" edge="1" parent="1" source="s-terminating" target="final-o"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="t6" value="registre injoignable" style="endArrow=block;html=1;strokeColor=#B85450;fontColor=#000000;fontSize=9;dashed=1;" edge="1" parent="1" source="s-pending" target="s-pull"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="t7" value="retry pull" style="endArrow=block;html=1;strokeColor=#000000;fontColor=#000000;fontSize=9;" edge="1" parent="1" source="s-pull" target="s-pending"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="90" y="224"/><mxPoint x="90" y="131"/></Array></mxGeometry></mxCell>
+        <mxCell id="t8" value="process exit ≠ 0" style="endArrow=block;html=1;strokeColor=#B85450;fontColor=#000000;fontSize=9;" edge="1" parent="1" source="s-running" target="s-crash"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="t9" value="restartPolicy" style="endArrow=block;html=1;strokeColor=#000000;fontColor=#000000;fontSize=9;" edge="1" parent="1" source="s-crash" target="s-creating"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="585" y="280"/><mxPoint x="390" y="280"/></Array></mxGeometry></mxCell>
+        <mxCell id="t10" value="job completed" style="endArrow=block;html=1;strokeColor=#000000;fontColor=#000000;fontSize=9;dashed=1;" edge="1" parent="1" source="s-running" target="s-succeeded"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="t11" value="échec fatal" style="endArrow=block;html=1;strokeColor=#B85450;fontColor=#000000;fontSize=9;" edge="1" parent="1" source="s-running" target="s-failed"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- Note TicketManager -->
+        <mxCell id="note" value="Cas TicketManager :&#xa;· ImagePullBackOff si registre 10.1.1.4:8082 non configuré sur workers&#xa;· Running après deploy-pipeline.sh + rollout status&#xa;· Smoke test post-deploy (HTTP NodePort)" style="shape=note;whiteSpace=wrap;html=1;fillColor=#FFFFCC;strokeColor=#999999;fontColor=#000000;fontSize=9;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="60" y="360" width="380" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="leg" value="États en pointillés = erreurs récupérables · États pleins = nominal · Transitions étiquetées = événements déclencheurs" style="text;html=1;align=left;fontSize=9;fontColor=#000000;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="60" y="450" width="780" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="foot" value="Référence : kubectl get pods -n ticketmanager · phases Kubernetes (PodStatus)" style="text;html=1;align=center;fontSize=9;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="150" y="490" width="600" height="18" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

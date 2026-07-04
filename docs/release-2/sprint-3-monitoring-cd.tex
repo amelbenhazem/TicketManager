@@ -161,12 +161,13 @@ Les composants applicatifs sont encapsulés dans des pods du namespace
 
 Les requêtes externes atteignent les services via \textbf{NodePort} sur les workers
 (\texttt{30080} frontend, \texttt{30081} backend). La figure~\ref{fig:r2-s3-k8s-arch}
-présente l'architecture physique de déploiement sur Azure Stack Hub.
+détaille l'architecture de déploiement Kubernetes (ressources du namespace
+\texttt{ticketmanager}), en complément de la vue d'ensemble physique (figure~2.5).
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.92\textwidth]{architecture-physique.png}
-    \caption{Architecture physique — déploiement TicketManager sur Azure Stack Hub}
+    \includegraphics[width=0.92\textwidth]{architecture-deploiement-k8s.png}
+    \caption{Architecture de déploiement Kubernetes — namespace \texttt{ticketmanager}}
     \label{fig:r2-s3-k8s-arch}
 \end{figure}
 

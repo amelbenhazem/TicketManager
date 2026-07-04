@@ -39,9 +39,24 @@ Exporter en PNG vers `docs/release-2/img/` :
 | Fichier draw.io | PNG à exporter | Section LaTeX |
 |-----------------|----------------|---------------|
 | `docs/diagrammes/plan-adressage-reseau-sprint1.drawio` | `plan-adressage-reseau-sprint1.png` | Figure plan d'adressage (§ Conception) |
-| `docs/diagrammes/architecture-infrastructure-sprint1.drawio` | `architecture-infrastructure-sprint1.png` | Figure 4.1 architecture globale Sprint 1 |
+| `docs/diagrammes/architecture-infrastructure-sprint1.drawio` | `architecture-infrastructure-sprint1.png` | Figure architecture globale Sprint 1 |
+| `docs/diagrammes/architecture-deploiement-k8s.drawio` | `architecture-deploiement-k8s.png` | Figure déploiement K8s namespace ticketmanager (§ Sprint 3, complément fig. physique) |
 
 Dans draw.io : **Fichier → Exporter → PNG** (zoom 100 %, bordure 10 px).
+
+## Diagrammes UML DevOps (Sprint 2 — Conception)
+
+Tous les libellés sont en **noir** (`fontColor=#000000`) pour l'impression PDF.
+
+| Type UML | Fichier draw.io | PNG suggéré | Usage dans le mémoire |
+|----------|-----------------|-------------|------------------------|
+| **Déploiement** | `docs/diagrammes/diagramme-deploiement-devops.drawio` | `diagramme-deploiement-devops.png` | VMs, VNet, NSG, K8s, Nexus, artefacts |
+| **Composants** | `docs/diagrammes/diagramme-composants-devops.drawio` | `diagramme-composants-devops.png` | NestJS, Next.js, MongoDB, outils CI/CD |
+| **Séquence** | `docs/diagrammes/seq-pipeline-cicd.drawio` | `seq-pipeline-cicd.png` | Push → build → tests → Sonar → Trivy → Nexus → K8s |
+| **Activité** | `docs/diagrammes/pipeline-stages.drawio` | `s2-pipeline-stages.png` | Workflow pipeline avec fourches et approbations |
+| **États-transitions** | `docs/diagrammes/etats-pod-kubernetes.drawio` | `etats-pod-kubernetes.png` | Cycle de vie pod (Pending → Running → …) |
+
+Diagrammes existants réutilisables : `architecture-physique.drawio`, `architecture-infrastructure-sprint1.drawio`.
 
 ## Captures d'écran (`img/`)
 
@@ -69,7 +84,7 @@ Réutilisable depuis Release 1 (via `\graphicspath`) : `architecture-globale-clo
 | Fichier | Commande / source |
 |---------|-------------------|
 | `s2-azure-devops-ui.png` | Interface Azure DevOps |
-| `s2-pipeline-stages.png` | Exporter `docs/diagrammes/pipeline-stages.drawio` |
+| `s2-pipeline-stages.png` | Exporter `docs/diagrammes/pipeline-stages.drawio` (diagramme d'activité UML) |
 | `s2-agent-pool.png` | Azure DevOps → Agent pools → ticketmanager-pool |
 | `s2-azure-repos.png` | Azure Repos → arborescence |
 | `s2-tests-backend.png` | `cd backend && npm run test` ou logs stage Test |
@@ -89,6 +104,7 @@ Réutilisable depuis Release 1 (via `\graphicspath`) : `architecture-globale-clo
 
 | Fichier | Commande / source |
 |---------|-------------------|
+| `architecture-deploiement-k8s.png` | Exporter `docs/diagrammes/architecture-deploiement-k8s.drawio` |
 | `s3-backend-deployment.png` | Capture `k8s/backend-deployment.yaml` |
 | `s3-frontend-deployment.png` | Capture `k8s/frontend-deployment.yaml` |
 | `s3-k8s-pipeline-stage.png` | Logs stage DeployK8s |

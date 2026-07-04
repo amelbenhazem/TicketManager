@@ -149,8 +149,11 @@ dans le projet.
 
 \subsubsection{Structure déclarative du pipeline}
 
-Le pipeline est organisé en \textbf{stages} séquentiels. La figure~\ref{fig:r2-s2-pipeline-stages}
-présente la vue d'ensemble de ces étapes telles que définies dans \texttt{azure-pipelines.yml} :
+Le pipeline est organisé en \textbf{stages} avec des exécutions parallèles (Snyk en parallèle
+des tests, Terraform et DeployK8s après la publication Nexus). La
+figure~\ref{fig:r2-s2-pipeline-stages} présente le \textbf{diagramme d'activité UML}
+(partitions par acteur, fourches/jonctions, gardes sur les transitions) tel que défini dans
+\texttt{azure-pipelines.yml} :
 
 \begin{enumerate}
   \item \textbf{Build} — compilation backend et frontend ;
@@ -168,7 +171,7 @@ présente la vue d'ensemble de ces étapes telles que définies dans \texttt{azu
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.95\textwidth]{s2-pipeline-stages.png}
-    \caption{Vue d'ensemble des stages du pipeline (\texttt{azure-pipelines.yml})}
+    \caption{Diagramme d'activité du pipeline CI/CD (\texttt{azure-pipelines.yml})}
     \label{fig:r2-s2-pipeline-stages}
 \end{figure}
 

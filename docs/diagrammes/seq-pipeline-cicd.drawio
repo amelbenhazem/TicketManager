@@ -1,0 +1,111 @@
+<mxfile host="app.diagrams.net" agent="TicketManager" version="22.1.0">
+  <diagram id="seq-pipeline" name="Séquence — Pipeline CI/CD">
+    <mxGraphModel dx="1500" dy="1100" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1300" pageHeight="1050" background="#ffffff">
+      <root>
+        <mxCell id="0"/><mxCell id="1" parent="0"/>
+        <mxCell id="title" value="Diagramme de séquence UML — Exécution du pipeline CI/CD TicketManager" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=14;fontStyle=1;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="150" y="8" width="1000" height="28" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="p-dev" value=":Développeur" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontStyle=0;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="30" y="45" width="90" height="960" as="geometry"/>
+        </mxCell>
+        <mxCell id="p-repos" value=":AzureRepos" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#FFF2CC;strokeColor=#D6B656;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="150" y="45" width="100" height="960" as="geometry"/>
+        </mxCell>
+        <mxCell id="p-pipe" value=":AzurePipeline" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#FFF2CC;strokeColor=#D6B656;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="280" y="45" width="110" height="960" as="geometry"/>
+        </mxCell>
+        <mxCell id="p-agent" value=":AgentCI&#xa;(vm-gestion)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#D5E8D4;strokeColor=#82B366;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="420" y="45" width="100" height="960" as="geometry"/>
+        </mxCell>
+        <mxCell id="p-sonar" value=":SonarQube" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#FFFFFF;strokeColor=#D6B656;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="550" y="45" width="90" height="960" as="geometry"/>
+        </mxCell>
+        <mxCell id="p-docker" value=":Docker" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#E1D5E7;strokeColor=#9673A6;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="670" y="45" width="80" height="960" as="geometry"/>
+        </mxCell>
+        <mxCell id="p-trivy" value=":Trivy" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#F8CECC;strokeColor=#B85450;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="780" y="45" width="70" height="960" as="geometry"/>
+        </mxCell>
+        <mxCell id="p-nexus" value=":Nexus" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#FFE6CC;strokeColor=#D79B00;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="880" y="45" width="80" height="960" as="geometry"/>
+        </mxCell>
+        <mxCell id="p-k8s" value=":Kubernetes" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#E1D5E7;strokeColor=#9673A6;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="990" y="45" width="100" height="960" as="geometry"/>
+        </mxCell>
+        <mxCell id="p-tf" value=":Terraform" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="1120" y="45" width="90" height="960" as="geometry"/>
+        </mxCell>
+
+        <!-- Messages -->
+        <mxCell id="m1" value="1. git push (main)" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;fontColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="75" y="110" as="sourcePoint"/><mxPoint x="200" y="110" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m2" value="2. webhook / trigger" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;fontColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="200" y="140" as="sourcePoint"/><mxPoint x="335" y="140" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m3" value="3. checkout + npm build" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;fontColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="335" y="175" as="sourcePoint"/><mxPoint x="470" y="175" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m4" value="4. npm test (Jest)" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;fontColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="335" y="210" as="sourcePoint"/><mxPoint x="470" y="210" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m5" value="5. sonar-scanner" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;fontColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="470" y="245" as="sourcePoint"/><mxPoint x="595" y="245" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m6" value="6. Quality Gate" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;rounded=0;fontColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="595" y="270" as="sourcePoint"/><mxPoint x="470" y="270" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m7" value="7. docker build (BE/FE)" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;fontColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="470" y="310" as="sourcePoint"/><mxPoint x="710" y="310" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m8" value="8. trivy image scan" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;fontColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="470" y="350" as="sourcePoint"/><mxPoint x="815" y="350" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m9" value="9. rapport CVE" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;rounded=0;fontColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="815" y="375" as="sourcePoint"/><mxPoint x="470" y="375" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m10" value="10. docker push" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;fontColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="470" y="415" as="sourcePoint"/><mxPoint x="920" y="415" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m11" value="11. terraform plan" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;fontColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="470" y="460" as="sourcePoint"/><mxPoint x="1165" y="460" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m12" value="12. approbation manuelle" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;rounded=0;fontColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="335" y="495" as="sourcePoint"/><mxPoint x="75" y="495" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m13" value="13. terraform apply" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;fontColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="470" y="530" as="sourcePoint"/><mxPoint x="1165" y="530" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m14" value="14. kubectl apply + rollout" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;fontColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="470" y="580" as="sourcePoint"/><mxPoint x="1040" y="580" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m15" value="15. pull image Nexus" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;fontColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="1040" y="610" as="sourcePoint"/><mxPoint x="920" y="610" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m16" value="16. post-deploy.sh (seed)" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;fontColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="470" y="650" as="sourcePoint"/><mxPoint x="1040" y="650" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m17" value="17. smoke test HTTP" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;fontColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="470" y="690" as="sourcePoint"/><mxPoint x="1040" y="690" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m18" value="18. OK / échec pipeline" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;rounded=0;fontColor=#000000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="335" y="730" as="sourcePoint"/><mxPoint x="75" y="730" as="targetPoint"/></mxGeometry>
+        </mxCell>
+
+        <!-- Fragment parallèle -->
+        <mxCell id="par" value="par" style="shape=umlFrame;whiteSpace=wrap;html=1;width=60;height=24;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="400" y="195" width="280" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="par-note" value="Tests Jest ∥ Snyk (dependsOn Build)" style="text;html=1;fontSize=9;fontColor=#000000;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="410" y="200" width="200" height="16" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="foot" value="Flux nominal sur branche main — stages Build à DeployK8s (azure-pipelines.yml)" style="text;html=1;align=center;fontSize=10;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="200" y="1020" width="900" height="20" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
