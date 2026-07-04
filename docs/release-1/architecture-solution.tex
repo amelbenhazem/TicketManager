@@ -1,0 +1,105 @@
+% =============================================================================
+% Architecture de la solution — TicketManager
+% Exporter les .drawio en PNG dans docs/release-1/img/ :
+%   - architecture-applicative-3-tiers.png
+%   - architecture-physique.png
+% =============================================================================
+
+\section{Architecture de la solution}
+
+Cette section décrit l'organisation globale de la solution \textit{TicketManager},
+en distinguant l'architecture logicielle (organisation des couches applicatives)
+et l'architecture physique (environnement de déploiement on-premises).
+
+% ---------------------------------------------------------------------------
+\subsection{Architecture logicielle}
+% ---------------------------------------------------------------------------
+
+\textit{TicketManager} est une application web full-stack basée sur une architecture
+en trois tiers assurant la séparation entre la présentation, la logique métier
+et la gestion des données. La figure~\ref{fig:archi-logicielle} présente cette
+organisation sous une forme conceptuelle, indépendante des technologies
+d'implémentation.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.92\textwidth]{img/architecture-applicative-3-tiers.png}
+    \caption{Architecture logicielle de TicketManager — Vue en trois couches}
+    \label{fig:archi-logicielle}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Couche présentation} : fournit les interfaces utilisateur
+    dédiées aux trois profils (Client, Technicien, Administrateur), la
+    consultation des notifications et les tableaux de bord statistiques.
+    Elle communique avec la couche métier via des API REST et des connexions
+    WebSocket pour les alertes temps réel.
+
+    \item \textbf{Couche métier} : centralise les traitements applicatifs :
+    authentification et contrôle d'accès (RBAC), gestion du cycle de vie des
+    tickets, administration des utilisateurs, diffusion des notifications et
+    calcul des statistiques.
+
+    \item \textbf{Couche données} : assure la persistance des informations
+    dans une base de données documentaire et délègue le stockage des pièces
+    jointes à un service externe spécialisé.
+\end{itemize}
+
+\paragraph{Technologies d'implémentation.}
+La couche présentation est développée avec \textbf{Next.js} et \textbf{React},
+la couche métier avec \textbf{NestJS}, et la couche données s'appuie sur
+\textbf{MongoDB} (via Mongoose) complété par \textbf{Cloudinary} pour les
+fichiers joints.
+
+% ---------------------------------------------------------------------------
+\subsection{Architecture physique}
+% ---------------------------------------------------------------------------
+
+L'architecture physique décrit l'environnement de déploiement de la solution
+sur \textbf{Azure Stack Hub}, hébergée on-premises au sein de RFC Tunisie.
+La figure~\ref{fig:architecture-physique} en donne une vue d'ensemble.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{img/architecture-physique.png}
+    \caption{Vue d'ensemble de l'architecture physique de TicketManager}
+    \label{fig:architecture-physique}
+\end{figure}
+
+L'infrastructure repose sur les composants suivants :
+
+\begin{itemize}
+    \item \textbf{Azure Stack Hub} : plateforme cloud hybride on-premises
+    (groupe de ressources, réseau virtuel \texttt{10.1.0.0/16}).
+
+    \item \textbf{Réseau virtuel segmenté} en trois sous-réseaux, chacun
+    protégé par un groupe de sécurité réseau (NSG) :
+    \begin{itemize}
+        \item \texttt{mgmt} (\texttt{10.1.1.0/24}) — administration ;
+        \item \texttt{db} (\texttt{10.1.2.0/24}) — base de données (privé) ;
+        \item \texttt{aks} (\texttt{10.1.3.0/24}) — cluster Kubernetes.
+    \end{itemize}
+
+    \item \textbf{Cluster Kubernetes (AKS Engine)} : orchestre les conteneurs
+    applicatifs (interface web, service API, base de données in-cluster) et les
+    outils DevOps (analyse qualité, registre d'images, supervision, scan de
+    sécurité). Le plan de contrôle (nœud master) et les nœuds worker hébergent
+    les pods du namespace \texttt{ticketmanager}.
+
+    \item \textbf{VM-gestion} (\texttt{10.1.1.4}) : machine d'administration
+    avec adresse IP publique et privée ; héberge Ansible, Docker, AKS Engine
+    et l'agent Azure DevOps pour l'automatisation et le déploiement du cluster.
+
+    \item \textbf{VM-db} (\texttt{10.1.2.4}) : machine dédiée à la base de
+    données, accessible uniquement en IP privée depuis les sous-réseaux
+    \texttt{mgmt} et \texttt{aks}. Elle sert de support \textit{legacy},
+    de sauvegarde ou de migration ; la base de données de production est
+    hébergée in-cluster (StatefulSet avec volume persistant).
+
+    \item \textbf{Chaîne CI/CD} : dépôt de code (GitHub / Azure Repos),
+    pipeline Azure DevOps (build, tests, qualité, images, scan, déploiement)
+    et provisionnement Terraform (\textit{Infrastructure as Code}).
+
+    \item \textbf{Services externes} : stockage des pièces jointes et accès
+    utilisateur via Internet (adresse IP publique exposant l'interface web).
+\end{itemize}

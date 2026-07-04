@@ -131,20 +131,25 @@ stages:
         displayName: "SonarQube Analysis"
         steps:
           - script: |
-              echo "Longueur du token recu : $(printf '%s' "$SONAR_TOKEN" | wc -c)"
+              SONAR_OPTS=(
+                -Dsonar.login="$SONAR_TOKEN"
+                -Dsonar.host.url=http://localhost:9000
+                -Dsonar.projectKey=ticket-manager
+                -Dsonar.projectName=TicketManager
+                -Dsonar.sources=backend/src,frontend
+                -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/.next/**,**/coverage/**
+              )
+              # Couverture uniquement si le stage Test a produit lcov.info
+              if [ -f backend/coverage/lcov.info ]; then
+                SONAR_OPTS+=(-Dsonar.javascript.lcov.reportPaths=backend/coverage/lcov.info)
+              fi
               docker run --rm \
                 --network host \
                 -e SONAR_HOST_URL=http://localhost:9000 \
                 -v "$(System.DefaultWorkingDirectory):/usr/src" \
                 -w /usr/src \
                 sonarsource/sonar-scanner-cli \
-                -Dsonar.login="$SONAR_TOKEN" \
-                -Dsonar.host.url=http://localhost:9000 \
-                -Dsonar.projectKey=ticket-manager \
-                -Dsonar.projectName=TicketManager \
-                -Dsonar.sources=backend/src,frontend \
-                -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/.next/**,**/coverage/** \
-                -Dsonar.javascript.lcov.reportPaths=backend/coverage/lcov.info
+                "${SONAR_OPTS[@]}"
             displayName: "Run SonarQube Analysis"
             env:
               SONAR_TOKEN: $(SONAR_TOKEN)

@@ -1,0 +1,345 @@
+% =============================================================================
+% Release 2 — Sprint 2 : Intégration continue et déploiement continu (CI/CD)
+% =============================================================================
+
+\section[Sprint 2 : Intégration continue et déploiement continu (CI/CD)]%
+{Sprint 2 : Intégration continue et déploiement continu (CI/CD)}
+
+Ce sprint industrialise la validation du code, la construction des artefacts conteneurisés
+et l'automatisation du provisionnement infrastructurel. Il s'appuie sur \textbf{Azure DevOps}
+et un pipeline entièrement décrit en YAML (\texttt{azure-pipelines.yml}).
+
+
+% ---------------------------------------------------------------------------
+\subsection{Objectif du Sprint 2}
+% ---------------------------------------------------------------------------
+
+Le tableau~\ref{tab:r2-s2-objectifs} résume les objectifs du Sprint~2 par axe.
+
+\begin{table}[H]
+\centering
+\caption{Objectifs du Sprint~2 par axe}
+\label{tab:r2-s2-objectifs}
+\footnotesize
+\renewcommand{\arraystretch}{1.1}
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{|p{2.8cm}|p{9.2cm}|}
+\hline
+\textbf{Axe} & \textbf{Objectif} \\
+\hline
+Intégration continue &
+  Pipeline déclenché sur \texttt{main} et \texttt{develop}, exécuté sur agent
+  auto-hébergé (\texttt{ticketmanager-pool}) \\
+\hline
+Qualité &
+  Analyse statique SonarQube ; tests automatisés backend (Jest) \\
+\hline
+Sécurité &
+  Scan des images Docker (Trivy) ; analyse des dépendances (Snyk, optionnel) \\
+\hline
+Conteneurisation &
+  Images multi-étapes \texttt{ticket-backend} et \texttt{ticket-frontend} \\
+\hline
+Registre &
+  Publication des images vers Nexus Repository (\texttt{localhost:8082}) \\
+\hline
+IaC automatisé &
+  Exécution Terraform (init, plan, apply) intégrée au pipeline \\
+\hline
+\end{tabular}
+\end{table}
+
+\paragraph{Résultat attendu.}
+\begin{itemize}
+  \item pipeline Azure DevOps vert de bout en bout (stages Build à Push minimum) ;
+  \item images Docker versionnées dans Nexus (\texttt{docker-ticketmanager/}) ;
+  \item rapport SonarQube pour le projet \texttt{ticket-manager} ;
+  \item infrastructure Terraform synchronisée via le stage IaC.
+\end{itemize}
+
+\paragraph{Note sur les stages temporairement désactivés.}
+Dans la version actuelle de \texttt{azure-pipelines.yml}, les stages \textbf{Test},
+\textbf{Snyk} et \textbf{Trivy} sont commentés pour accélérer les itérations. Le squelette
+du rapport prévoit leurs figures ; réactivez-les avant la soutenance si possible.
+
+
+% ---------------------------------------------------------------------------
+\subsection{Backlog du Sprint 2}
+% ---------------------------------------------------------------------------
+
+Le tableau~\ref{tab:r2-s2-backlog} présente le backlog planifié pour le Sprint~2.
+
+\subsubsection{Epic — Chaîne d'intégration continue}
+
+\begin{table}[H]
+\centering
+\caption{Backlog Sprint~2 — Epic intégration continue et déploiement continu}
+\label{tab:r2-s2-backlog}
+\footnotesize
+\renewcommand{\arraystretch}{0.85}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{|c|p{7.8cm}|c|c|}
+\hline
+\textbf{ID} & \textbf{User story} & \textbf{Priorité} & \textbf{Est. (j)} \\
+\hline
+R2-S2-C01 &
+  En tant que développeur, je centralise le code source sur Azure Repos &
+  H & 1 \\
+\hline
+R2-S2-C02 &
+  En tant que développeur, j'exécute le pipeline sur un agent auto-hébergé &
+  H & 2 \\
+\hline
+R2-S2-C03 &
+  En tant que développeur, je déclenche automatiquement le pipeline à chaque push &
+  H & 1 \\
+\hline
+R2-S2-C04 &
+  En tant que développeur, je compile le backend NestJS et le frontend Next.js à chaque livraison &
+  H & 2 \\
+\hline
+R2-S2-C05 &
+  En tant que développeur, j'exécute les tests automatisés et publie la couverture &
+  H & 2 \\
+\hline
+R2-S2-C06 &
+  En tant que développeur, j'intègre l'analyse SonarQube dans le pipeline &
+  H & 2 \\
+\hline
+R2-S2-C07 &
+  En tant que développeur, je construis des images Docker prêtes pour la production &
+  H & 2 \\
+\hline
+R2-S2-C08 &
+  En tant que développeur, je scanne les images Docker avec Trivy avant publication &
+  M & 1 \\
+\hline
+R2-S2-C09 &
+  En tant que développeur, je publie les images validées dans Nexus Repository &
+  H & 1 \\
+\hline
+R2-S2-C10 &
+  En tant que développeur, j'automatise Terraform dans le pipeline avec validation manuelle &
+  H & 2 \\
+\hline
+\end{tabular}
+\end{table}
+
+
+% ---------------------------------------------------------------------------
+\subsection{Analyse — Conception du pipeline}
+% ---------------------------------------------------------------------------
+
+\subsubsection{Présentation d'Azure DevOps}
+
+Azure DevOps regroupe les outils collaboratifs mobilisés dans TicketManager :
+\begin{itemize}
+  \item \textbf{Azure Boards} — planification agile et suivi des sprints ;
+  \item \textbf{Azure Repos} — gestion de versions Git ;
+  \item \textbf{Azure Pipelines} — exécution automatisée du pipeline CI/CD en YAML.
+\end{itemize}
+
+La figure~\ref{fig:r2-s2-ado-ui} présente l'interface principale d'Azure DevOps utilisée
+dans le projet.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{s2-azure-devops-ui.png}
+    \caption{Interface principale d'Azure DevOps}
+    \label{fig:r2-s2-ado-ui}
+\end{figure}
+
+\subsubsection{Structure déclarative du pipeline}
+
+Le pipeline est organisé en \textbf{stages} séquentiels. La figure~\ref{fig:r2-s2-pipeline-stages}
+présente la vue d'ensemble de ces étapes telles que définies dans \texttt{azure-pipelines.yml} :
+
+\begin{enumerate}
+  \item \textbf{Build} — compilation backend et frontend ;
+  \item \textbf{CodeQuality} — analyse SonarQube ;
+  \item \textbf{Docker} — construction des images ;
+  \item \textbf{Push} — publication vers Nexus ;
+  \item \textbf{Terraform} — provisionnement IaC ;
+  \item \textbf{DeployK8s} — déploiement Kubernetes (Sprint~3, branche \texttt{main}) ;
+  \item \textbf{DeployMonitoring} — Prometheus + Grafana via Ansible (Sprint~3).
+\end{enumerate}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{s2-pipeline-stages.png}
+    \caption{Vue d'ensemble des stages du pipeline (\texttt{azure-pipelines.yml})}
+    \label{fig:r2-s2-pipeline-stages}
+\end{figure}
+
+\subsubsection{Pool d'agents et connexion au dépôt}
+
+Les tâches s'exécutent sur un \textbf{agent auto-hébergé} installé sur vm-gestion, regroupé
+dans le pool \texttt{ticketmanager-pool}. La figure~\ref{fig:r2-s2-agent-pool} illustre la
+configuration de ce pool d'agents. La figure~\ref{fig:r2-s2-repos} présente la structure du
+dépôt Azure Repos, incluant les répertoires \texttt{backend}, \texttt{frontend},
+\texttt{terraform} et \texttt{k8s}.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{s2-agent-pool.png}
+    \caption{Configuration du pool d'agents auto-hébergés}
+    \label{fig:r2-s2-agent-pool}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{s2-azure-repos.png}
+    \caption{Structure du dépôt Azure Repos (backend, frontend, terraform, k8s)}
+    \label{fig:r2-s2-repos}
+\end{figure}
+
+
+% ---------------------------------------------------------------------------
+\subsection{Réalisation}
+% ---------------------------------------------------------------------------
+
+\subsubsection{Compilation et tests}
+
+\paragraph{Stage Build.}
+Installation des dépendances npm (avec cache local sur vm-gestion), puis
+\texttt{npm run build} pour le backend NestJS et le frontend Next.js.
+
+\paragraph{Tests backend.}
+Les tests unitaires et d'intégration s'exécutent avec Jest lorsque le stage Test est actif.
+La figure~\ref{fig:r2-s2-tests-backend} présente le résultat de l'exécution des tests
+automatisés du backend dans Azure DevOps.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{s2-tests-backend.png}
+    \caption{Exécution des tests automatisés du backend}
+    \label{fig:r2-s2-tests-backend}
+\end{figure}
+
+
+\subsubsection{Analyse de la qualité du code (SonarQube)}
+
+SonarQube analyse le code source backend (\texttt{backend/src}) et frontend
+(\texttt{frontend}). La figure~\ref{fig:r2-s2-sonar-conn} présente la configuration de la
+connexion entre SonarQube et Azure DevOps. La figure~\ref{fig:r2-s2-sonar-results} illustre
+les résultats d'analyse du projet \texttt{ticket-manager}.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{s2-sonar-connection.png}
+    \caption{Connexion SonarQube — Azure DevOps}
+    \label{fig:r2-s2-sonar-conn}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{s2-sonar-results.png}
+    \caption{Résultats d'analyse SonarQube — projet TicketManager}
+    \label{fig:r2-s2-sonar-results}
+\end{figure}
+
+
+\subsubsection{Construction des images Docker}
+
+Deux images sont produites : \textbf{ticket-backend} (API NestJS, port 3001) et
+\textbf{ticket-frontend} (Next.js, port 3000). La figure~\ref{fig:r2-s2-dockerfile-be}
+présente le Dockerfile multi-étapes du backend. La figure~\ref{fig:r2-s2-dockerfile-fe}
+détaille celui du frontend. La figure~\ref{fig:r2-s2-docker-build} montre la construction
+réussie des images dans le stage Docker du pipeline.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{s2-dockerfile-backend.png}
+    \caption{Dockerfile du backend NestJS}
+    \label{fig:r2-s2-dockerfile-be}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{s2-dockerfile-frontend.png}
+    \caption{Dockerfile du frontend Next.js}
+    \label{fig:r2-s2-dockerfile-fe}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{s2-docker-build.png}
+    \caption{Construction des images dans le stage Docker}
+    \label{fig:r2-s2-docker-build}
+\end{figure}
+
+
+\subsubsection{Scan de vulnérabilités (Trivy)}
+
+Trivy analyse les images construites et signale les CVE par niveau de gravité. La
+figure~\ref{fig:r2-s2-trivy-be} présente le rapport de scan pour l'image backend. La
+figure~\ref{fig:r2-s2-trivy-fe} illustre celui de l'image frontend.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{s2-trivy-backend.png}
+    \caption{Scan Trivy — image backend}
+    \label{fig:r2-s2-trivy-be}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{s2-trivy-frontend.png}
+    \caption{Scan Trivy — image frontend}
+    \label{fig:r2-s2-trivy-fe}
+\end{figure}
+
+
+\subsubsection{Publication vers Nexus Repository}
+
+Nexus joue le rôle de \textbf{registre Docker privé} sur vm-gestion. La
+figure~\ref{fig:r2-s2-nexus-repo} présente la création du dépôt Docker hosted. La
+figure~\ref{fig:r2-s2-nexus-images} montre les images \texttt{ticket-backend} et
+\texttt{ticket-frontend} stockées après exécution du pipeline.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{s2-nexus-repo.png}
+    \caption{Création du dépôt Docker hosted dans Nexus}
+    \label{fig:r2-s2-nexus-repo}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{s2-nexus-images.png}
+    \caption{Images \texttt{ticket-backend} et \texttt{ticket-frontend} dans Nexus}
+    \label{fig:r2-s2-nexus-images}
+\end{figure}
+
+
+\subsubsection{Terraform automatisé dans le pipeline}
+
+Le stage \textbf{Terraform IaC} exécute \texttt{terraform init}, \texttt{plan} et
+\texttt{apply}. La figure~\ref{fig:r2-s2-tf-pipeline} présente l'exécution réussie de ce
+stage dans Azure DevOps. La figure~\ref{fig:r2-s2-pipeline-run} illustre une exécution
+complète du pipeline CI (stages Build à Push).
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{s2-terraform-pipeline.png}
+    \caption{Exécution réussie du stage Terraform dans Azure DevOps}
+    \label{fig:r2-s2-tf-pipeline}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{s2-pipeline-run-success.png}
+    \caption{Exécution complète du pipeline CI (stages Build à Push)}
+    \label{fig:r2-s2-pipeline-run}
+\end{figure}
+
+
+% ---------------------------------------------------------------------------
+\subsection{Bilan du Sprint 2}
+% ---------------------------------------------------------------------------
+
+Le Sprint~2 met en place une chaîne d'intégration continue couvrant la compilation, la
+qualité, la conteneurisation, la sécurité des images et la publication vers un registre
+privé. Le déploiement effectif des pods applicatifs sur le cluster (stage
+\textbf{DeployK8s}) et la supervision (stage \textbf{DeployMonitoring}) sont détaillés au
+Sprint~3.

@@ -1,0 +1,350 @@
+% =============================================================================
+% Release 2 — Sprint 3 : Monitoring et supervision de la plateforme
+% =============================================================================
+
+\section[Sprint 3 : Monitoring et supervision de la plateforme]%
+{Sprint 3 : Monitoring et supervision de la plateforme}
+
+Ce sprint finalise la Release~2 par le \textbf{déploiement continu} (CD) de l'application
+sur Kubernetes et la mise en place de la \textbf{supervision} (Prometheus, Grafana) via
+Ansible sur vm-gestion.
+
+
+% ---------------------------------------------------------------------------
+\subsection{Objectif du Sprint 3}
+% ---------------------------------------------------------------------------
+
+Le tableau~\ref{tab:r2-s3-objectifs} détaille les objectifs du Sprint~3 par axe.
+
+\begin{table}[H]
+\centering
+\caption{Objectifs du Sprint~3 par axe}
+\label{tab:r2-s3-objectifs}
+\footnotesize
+\renewcommand{\arraystretch}{1.1}
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{|p{2.8cm}|p{9.2cm}|}
+\hline
+\textbf{Axe} & \textbf{Objectif} \\
+\hline
+Déploiement continu &
+  Déployer automatiquement backend, frontend et MongoDB in-cluster via le stage
+  \texttt{DeployK8s} (branche \texttt{main}, approbation manuelle) \\
+\hline
+Manifests Kubernetes &
+  Appliquer les fichiers YAML du répertoire \texttt{k8s/} (Deployments, Services,
+  StatefulSet MongoDB, Secrets) \\
+\hline
+Registre privé &
+  Configurer le pull d'images depuis Nexus (\texttt{10.1.1.4:8082}) sur les workers \\
+\hline
+Supervision &
+  Déployer Prometheus et Grafana sur vm-gestion (\texttt{ansible/playbooks/monitoring.yml}) \\
+\hline
+Observabilité &
+  Collecter les métriques des nœuds K8s, du backend NestJS et de MongoDB \\
+\hline
+Validation &
+  Smoke tests post-déploiement (API, frontend, cibles Prometheus UP) \\
+\hline
+\end{tabular}
+\end{table}
+
+\paragraph{Résultat attendu.}
+\begin{itemize}
+  \item namespace \texttt{ticketmanager} avec pods \texttt{Running} ;
+  \item application accessible via NodePort (frontend \texttt{30080}, backend \texttt{30081}) ;
+  \item Prometheus accessible sur le port \texttt{9090}, Grafana sur \texttt{3030} ;
+  \item dashboards opérationnels pour le cluster et l'application.
+\end{itemize}
+
+\paragraph{Choix architectural — MongoDB in-cluster.}
+Contrairement aux projets précédents (chatbot) où MongoDB était exclusivement sur une VM
+dédiée, TicketManager héberge la base de données de production dans un
+\textbf{StatefulSet Kubernetes} avec volume persistant. La vm-db reste disponible pour
+migration ou sauvegarde legacy (\texttt{ansible/playbooks/mongodb.yml}).
+
+
+% ---------------------------------------------------------------------------
+\subsection{Backlog du Sprint 3}
+% ---------------------------------------------------------------------------
+
+Le tableau~\ref{tab:r2-s3-backlog-deploy} couvre l'epic déploiement continu. Le
+tableau~\ref{tab:r2-s3-backlog-monitoring} couvre l'epic supervision.
+
+\subsubsection{Epic — Déploiement continu (Kubernetes)}
+
+\begin{table}[H]
+\centering
+\caption{Backlog Sprint~3 — Epic déploiement continu Kubernetes}
+\label{tab:r2-s3-backlog-deploy}
+\footnotesize
+\renewcommand{\arraystretch}{0.85}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{|c|p{7.8cm}|c|c|}
+\hline
+\textbf{ID} & \textbf{User story} & \textbf{Priorité} & \textbf{Est. (j)} \\
+\hline
+R2-S3-D01 &
+  En tant que développeur, je déploie le backend NestJS en pod Kubernetes &
+  H & 2 \\
+\hline
+R2-S3-D02 &
+  En tant que développeur, je déploie le frontend Next.js en pod Kubernetes &
+  H & 2 \\
+\hline
+R2-S3-D03 &
+  En tant que développeur, je déploie MongoDB in-cluster via un StatefulSet &
+  H & 2 \\
+\hline
+R2-S3-D04 &
+  En tant que développeur, je configure les secrets Kubernetes (JWT, MongoDB, Cloudinary) &
+  H & 1 \\
+\hline
+R2-S3-D05 &
+  En tant que développeur, j'automatise le déploiement via le stage CD du pipeline &
+  H & 2 \\
+\hline
+R2-S3-D06 &
+  En tant que développeur, je valide le déploiement par des smoke tests automatisés &
+  H & 1 \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Epic — Monitoring et supervision}
+
+\begin{table}[H]
+\centering
+\caption{Backlog Sprint~3 — Epic monitoring et supervision}
+\label{tab:r2-s3-backlog-monitoring}
+\footnotesize
+\renewcommand{\arraystretch}{0.85}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{|c|p{7.8cm}|c|c|}
+\hline
+\textbf{ID} & \textbf{User story} & \textbf{Priorité} & \textbf{Est. (j)} \\
+\hline
+R2-S3-M01 &
+  En tant que développeur, je déploie Prometheus sur vm-gestion via Ansible &
+  H & 2 \\
+\hline
+R2-S3-M02 &
+  En tant que développeur, je déploie Grafana et je connecte Prometheus comme source de données &
+  H & 2 \\
+\hline
+R2-S3-M03 &
+  En tant que développeur, j'intègre le déploiement monitoring au pipeline Azure DevOps &
+  M & 1 \\
+\hline
+R2-S3-M04 &
+  En tant que développeur, je vérifie que les cibles Prometheus sont en état \texttt{UP} &
+  H & 1 \\
+\hline
+\end{tabular}
+\end{table}
+
+
+% ---------------------------------------------------------------------------
+\subsection{Analyse — Conception du déploiement Kubernetes}
+% ---------------------------------------------------------------------------
+
+\subsubsection{Architecture de déploiement}
+
+Les composants applicatifs sont encapsulés dans des pods du namespace
+\texttt{ticketmanager} :
+\begin{itemize}
+  \item \textbf{ticket-backend} — image Nexus, port 3001, secrets JWT et Cloudinary ;
+  \item \textbf{ticket-frontend} — image Nexus, port 3000, URL API figée au build Docker ;
+  \item \textbf{mongodb} — StatefulSet avec volume persistant pour les données tickets.
+\end{itemize}
+
+Les requêtes externes atteignent les services via \textbf{NodePort} sur les workers
+(\texttt{30080} frontend, \texttt{30081} backend). La figure~\ref{fig:r2-s3-k8s-arch}
+présente l'architecture physique de déploiement sur Azure Stack Hub.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.92\textwidth]{architecture-physique.png}
+    \caption{Architecture physique — déploiement TicketManager sur Azure Stack Hub}
+    \label{fig:r2-s3-k8s-arch}
+\end{figure}
+
+\subsubsection{Chaîne de déploiement continu}
+
+Le stage \texttt{DeployK8s} du pipeline :
+\begin{enumerate}
+  \item attend une \textbf{approbation manuelle} (\texttt{ManualValidation}) ;
+  \item configure le registre insecure sur les workers ;
+  \item exécute \texttt{k8s/deploy-pipeline.sh} (secrets, manifests, rollout, seed, smoke test).
+\end{enumerate}
+
+
+% ---------------------------------------------------------------------------
+\subsection{Réalisation — Déploiement Kubernetes}
+% ---------------------------------------------------------------------------
+
+\subsubsection{Manifests et secrets}
+
+La figure~\ref{fig:r2-s3-backend-yaml} présente le manifest de déploiement du backend
+(\texttt{backend-deployment.yaml}). La figure~\ref{fig:r2-s3-frontend-yaml} illustre celui
+du frontend (\texttt{frontend-deployment.yaml}).
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{s3-backend-deployment.png}
+    \caption{Manifest de déploiement du backend (\texttt{backend-deployment.yaml})}
+    \label{fig:r2-s3-backend-yaml}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{s3-frontend-deployment.png}
+    \caption{Manifest de déploiement du frontend (\texttt{frontend-deployment.yaml})}
+    \label{fig:r2-s3-frontend-yaml}
+\end{figure}
+
+\subsubsection{Exécution du déploiement}
+
+La figure~\ref{fig:r2-s3-k8s-pipeline} présente le stage \textbf{DeployK8s} exécuté dans
+Azure DevOps, incluant l'approbation manuelle et l'application des manifests.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{s3-k8s-pipeline-stage.png}
+    \caption{Stage DeployK8s dans Azure DevOps}
+    \label{fig:r2-s3-k8s-pipeline}
+\end{figure}
+
+\subsubsection{Vérification des pods}
+
+La figure~\ref{fig:r2-s3-pods} présente la sortie de \texttt{kubectl get pods -n ticketmanager}
+: l'ensemble des pods applicatifs est en état \texttt{Running}.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{s3-kubectl-pods.png}
+    \caption{État des pods (\texttt{kubectl get pods -n ticketmanager})}
+    \label{fig:r2-s3-pods}
+\end{figure}
+
+\subsubsection{Application accessible}
+
+La figure~\ref{fig:r2-s3-app} illustre l'interface TicketManager accessible depuis un
+navigateur après déploiement réussi sur le cluster.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{s3-app-browser.png}
+    \caption{Interface TicketManager accessible après déploiement}
+    \label{fig:r2-s3-app}
+\end{figure}
+
+
+% ---------------------------------------------------------------------------
+\subsection{Réalisation — Monitoring et supervision}
+% ---------------------------------------------------------------------------
+
+\subsubsection{Déploiement Ansible (Prometheus + Grafana)}
+
+Le playbook \texttt{ansible/playbooks/monitoring.yml} déploie Prometheus (port 9090) et
+Grafana (port 3030) sur vm-gestion. La figure~\ref{fig:r2-s3-ansible} présente l'exécution
+réussie de ce playbook.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{s3-ansible-monitoring.png}
+    \caption{Exécution du playbook \texttt{monitoring.yml}}
+    \label{fig:r2-s3-ansible}
+\end{figure}
+
+\subsubsection{Configuration Prometheus}
+
+Le fichier \texttt{ansible/templates/prometheus.yml.j2} définit les cibles surveillées.
+La figure~\ref{fig:r2-s3-prom-targets} présente l'interface Prometheus (\texttt{/targets})
+avec l'ensemble des cibles en état \texttt{UP}.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{s3-prometheus-targets.png}
+    \caption{Cibles actives dans l'interface Prometheus (\texttt{/targets})}
+    \label{fig:r2-s3-prom-targets}
+\end{figure}
+
+\subsubsection{Dashboards Grafana}
+
+La figure~\ref{fig:r2-s3-grafana-ds} présente la configuration de Prometheus comme source
+de données dans Grafana. La figure~\ref{fig:r2-s3-grafana-dash} illustre un dashboard de
+supervision regroupant les métriques du cluster et de l'application backend.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{s3-grafana-datasource.png}
+    \caption{Configuration de Prometheus comme source Grafana}
+    \label{fig:r2-s3-grafana-ds}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{s3-grafana-dashboard.png}
+    \caption{Dashboard de supervision — cluster et application}
+    \label{fig:r2-s3-grafana-dash}
+\end{figure}
+
+\subsubsection{Intégration pipeline}
+
+La figure~\ref{fig:r2-s3-mon-pipeline} présente le stage \textbf{DeployMonitoring} du
+pipeline Azure DevOps, exécutant automatiquement le playbook Ansible après un déploiement
+K8s réussi.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{s3-monitoring-pipeline.png}
+    \caption{Stage DeployMonitoring dans Azure DevOps}
+    \label{fig:r2-s3-mon-pipeline}
+\end{figure}
+
+
+% ---------------------------------------------------------------------------
+\subsection{Tests et validation}
+% ---------------------------------------------------------------------------
+
+\subsubsection{Smoke tests post-déploiement}
+
+Le script \texttt{k8s/post-deploy.sh} vérifie la disponibilité de l'API, du frontend et
+des outils de supervision. Le tableau~\ref{tab:r2-s3-validation} résume les critères de
+validation retenus pour le Sprint~3.
+
+\begin{table}[H]
+\centering
+\caption{Critères de validation du Sprint~3}
+\label{tab:r2-s3-validation}
+\footnotesize
+\renewcommand{\arraystretch}{1.1}
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Composant} & \textbf{URL / commande} & \textbf{Critère de succès} \\
+\hline
+Backend & \texttt{curl http://<worker>:30081/} & HTTP 200 \\
+\hline
+Frontend & \texttt{http://<worker>:30080} & Page de connexion affichée \\
+\hline
+Pods & \texttt{kubectl get pods -n ticketmanager} & Tous \texttt{Running} \\
+\hline
+Prometheus & \texttt{curl http://10.1.1.4:9090/-/ready} & \texttt{Ready} \\
+\hline
+Grafana & \texttt{http://10.1.1.4:3030/login} & HTTP 200 \\
+\hline
+\end{tabular}
+\end{table}
+
+
+% ---------------------------------------------------------------------------
+\subsection{Bilan du Sprint 3}
+% ---------------------------------------------------------------------------
+
+Le Sprint~3 clôt la Release~2 en rendant TicketManager déployable et observable en
+environnement cloud. L'application tourne dans Kubernetes ; la supervision Prometheus/Grafana
+permet de détecter les anomalies de charge, de disponibilité et de performance avant
+intervention manuelle.

@@ -1,0 +1,148 @@
+<mxfile host="65bd71144e">
+    <diagram id="seq-consult-notif" name="Séquence - Consulter Notifications">
+        <mxGraphModel dx="1040" dy="834" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="900" background="#ffffff" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="bg" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry width="1100" height="830" as="geometry"/>
+                </mxCell>
+                <mxCell id="title" value="Diagramme de séquence du cas d'utilisation « Consulter Notifications »" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=14;fontStyle=1;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="150" y="15" width="800" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="p-user" value=":Acteur&#10;(Client / Technicien / Admin)" style="shape=umlLifeline;whiteSpace=wrap;html=1;size=40;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#000000;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="30" y="60" width="130" height="740" as="geometry"/>
+                </mxCell>
+                <mxCell id="p-fe" value=":Frontend&#10;(NotificationsBell)" style="shape=umlLifeline;whiteSpace=wrap;html=1;size=40;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#000000;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="200" y="60" width="140" height="740" as="geometry"/>
+                </mxCell>
+                <mxCell id="p-guard" value=":JwtAuthGuard" style="shape=umlLifeline;whiteSpace=wrap;html=1;size=40;fillColor=#e1d5e7;strokeColor=#9673a6;fontColor=#000000;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="370" y="60" width="110" height="740" as="geometry"/>
+                </mxCell>
+                <mxCell id="p-ctrl" value=":NotificationsController" style="shape=umlLifeline;whiteSpace=wrap;html=1;size=40;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="510" y="60" width="150" height="740" as="geometry"/>
+                </mxCell>
+                <mxCell id="p-svc" value=":NotificationsService" style="shape=umlLifeline;whiteSpace=wrap;html=1;size=40;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="690" y="60" width="140" height="740" as="geometry"/>
+                </mxCell>
+                <mxCell id="p-db" value=":MongoDB" style="shape=umlLifeline;whiteSpace=wrap;html=1;size=40;fillColor=#ffe6cc;strokeColor=#d79b00;fontColor=#000000;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="870" y="60" width="100" height="740" as="geometry"/>
+                </mxCell>
+                <mxCell id="m1" value="1. consulte l'interface (badge compteur)" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="95" y="120" as="sourcePoint"/>
+                        <mxPoint x="270" y="120" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="m2" value="GET /notifications/unread-count (Bearer JWT)" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="270" y="155" as="sourcePoint"/>
+                        <mxPoint x="585" y="155" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="m3" value="canActivate()" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="585" y="185" as="sourcePoint"/>
+                        <mxPoint x="425" y="185" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="m4" value="unreadCountForUser(userId)" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="585" y="215" as="sourcePoint"/>
+                        <mxPoint x="760" y="215" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="m5" value="count({ userId, isRead: false })" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="760" y="245" as="sourcePoint"/>
+                        <mxPoint x="920" y="245" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="m6" value="{ count }" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="270" y="275" as="sourcePoint"/>
+                        <mxPoint x="95" y="275" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="m7" value="2. ouvre la cloche NotificationsBell" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="95" y="320" as="sourcePoint"/>
+                        <mxPoint x="270" y="320" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="m8" value="3. GET /notifications?page&amp;limit (Bearer JWT)" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="270" y="360" as="sourcePoint"/>
+                        <mxPoint x="585" y="360" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="m9" value="listForUser(userId, page, limit)" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="585" y="395" as="sourcePoint"/>
+                        <mxPoint x="760" y="395" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="m10" value="find({ userId }).sort(createdAt).skip().limit()" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="760" y="430" as="sourcePoint"/>
+                        <mxPoint x="920" y="430" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="m11" value="PaginatedNotifications { items, total, page, totalPages }" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="270" y="470" as="sourcePoint"/>
+                        <mxPoint x="95" y="470" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="m12" value="4. affiche la liste (titre, date, lu/non lu)" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="270" y="505" as="sourcePoint"/>
+                        <mxPoint x="95" y="505" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="opt-mark" value="opt" style="shape=umlFrame;whiteSpace=wrap;html=1;width=30;height=20;fillColor=none;strokeColor=#000000;fontStyle=1;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="530" width="960" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="opt-mark-lbl" value="[acteur marque comme lue ou tout lu]" style="text;html=1;align=left;fontSize=10;fontStyle=2;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="75" y="535" width="260" height="18" as="geometry"/>
+                </mxCell>
+                <mxCell id="m13" value="5. PATCH /notifications/:id/read ou /readAll" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="270" y="570" as="sourcePoint"/>
+                        <mxPoint x="585" y="570" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="m14" value="markRead() / markAllRead()" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="585" y="600" as="sourcePoint"/>
+                        <mxPoint x="760" y="600" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="m15" value="update isRead = true" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="760" y="630" as="sourcePoint"/>
+                        <mxPoint x="920" y="630" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="loop-page" value="loop" style="shape=umlFrame;whiteSpace=wrap;html=1;width=30;height=20;fillColor=none;strokeColor=#000000;fontStyle=1;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="670" width="960" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="loop-lbl" value="[page &amp;lt; totalPages — Charger plus]" style="text;html=1;align=left;fontSize=10;fontStyle=2;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="75" y="675" width="240" height="18" as="geometry"/>
+                </mxCell>
+                <mxCell id="m16" value="6. GET /notifications?page+1" style="html=1;verticalAlign=bottom;endArrow=block;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="270" y="715" as="sourcePoint"/>
+                        <mxPoint x="585" y="715" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="m17" value="page suivante ajoutée à la liste" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;labelBackgroundColor=#ffffff;fontColor=#000000;strokeColor=#000000;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="270" y="745" as="sourcePoint"/>
+                        <mxPoint x="95" y="745" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

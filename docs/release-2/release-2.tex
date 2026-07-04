@@ -1,0 +1,106 @@
+% =============================================================================
+% Release 2 — Industrialisation et déploiement de la plateforme TicketManager
+% =============================================================================
+%
+% Inclusion dans le rapport principal (mémoire / chapitre) :
+%
+%   \chapter{Release 2 : Industrialisation et déploiement de la plateforme}
+%   \graphicspath{{docs/release-2/img/}{docs/release-1/img/}}
+%   \input{docs/release-2/release-2}
+%
+% Convention : les \caption des tableaux sont placés AU-DESSUS du tabular.
+% Les figures de réalisation sont citées dans le texte via \ref{fig:...}.
+%
+% =============================================================================
+
+\section*{Release 2 : Industrialisation et déploiement de la plateforme}
+\addcontentsline{toc}{section}{Release 2 : Industrialisation et déploiement de la plateforme}
+
+La \textbf{Release~2} prolonge le socle applicatif livré en Release~1 (conception et
+développement de \textit{TicketManager}). Elle vise à industrialiser le cycle de vie de la
+plateforme sur \textbf{Azure Stack Hub} : provisionnement reproductible de l'infrastructure,
+chaîne d'intégration et de déploiement continus (CI/CD), déploiement conteneurisé sur
+Kubernetes et supervision de l'environnement de production.
+
+\paragraph{Organisation en trois sprints.}
+Chaque sprint suit la même trame pédagogique que la Release~1 :
+\begin{enumerate}
+  \item \textbf{objectifs} fixés et périmètre ;
+  \item \textbf{backlog} planifié (user stories) ;
+  \item \textbf{analyse} (conception technique, architecture) ;
+  \item \textbf{réalisation} (mise en œuvre, captures d'écran, validation).
+\end{enumerate}
+
+\paragraph{Codification des priorités (backlog).}
+Dans les tableaux de backlog, la colonne \textbf{Priorité} utilise les codes suivants :
+\textbf{H} (haute), \textbf{M} (moyenne) et \textbf{B} (basse).
+
+Le tableau~\ref{tab:r2-overview} synthétise les trois sprints de la release.
+
+\begin{table}[H]
+\centering
+\caption{Vue d'ensemble de la Release~2}
+\label{tab:r2-overview}
+\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{|p{1.2cm}|p{4.2cm}|p{7.8cm}|}
+\hline
+\textbf{Sprint} & \textbf{Intitulé} & \textbf{Livrables principaux} \\
+\hline
+Sprint~1 & Mise en place de l'infrastructure &
+  Terraform (VNet, NSG, VMs), AKS Engine (cluster K8s), plan d'adressage \\
+\hline
+Sprint~2 & Intégration continue et déploiement continu (CI/CD) &
+  Pipeline Azure DevOps, SonarQube, Docker, Nexus, Trivy, Terraform automatisé \\
+\hline
+Sprint~3 & Monitoring et supervision de la plateforme &
+  Déploiement K8s (CD), MongoDB in-cluster, Prometheus, Grafana (Ansible) \\
+\hline
+\end{tabular}
+\end{table}
+
+\paragraph{Périmètre par rapport à la Release~1.}
+La Release~1 couvre le développement fonctionnel (NestJS, Next.js, MongoDB locale,
+Cloudinary, notifications WebSocket). La Release~2 ne modifie pas le métier applicatif :
+elle prépare et automatise l'environnement cloud, la livraison des images Docker et le
+déploiement des composants \texttt{ticket-backend}, \texttt{ticket-frontend} et
+\texttt{mongodb} dans le namespace Kubernetes \texttt{ticketmanager}.
+
+\paragraph{Fichiers sources du dépôt.}
+\begin{itemize}
+  \item Infrastructure : répertoire \texttt{terraform/} ;
+  \item Pipeline : \texttt{azure-pipelines.yml} ;
+  \item Déploiement Kubernetes : répertoire \texttt{k8s/} ;
+  \item Automatisation : répertoire \texttt{ansible/} ;
+  \item Documentation Release~1 (socle applicatif) : \texttt{docs/release-1/}.
+\end{itemize}
+
+% --- Sprint 1 : Infrastructure ------------------------------------------------
+\input{docs/release-2/sprint-1-infrastructure}
+
+% --- Sprint 2 : CI/CD ---------------------------------------------------------
+\input{docs/release-2/sprint-2-cicd}
+
+% --- Sprint 3 : Monitoring et CD ----------------------------------------------
+\input{docs/release-2/sprint-3-monitoring-cd}
+
+% --- Bilan Release 2 ----------------------------------------------------------
+\subsection{Bilan de la Release~2}
+
+À l'issue des trois sprints, la plateforme \textit{TicketManager} dispose d'une
+infrastructure documentée et reproductible sur Azure Stack Hub, d'une chaîne CI/CD
+automatisée (compilation, qualité, conteneurisation, publication Nexus, provisionnement
+IaC) et d'un déploiement applicatif supervisé (pods Kubernetes, Prometheus, Grafana).
+
+Les indicateurs de réussite retenus pour cette release sont :
+\begin{itemize}
+  \item exécution réussie du pipeline Azure DevOps sur la branche \texttt{main} ;
+  \item pods du namespace \texttt{ticketmanager} en état \texttt{Running} ;
+  \item accessibilité de l'interface web et de l'API depuis le réseau autorisé ;
+  \item cibles Prometheus en état \texttt{UP} et dashboards Grafana opérationnels.
+\end{itemize}
+
+Les évolutions ultérieures (hors Release~2) peuvent porter sur le renforcement des tests
+automatisés dans le pipeline, la réactivation des stages Snyk/Trivy, l'exposition via
+Ingress Controller et la haute disponibilité multi-réplicas.

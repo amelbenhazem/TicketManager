@@ -1,0 +1,373 @@
+% =============================================================================
+% Release 2 — Sprint 1 : Mise en place de l'infrastructure
+% =============================================================================
+
+\section[Sprint 1 : Mise en place de l'infrastructure]%
+{Sprint 1 : Mise en place de l'infrastructure}
+
+Ce sprint pose les fondations cloud de \textit{TicketManager} sur Azure Stack Hub.
+L'objectif est de disposer d'un réseau segmenté, de machines virtuelles d'administration
+et de base de données, ainsi que d'un cluster Kubernetes opérationnel, le tout
+provisionné de manière reproductible.
+
+
+% ---------------------------------------------------------------------------
+\subsection{Objectif du Sprint 1}
+% ---------------------------------------------------------------------------
+
+Le Sprint~1 succède au socle applicatif de la Release~1. Il se concentre sur
+\textbf{l'approvisionnement de l'infrastructure} et la \textbf{préparation du cluster}
+destiné à héberger l'application conteneurisée. Le tableau~\ref{tab:r2-s1-objectifs} détaille
+les objectifs par axe.
+
+\begin{table}[H]
+\centering
+\caption{Objectifs du Sprint~1 par axe}
+\label{tab:r2-s1-objectifs}
+\footnotesize
+\renewcommand{\arraystretch}{1.1}
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{|p{2.8cm}|p{9.2cm}|}
+\hline
+\textbf{Axe} & \textbf{Objectif} \\
+\hline
+Infrastructure as Code &
+  Décrire et provisionner le réseau, la sécurité et les VMs par Terraform
+  (fournisseur \textit{azurestack}) \\
+\hline
+Segmentation réseau &
+  Structurer le VNet \texttt{10.1.0.0/16} en sous-réseaux \texttt{mgmt}, \texttt{db}
+  et \texttt{aks}, chacun protégé par un NSG \\
+\hline
+Machines virtuelles &
+  Déployer \textbf{vm-gestion} (administration, agent DevOps) et \textbf{vm-db}
+  (MongoDB legacy / migration) \\
+\hline
+Orchestration &
+  Créer le cluster Kubernetes (1 master + 2 workers) via \textbf{AKS Engine} \\
+\hline
+Vérification &
+  Contrôler les ressources dans le portail Azure Stack Hub et via \texttt{kubectl} \\
+\hline
+\end{tabular}
+\end{table}
+
+\paragraph{Résultat attendu.}
+À l'issue du sprint :
+\begin{itemize}
+  \item le réseau virtuel \texttt{ticketmanager-iac-vnet} et les trois sous-réseaux sont
+        créés ;
+  \item \textbf{vm-gestion} (\texttt{10.1.1.4}) est accessible en SSH et héberge l'agent
+        Azure DevOps, Docker, Ansible et AKS Engine ;
+  \item \textbf{vm-db} (\texttt{10.1.2.4}) est joignable en IP privée depuis \texttt{mgmt}
+        et \texttt{aks} ;
+  \item le cluster Kubernetes affiche trois nœuds \texttt{Ready}
+        (\texttt{kubectl get nodes}).
+\end{itemize}
+
+\paragraph{Périmètre.}
+Le tableau~\ref{tab:r2-s1-perimetre} précise le contenu du sprint par rapport aux livraisons
+ultérieures.
+
+\begin{table}[H]
+\centering
+\caption{Périmètre du Sprint~1}
+\label{tab:r2-s1-perimetre}
+\footnotesize
+\renewcommand{\arraystretch}{1.1}
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{|p{5.5cm}|c|c|}
+\hline
+\textbf{Élément} & \textbf{Sprint~1} & \textbf{Sprint ultérieur} \\
+\hline
+Socle applicatif (Release~1) & Livré & — \\
+\hline
+Terraform — VNet, NSG, NIC, VMs & Oui & — \\
+\hline
+AKS Engine — cluster K8s & Oui & — \\
+\hline
+Pipeline Azure DevOps & — & Sprint~2 \\
+\hline
+Déploiement pods applicatifs & — & Sprint~3 \\
+\hline
+Prometheus / Grafana & — & Sprint~3 \\
+\hline
+\end{tabular}
+\end{table}
+
+
+% ---------------------------------------------------------------------------
+\subsection{Backlog du Sprint 1}
+% ---------------------------------------------------------------------------
+
+Le backlog du Sprint~1 est organisé en deux epics : infrastructure Terraform et cluster
+Kubernetes. Les tableaux~\ref{tab:r2-s1-backlog-infra} et~\ref{tab:r2-s1-backlog-k8s} listent
+les user stories planifiées.
+
+\subsubsection{Epic — Infrastructure cloud (Terraform)}
+
+\begin{table}[H]
+\centering
+\caption{Backlog Sprint~1 — Epic infrastructure Terraform}
+\label{tab:r2-s1-backlog-infra}
+\footnotesize
+\renewcommand{\arraystretch}{0.9}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{|c|p{7.8cm}|c|c|}
+\hline
+\textbf{ID} & \textbf{User story} & \textbf{Priorité} & \textbf{Est. (j)} \\
+\hline
+R2-S1-I01 &
+  En tant que développeur, je provisionne l'infrastructure par Terraform sur Azure Stack Hub &
+  H & 3 \\
+\hline
+R2-S1-I02 &
+  En tant que développeur, je segmente le réseau en trois sous-réseaux dédiés (mgmt, db, aks) &
+  H & 2 \\
+\hline
+R2-S1-I03 &
+  En tant que développeur, je configure les groupes de sécurité réseau par sous-réseau &
+  H & 2 \\
+\hline
+R2-S1-I04 &
+  En tant que développeur, je dispose d'une VM d'administration (vm-gestion) pour orchestrer les déploiements &
+  H & 2 \\
+\hline
+R2-S1-I05 &
+  En tant que développeur, je déploie une VM base de données (vm-db) pour MongoDB Legacy &
+  M & 1 \\
+\hline
+R2-S1-I06 &
+  En tant que développeur, j'associe chaque VM à une interface réseau sécurisée &
+  H & 1 \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Epic — Cluster Kubernetes (AKS Engine)}
+
+\begin{table}[H]
+\centering
+\caption{Backlog Sprint~1 — Epic cluster Kubernetes}
+\label{tab:r2-s1-backlog-k8s}
+\footnotesize
+\renewcommand{\arraystretch}{0.9}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{|c|p{7.8cm}|c|c|}
+\hline
+\textbf{ID} & \textbf{User story} & \textbf{Priorité} & \textbf{Est. (j)} \\
+\hline
+R2-S1-K01 &
+  En tant que développeur, je prépare le fichier de configuration AKS Engine (\texttt{kubernetes.json}) &
+  H & 2 \\
+\hline
+R2-S1-K02 &
+  En tant que développeur, je déploie le cluster Kubernetes (1 master + 2 workers) &
+  H & 3 \\
+\hline
+R2-S1-K03 &
+  En tant que développeur, je vérifie l'état des nœuds du cluster (\texttt{Ready}) &
+  H & 1 \\
+\hline
+R2-S1-K04 &
+  En tant que développeur, je configure l'accès \texttt{kubeconfig} depuis vm-gestion &
+  H & 1 \\
+\hline
+\end{tabular}
+\end{table}
+
+
+% ---------------------------------------------------------------------------
+\subsection{Conception de l'infrastructure}
+% ---------------------------------------------------------------------------
+
+\subsubsection{Plan d'adressage réseau}
+
+Le tableau~\ref{tab:r2-s1-adressage} résume le plan d'adressage retenu pour l'infrastructure
+TicketManager. La figure~\ref{fig:r2-s1-plan-adressage} en propose une représentation
+schématique (sous-réseaux, adresses IP et séparation Terraform / AKS Engine).
+
+\begin{table}[H]
+\centering
+\caption{Plan d'adressage réseau TicketManager}
+\label{tab:r2-s1-adressage}
+\footnotesize
+\renewcommand{\arraystretch}{1.1}
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Élément} & \textbf{Valeur} \\
+\hline
+Réseau virtuel (VNet) & \texttt{10.1.0.0/16} \\
+\hline
+Subnet administration (\texttt{mgmt}) & \texttt{10.1.1.0/24} \\
+\hline
+Subnet base de données (\texttt{db}) & \texttt{10.1.2.0/24} \\
+\hline
+Subnet Kubernetes (\texttt{aks}) & \texttt{10.1.3.0/24} \\
+\hline
+IP vm-gestion (privée) & \texttt{10.1.1.4} \\
+\hline
+IP vm-db (privée) & \texttt{10.1.2.4} \\
+\hline
+Workers K8s (exemple) & \texttt{10.1.3.4}, \texttt{10.1.3.5} \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{plan-adressage-reseau-sprint1.png}
+    \caption{Plan d'adressage réseau TicketManager — vue schématique (draw.io)}
+    \label{fig:r2-s1-plan-adressage}
+\end{figure}
+
+\subsubsection{Architecture globale}
+
+L'architecture repose sur une organisation \textbf{hybride} : couche réseau et compute
+provisionnée par Terraform, complétée par un cluster Kubernetes déployé via AKS Engine
+sur le sous-réseau \texttt{aks}. La figure~\ref{fig:r2-s1-arch-infra} en donne une vue
+d'ensemble.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{architecture-infrastructure-sprint1.png}
+    \caption{Architecture globale de l'infrastructure TicketManager (Sprint~1)}
+    \label{fig:r2-s1-arch-infra}
+\end{figure}
+
+\paragraph{Composants provisionnés par Terraform.}
+\begin{itemize}
+  \item \textbf{Réseau virtuel et sous-réseaux} : connectivité interne entre VMs et cluster ;
+  \item \textbf{Groupes de sécurité réseau (NSG)} : filtrage SSH, MongoDB, trafic interne ;
+  \item \textbf{Interfaces réseau (NIC)} : rattachement des VMs au VNet ;
+  \item \textbf{Machines virtuelles} : vm-gestion et vm-db
+        (fichiers \texttt{vm-management.tf}, \texttt{vm-db.tf}).
+\end{itemize}
+
+\paragraph{Cluster Kubernetes (hors Terraform).}
+Terraform prépare le sous-réseau \texttt{aks} et les règles NSG associées ; le déploiement
+effectif du plan de contrôle et des workers est réalisé par \textbf{AKS Engine}, outil
+open-source adapté à Azure Stack Hub.
+
+
+% ---------------------------------------------------------------------------
+\subsection{Réalisation}
+% ---------------------------------------------------------------------------
+
+\subsubsection{Infrastructure as Code avec Terraform}
+
+Terraform adopte une approche \textbf{déclarative} : l'état cible des ressources est décrit
+dans des fichiers de configuration ; le moteur calcule et applique les écarts. Le cycle
+repose sur quatre commandes : \texttt{terraform init}, \texttt{validate}, \texttt{plan} et
+\texttt{apply}.
+
+La figure~\ref{fig:r2-s1-tf-init} présente le résultat de l'initialisation de l'environnement
+Terraform. La figure~\ref{fig:r2-s1-tf-validate} confirme la validité syntaxique de la
+configuration. La figure~\ref{fig:r2-s1-tf-plan} illustre le plan d'exécution généré avant
+application. Enfin, la figure~\ref{fig:r2-s1-tf-apply} montre les sorties du déploiement,
+notamment les adresses IP attribuées aux machines virtuelles.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{s1-terraform-init.png}
+    \caption{Initialisation Terraform (\texttt{terraform init})}
+    \label{fig:r2-s1-tf-init}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{s1-terraform-validate.png}
+    \caption{Validation Terraform (\texttt{terraform validate})}
+    \label{fig:r2-s1-tf-validate}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{s1-terraform-plan.png}
+    \caption{Plan d'exécution Terraform (\texttt{terraform plan})}
+    \label{fig:r2-s1-tf-plan}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{s1-terraform-apply.png}
+    \caption{Application Terraform — sorties (IPs vm-gestion, vm-db)}
+    \label{fig:r2-s1-tf-apply}
+\end{figure}
+
+\paragraph{Vérification portail Azure Stack Hub.}
+Les figures~\ref{fig:r2-s1-vnet},~\ref{fig:r2-s1-nsg} et~\ref{fig:r2-s1-vms} confirment la
+création des ressources dans le groupe \texttt{AmalBH-RG}. La figure~\ref{fig:r2-s1-vnet}
+présente le réseau virtuel et les sous-réseaux. La figure~\ref{fig:r2-s1-nsg} détaille les
+groupes de sécurité réseau. La figure~\ref{fig:r2-s1-vms} liste les machines virtuelles
+déployées.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{s1-vnet-subnets.png}
+    \caption{Réseau virtuel et sous-réseaux dans le portail}
+    \label{fig:r2-s1-vnet}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{s1-nsg.png}
+    \caption{Groupes de sécurité réseau}
+    \label{fig:r2-s1-nsg}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{s1-vms-portal.png}
+    \caption{Machines virtuelles déployées}
+    \label{fig:r2-s1-vms}
+\end{figure}
+
+
+\subsubsection{Déploiement du cluster Kubernetes avec AKS Engine}
+
+\paragraph{Configuration du cluster.}
+Le fichier \texttt{kubernetes.json} (modèle API AKS Engine) spécifie la version de
+Kubernetes, le plugin réseau (\texttt{kubenet}), le runtime (\texttt{containerd}), la
+topologie des nœuds et l'authentification SSH. La figure~\ref{fig:r2-s1-aks-json} présente
+un extrait de ce fichier de configuration.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{s1-aks-engine-json.png}
+    \caption{Extrait du fichier de configuration AKS Engine}
+    \label{fig:r2-s1-aks-json}
+\end{figure}
+
+\paragraph{Exécution du déploiement.}
+Le cluster est créé depuis vm-gestion par la commande \texttt{aks-engine deploy}. La
+figure~\ref{fig:r2-s1-aks-deploy} illustre l'exécution réussie de cette commande.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{s1-aks-engine-deploy.png}
+    \caption{Déploiement du cluster avec AKS Engine}
+    \label{fig:r2-s1-aks-deploy}
+\end{figure}
+
+\paragraph{Vérification.}
+La figure~\ref{fig:r2-s1-kubectl-nodes} présente la sortie de \texttt{kubectl get nodes} :
+les trois nœuds du cluster sont en état \texttt{Ready}.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{s1-kubectl-nodes.png}
+    \caption{Vérification des nœuds Kubernetes (\texttt{kubectl get nodes})}
+    \label{fig:r2-s1-kubectl-nodes}
+\end{figure}
+
+
+% ---------------------------------------------------------------------------
+\subsection{Bilan du Sprint 1}
+% ---------------------------------------------------------------------------
+
+Le Sprint~1 fournit l'infrastructure réseau et compute nécessaire aux sprints suivants :
+vm-gestion comme point d'ancrage DevOps, sous-réseau \texttt{aks} prêt pour les pods, et
+cluster Kubernetes opérationnel. Le pipeline CI/CD (Sprint~2) et le déploiement applicatif
+(Sprint~3) s'appuient sur ce socle.

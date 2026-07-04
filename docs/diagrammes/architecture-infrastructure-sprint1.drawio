@@ -1,0 +1,86 @@
+<mxfile host="app.diagrams.net" agent="TicketManager" version="22.1.0">
+  <diagram id="arch-sprint1" name="Architecture infrastructure Sprint 1">
+    <mxGraphModel dx="1200" dy="820" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="780" background="#ffffff">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="title" value="Architecture globale de l'infrastructure — TicketManager (Sprint 1)" style="text;html=1;strokeColor=none;fillColor=#ffffff;align=center;fontSize=14;fontStyle=1;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="280" y="15" width="640" height="28" as="geometry"/>
+        </mxCell>
+        <mxCell id="stack" value="Azure Stack Hub — Groupe de ressources AmalBH-RG" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#000000;fontStyle=1;verticalAlign=top;spacingTop=8;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="60" y="55" width="1080" height="660" as="geometry"/>
+        </mxCell>
+        <mxCell id="tf-banner" value="&lt;b&gt;Terraform&lt;/b&gt; (Infrastructure as Code) — azurestack provider" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#000000;fontSize=11;align=left;spacingLeft=12;" vertex="1" parent="1">
+          <mxGeometry x="90" y="95" width="1020" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="vnet" value="Réseau virtuel ticketmanager-iac-vnet (10.1.0.0/16)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontStyle=1;verticalAlign=top;spacingTop=8;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="90" y="145" width="1020" height="520" as="geometry"/>
+        </mxCell>
+        <mxCell id="box-vnet" value="Réseau virtuel&#xa;+ sous-réseaux&#xa;(mgmt · db · aks)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#000000;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="115" y="190" width="130" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="box-nsg" value="Groupes de sécurité&#xa;réseau (NSG)&#xa;mgmt · db · aks" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontColor=#000000;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="115" y="280" width="130" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="box-nic" value="Interfaces réseau&#xa;(NIC)&#xa;1 par VM" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontColor=#000000;fontSize=10;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="115" y="370" width="130" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="box-vm" value="Machines virtuelles&#xa;vm-management.tf&#xa;vm-db.tf" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="115" y="460" width="130" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="snet-mgmt" value="Subnet mgmt (10.1.1.0/24)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#000000;fontStyle=1;verticalAlign=top;spacingTop=6;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="290" y="190" width="300" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="vm-gestion" value="&lt;b&gt;VM-gestion&lt;/b&gt; (10.1.1.4)&#xa;— Administration&#xa;— Agent Azure DevOps&#xa;— Docker · Ansible&#xa;— AKS Engine (déploiement K8s)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontSize=10;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="310" y="230" width="260" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="snet-db" value="Subnet db (10.1.2.0/24)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#000000;fontStyle=1;verticalAlign=top;spacingTop=6;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="620" y="190" width="300" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="vm-db" value="&lt;b&gt;VM-db&lt;/b&gt; (10.1.2.4)&#xa;— MongoDB (legacy / migration)&#xa;— IP privée uniquement&#xa;— Accès depuis mgmt et aks" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontColor=#000000;fontSize=10;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="640" y="230" width="260" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="aks-banner" value="&lt;b&gt;AKS Engine&lt;/b&gt; (hors Terraform) — déploiement cluster sur subnet aks" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontColor=#000000;fontSize=11;align=left;spacingLeft=12;" vertex="1" parent="1">
+          <mxGeometry x="290" y="410" width="630" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="snet-aks" value="Subnet aks (10.1.3.0/24)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#000000;fontStyle=1;verticalAlign=top;spacingTop=6;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="290" y="460" width="630" height="185" as="geometry"/>
+        </mxCell>
+        <mxCell id="cluster" value="Cluster Kubernetes (AKS Engine)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontColor=#000000;fontStyle=1;verticalAlign=top;spacingTop=6;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="310" y="495" width="590" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="master" value="Nœud Master&#xa;(plan de contrôle)&#xa;API · etcd · Scheduler" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;fontColor=#000000;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="330" y="535" width="120" height="65" as="geometry"/>
+        </mxCell>
+        <mxCell id="worker1" value="Worker 1&#xa;10.1.3.4&#xa;(pods applicatifs)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;fontColor=#000000;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="480" y="535" width="110" height="65" as="geometry"/>
+        </mxCell>
+        <mxCell id="worker2" value="Worker 2&#xa;10.1.3.5&#xa;(pods applicatifs)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;fontColor=#000000;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="610" y="535" width="110" height="65" as="geometry"/>
+        </mxCell>
+        <mxCell id="kubeconfig" value="kubeconfig&#xa;(vm-gestion)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#000000;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="750" y="545" width="90" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="leg" value="Organisation &lt;b&gt;hybride&lt;/b&gt; : Terraform provisionne réseau + VMs ; AKS Engine crée le cluster K8s sur le sous-réseau préparé." style="text;html=1;align=left;fontSize=10;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="90" y="680" width="700" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="files" value="Fichiers : network.tf · vm-management.tf · vm-db.tf · kubernetes.json" style="text;html=1;align=right;fontSize=10;fontColor=#666666;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="700" y="680" width="410" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-aks" style="endArrow=block;dashed=1;html=1;strokeColor=#82b366;fontSize=9;fontColor=#000000;" edge="1" parent="1" source="vm-gestion" target="cluster">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="440" y="400"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="lbl-aks" value="aks-engine deploy" style="text;html=1;fontSize=9;fontColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="400" y="385" width="100" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="footer" value="Figure — Architecture globale de l'infrastructure (Release 2, Sprint 1)" style="text;html=1;align=center;fontSize=11;fontColor=#000000;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="350" y="730" width="500" height="20" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

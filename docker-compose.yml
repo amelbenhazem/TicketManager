@@ -27,14 +27,12 @@ services:
     ports:
       - "3001:3001"
     env_file:
-      - ./backend/.env.example
+      - ./backend/.env
     environment:
-      NODE_ENV: production
       PORT: 3001
       HOST: 0.0.0.0
       MONGODB_URI: mongodb://mongodb:27017/ticketmanager
       CORS_ORIGIN: http://localhost:3000
-      JWT_SECRET: ${JWT_SECRET}
 
   frontend:
     build:

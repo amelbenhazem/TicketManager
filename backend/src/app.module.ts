@@ -1,3 +1,4 @@
+import { join } from 'node:path';
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -16,7 +17,10 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
     ConfigModule.forRoot({
       isGlobal: true,
       load: [configuration],
-      envFilePath: ['.env.local', '.env'],
+      envFilePath: [
+        join(__dirname, '..', '.env.local'),
+        join(__dirname, '..', '.env'),
+      ],
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
