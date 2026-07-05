@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Met à jour CORS_ORIGIN du backend pour l'IP publique worker (sans rebuild frontend).
+# Met à jour CORS_ORIGIN du backend pour HTTPS Ingress + accès NodePort interne.
 # Usage sur vm-gestion :
 #   export KUBECONFIG=~/kubernetes/ticketmanager-k8s/kubeconfig/kubeconfig.dc2.json
 #   K8S_WORKER_PUBLIC_IP=102.141.206.164 ./k8s/fix-cors-public.sh
@@ -7,8 +7,11 @@ set -euo pipefail
 
 : "${KUBECONFIG:?KUBECONFIG requis}"
 PUBLIC_IP="${K8S_WORKER_PUBLIC_IP:?K8S_WORKER_PUBLIC_IP requis (ex. 102.141.206.164)}"
+HTTPS_PORT="${K8S_INGRESS_HTTPS_PORT:-30443}"
+APP_HOST="${K8S_APP_HOST:-app.ticketmanager.local}"
+APP_URL="${K8S_APP_URL:-https://${APP_HOST}:${HTTPS_PORT}}"
 
-CORS="http://${PUBLIC_IP}:30080,http://10.1.3.4:30080,http://10.1.3.5:30080"
+CORS="${APP_URL},http://${PUBLIC_IP}:30080,http://10.1.3.4:30080,http://10.1.3.5:30080"
 
 JWT="$(kubectl get secret backend-secret -n ticketmanager -o jsonpath='{.data.JWT_SECRET}' | base64 -d)"
 MONGO="$(kubectl get secret backend-secret -n ticketmanager -o jsonpath='{.data.MONGODB_URI}' | base64 -d)"

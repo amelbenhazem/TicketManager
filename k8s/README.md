@@ -48,7 +48,46 @@ docker push localhost:8082/docker-ticketmanager/ticket-frontend:k8s
 
 Puis dans `frontend-deployment.yaml`, remplacer l'image par `.../ticket-frontend:k8s` ou mettre à jour le tag `latest` après push.
 
-Mettre à jour `CORS_ORIGIN` dans le secret backend avec l'URL du frontend (ex. `http://10.1.3.4:30080`).
+Mettre à jour `CORS_ORIGIN` dans le secret backend avec l'URL du frontend (ex. `https://app.ticketmanager.local:30443`).
+
+## 2b. HTTPS (Ingress NGINX + TLS)
+
+L'accès public utilise **HTTPS** via NGINX Ingress :
+
+| Service  | URL HTTPS (navigateur)                    | NodePort interne (legacy) |
+|----------|-------------------------------------------|---------------------------|
+| Frontend | `https://app.ticketmanager.local:30443`   | `http://10.1.3.4:30080`   |
+| Backend  | `https://api.ticketmanager.local:30443`   | `http://10.1.3.4:30081`   |
+
+### Première installation Ingress + certificat
+
+```bash
+export KUBECONFIG=~/kubernetes/ticketmanager-k8s/kubeconfig/kubeconfig.dc2.json
+chmod +x k8s/scripts/*.sh
+export K8S_WORKER_PUBLIC_IP=102.141.206.164   # PIP worker
+./k8s/scripts/setup-ingress-nginx.sh          # installe ingress-nginx + NodePort 30443
+./k8s/scripts/ensure-tls-secret.sh            # certificat auto-signé → secret ticketmanager-tls
+kubectl apply -f k8s/ingress.yaml
+```
+
+### Fichier hosts (poste client)
+
+Ajouter sur votre PC (remplacer par la PIP worker) :
+
+```
+102.141.206.164  app.ticketmanager.local
+102.141.206.164  api.ticketmanager.local
+```
+
+### NSG Azure Stack Hub
+
+Ouvrir **TCP 30443** entrant sur le NSG du cluster (`k8s-master-34739636-nsg`).
+Les ports 30080/30081 restent utiles pour les tests internes VNet.
+
+### Certificat auto-signé
+
+Le navigateur affichera un avertissement sécurité — normal en lab.
+Pour regénérer : `FORCE_TLS_REGEN=1 ./k8s/scripts/ensure-tls-secret.sh`
 
 ## 3. Secrets Kubernetes
 
@@ -69,7 +108,7 @@ kubectl create secret generic backend-secret \
   --from-literal=JWT_EXPIRES_IN='7d' \
   --from-literal=NODE_ENV='production' \
   --from-literal=PORT='3001' \
-  --from-literal=CORS_ORIGIN='http://10.1.3.4:30080,http://10.1.3.5:30080' \
+  --from-literal=CORS_ORIGIN='https://app.ticketmanager.local:30443,http://10.1.3.4:30080,http://10.1.3.5:30080' \
   --dry-run=client -o yaml | kubectl apply -f -
 ```
 
@@ -117,18 +156,19 @@ kubectl get svc -n ticketmanager
 
 ## 6. Accès application
 
-| Service  | NodePort | URL interne (VNet)     | URL publique (PIP worker)        |
-|----------|----------|------------------------|----------------------------------|
-| Frontend | 30080    | http://10.1.3.4:30080  | http://\<PIP-worker\>:30080     |
-| Backend  | 30081    | http://10.1.3.4:30081  | http://\<PIP-worker\>:30081     |
+| Service  | HTTPS (public)                              | NodePort interne (VNet) |
+|----------|---------------------------------------------|-------------------------|
+| Frontend | `https://app.ticketmanager.local:30443`     | http://10.1.3.4:30080   |
+| Backend  | `https://api.ticketmanager.local:30443`     | http://10.1.3.4:30081   |
 
-### Accès Internet (NodePort + PIP worker — recommandation encadrant)
+### Accès Internet (HTTPS Ingress + PIP worker)
 
-1. Créer une **Adresse IP publique** dans `ticketmanager-k8s-rg` et l'associer à la NIC `k8s-agentpool-34739636-nic-1` (worker `10.1.3.4`).
-2. Ouvrir **NSG** `k8s-master-34739636-nsg` : TCP **30080** et **30081** (entrant).
-3. Mettre l'IP dans `azure-pipelines.yml` → variable **`K8S_WORKER_PUBLIC_IP`** (remplace `PUT_WORKER_PIP_HERE`).
-4. Push sur `main` → pipeline rebuild frontend (`FRONTEND_API_URL`) + redeploy (CORS backend).
-5. Navigateur : `http://<PIP-worker>:30080`
+1. Créer une **Adresse IP publique** dans `ticketmanager-k8s-rg` et l'associer à la NIC du worker `10.1.3.4`.
+2. Ouvrir **NSG** `k8s-master-34739636-nsg` : TCP **30443** (HTTPS Ingress). Optionnel : 30080/30081 (legacy HTTP).
+3. Mettre l'IP dans `azure-pipelines.yml` → variable **`K8S_WORKER_PUBLIC_IP`**.
+4. Fichier **hosts** sur le poste client : `app.ticketmanager.local` et `api.ticketmanager.local` → PIP worker.
+5. Push sur `main` → pipeline rebuild frontend (`FRONTEND_API_URL=https://api...`) + deploy Ingress/TLS + CORS.
+6. Navigateur : `https://app.ticketmanager.local:30443` (accepter le certificat auto-signé).
 
 Depuis le réseau interne / VPN. Seed MongoDB si base vide : automatique via `post-deploy.sh` (pipeline) ou `npm run seed` avec port-forward.
 
@@ -162,7 +202,12 @@ kubectl logs -n ticketmanager -l app=ticket-frontend --tail=100
 | `backend-deployment.yaml` | Pod API NestJS |
 | `backend-service.yaml` | NodePort 30081 |
 | `frontend-deployment.yaml` | Pod Next.js |
-| `frontend-service.yaml` | NodePort 30080 |
+| `frontend-service.yaml` | NodePort 30080 (legacy interne) |
+| `ingress.yaml` | Ingress HTTPS app.* / api.* |
+| `ingress-nginx-service.yaml` | NodePort 30443/30480 pour ingress-nginx |
+| `scripts/setup-ingress-nginx.sh` | Installation NGINX Ingress Controller |
+| `scripts/ensure-tls-secret.sh` | Secret TLS auto-signé |
+| `scripts/generate-tls-cert.sh` | Génération certificat OpenSSL |
 | `deploy-pipeline.sh` | CD automatisé (Azure Pipelines) |
 | `reload-prod.sh` | Recharge prod manuelle (CORS + rollout pods) |
 | `fix-cors-public.sh` | Mise à jour CORS backend uniquement |
@@ -185,7 +230,7 @@ Flux : Build → SonarQube → Docker → Push Nexus → **Deploy K8s** (en para
 | `SONAR_TOKEN` | oui | (existant) |
 | `TF_APPROVERS` | non | Emails approbation Terraform + K8s |
 
-Variables déjà dans `azure-pipelines.yml` : `K8S_REGISTRY`, `K8S_KUBECONFIG`, `K8S_MONGODB_URI`, `K8S_CORS_ORIGIN`, `K8S_WORKER_IPS`, `K8S_WORKER_PUBLIC_IP`, `K8S_NODE_HOSTNAME`, `FRONTEND_API_URL`.
+Variables déjà dans `azure-pipelines.yml` : `K8S_REGISTRY`, `K8S_KUBECONFIG`, `K8S_MONGODB_URI`, `K8S_CORS_ORIGIN`, `K8S_WORKER_IPS`, `K8S_WORKER_PUBLIC_IP`, `K8S_NODE_HOSTNAME`, `K8S_APP_HOST`, `K8S_API_HOST`, `K8S_APP_URL`, `K8S_API_URL`, `K8S_INGRESS_HTTPS_PORT`, `FRONTEND_API_URL`.
 
 ### Reload prod automatique (pipeline)
 

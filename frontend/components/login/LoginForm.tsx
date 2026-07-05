@@ -55,7 +55,7 @@ export function LoginForm({
           Ticket<span className="text-[#60A5FA]">Manager</span>
         </h1>
         <p className="text-white/40 text-sm mt-1">
-          Portail de gestion des incidents
+          Portail de gestion des incidents PFE-2026
         </p>
       </div>
 

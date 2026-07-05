@@ -14,10 +14,13 @@ PUBLIC_IP="${K8S_WORKER_PUBLIC_IP:-102.141.206.164}"
 IMAGE_TAG="${IMAGE_TAG:-latest}"
 K8S_REGISTRY="${K8S_REGISTRY:-10.1.1.4:8082}"
 NEXUS_REPO="${NEXUS_REPO:-docker-ticketmanager}"
+HTTPS_PORT="${K8S_INGRESS_HTTPS_PORT:-30443}"
+APP_HOST="${K8S_APP_HOST:-app.ticketmanager.local}"
+APP_URL="${K8S_APP_URL:-https://${APP_HOST}:${HTTPS_PORT}}"
 
 export KUBECONFIG
 
-CORS="http://${PUBLIC_IP}:30080,http://10.1.3.4:30080,http://10.1.3.5:30080"
+CORS="${APP_URL},http://${PUBLIC_IP}:30080,http://10.1.3.4:30080,http://10.1.3.5:30080"
 
 echo "==> Mise à jour CORS backend"
 JWT="$(kubectl get secret backend-secret -n ticketmanager -o jsonpath='{.data.JWT_SECRET}' | base64 -d)"
@@ -36,6 +39,7 @@ kubectl create secret generic backend-secret \
 echo "==> Apply manifests (nodeSelector worker PIP)"
 kubectl apply -f "$K8S_DIR/frontend-deployment.yaml"
 kubectl apply -f "$K8S_DIR/backend-deployment.yaml"
+kubectl apply -f "$K8S_DIR/ingress.yaml"
 
 BACKEND_IMAGE="${K8S_REGISTRY}/${NEXUS_REPO}/ticket-backend:${IMAGE_TAG}"
 FRONTEND_IMAGE="${K8S_REGISTRY}/${NEXUS_REPO}/ticket-frontend:${IMAGE_TAG}"
@@ -54,6 +58,6 @@ kubectl get pods -n ticketmanager -o wide
 
 echo ""
 echo "==> Prod rechargée"
-echo "    Frontend: http://${PUBLIC_IP}:30080"
-echo "    Backend:  http://${PUBLIC_IP}:30081"
-echo "    CORS:     ${CORS}"
+echo "    Frontend HTTPS: ${APP_URL}"
+echo "    Backend  HTTPS: https://${K8S_API_HOST:-api.ticketmanager.local}:${HTTPS_PORT}"
+echo "    CORS:           ${CORS}"

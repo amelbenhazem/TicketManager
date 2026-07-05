@@ -39,9 +39,23 @@ kubectl apply -f "$K8S_DIR/backend-service.yaml"
 kubectl apply -f "$K8S_DIR/frontend-deployment.yaml"
 kubectl apply -f "$K8S_DIR/frontend-service.yaml"
 
+if [[ -f "$K8S_DIR/scripts/setup-ingress-nginx.sh" ]]; then
+  echo "==> Ingress HTTPS"
+  chmod +x "$K8S_DIR/scripts/"*.sh
+  export K8S_NODE_HOSTNAME="${K8S_NODE_HOSTNAME:-k8s-agentpool-34739636-1}"
+  export K8S_APP_HOST="${K8S_APP_HOST:-app.ticketmanager.local}"
+  export K8S_API_HOST="${K8S_API_HOST:-api.ticketmanager.local}"
+  export K8S_WORKER_PUBLIC_IP="${K8S_WORKER_PUBLIC_IP:-}"
+  "$K8S_DIR/scripts/setup-ingress-nginx.sh"
+  "$K8S_DIR/scripts/ensure-tls-secret.sh"
+  kubectl apply -f "$K8S_DIR/ingress.yaml"
+fi
+
 echo "==> Status"
-kubectl get pods,svc -n ticketmanager
+kubectl get pods,svc,ingress -n ticketmanager
 
 echo ""
-echo "Frontend: http://10.1.3.4:30080 (ou IP worker + NodePort 30080)"
-echo "Backend:  http://10.1.3.4:30081/api"
+echo "Frontend HTTPS: https://app.ticketmanager.local:30443"
+echo "Backend  HTTPS: https://api.ticketmanager.local:30443"
+echo "Frontend HTTP (legacy NodePort): http://10.1.3.4:30080"
+echo "Backend  HTTP (legacy NodePort): http://10.1.3.4:30081"

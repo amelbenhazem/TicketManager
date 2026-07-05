@@ -1,285 +1,250 @@
-<mxfile host="app.diagrams.net" agent="TicketManager" version="22.1.0">
-  <diagram id="archi-physique" name="Architecture physique">
-    <mxGraphModel dx="1400" dy="950" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1280" pageHeight="960" background="#ffffff" math="0" shadow="0">
-      <root>
-        <mxCell id="0" />
-        <mxCell id="1" parent="0" />
-
-        <mxCell id="title" value="Architecture physique de TicketManager — Déploiement on-premises (Azure Stack Hub)" style="text;html=1;align=center;fontSize=14;fontStyle=1;fontColor=#000000;strokeColor=none;fillColor=none;" vertex="1" parent="1">
-          <mxGeometry x="240" y="10" width="800" height="30" as="geometry" />
-        </mxCell>
-
-        <!-- Acteurs externes -->
-        <mxCell id="user" value="" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
-          <mxGeometry x="40" y="50" width="30" height="55" as="geometry" />
-        </mxCell>
-        <mxCell id="user-lbl" value="Utilisateur&#xa;(Client / Technicien / Admin)" style="text;html=1;align=center;fontSize=10;fontColor=#000000;" vertex="1" parent="1">
-          <mxGeometry x="5" y="108" width="100" height="32" as="geometry" />
-        </mxCell>
-
-        <mxCell id="internet" value="Internet" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" vertex="1" parent="1">
-          <mxGeometry x="120" y="55" width="100" height="55" as="geometry" />
-        </mxCell>
-
-        <mxCell id="pubip" value="Adresse IP&#xa;publique" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9;" vertex="1" parent="1">
-          <mxGeometry x="235" y="65" width="80" height="35" as="geometry" />
-        </mxCell>
-
-        <mxCell id="storage-ext" value="Service externe&#xa;de stockage fichiers" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1">
-          <mxGeometry x="115" y="145" width="130" height="48" as="geometry" />
-        </mxCell>
-
-        <mxCell id="dev" value="" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
-          <mxGeometry x="1140" y="50" width="30" height="55" as="geometry" />
-        </mxCell>
-        <mxCell id="dev-lbl" value="Équipe projet" style="text;html=1;align=center;fontSize=10;fontColor=#000000;" vertex="1" parent="1">
-          <mxGeometry x="1110" y="108" width="90" height="20" as="geometry" />
-        </mxCell>
-        <mxCell id="ide" value="Poste de&#xa;développement" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;" vertex="1" parent="1">
-          <mxGeometry x="1040" y="55" width="85" height="40" as="geometry" />
-        </mxCell>
-        <mxCell id="repo" value="Dépôt de code&#xa;(GitHub / Azure Repos)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=9;" vertex="1" parent="1">
-          <mxGeometry x="1040" y="110" width="85" height="45" as="geometry" />
-        </mxCell>
-        <mxCell id="pipeline" value="Pipeline CI/CD&#xa;(Azure DevOps)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=9;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="1040" y="170" width="85" height="45" as="geometry" />
-        </mxCell>
-
-        <!-- Azure Stack Hub -->
-        <mxCell id="azure" value="Azure Stack Hub — Environnement on-premises (RFC Tunisie)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;verticalAlign=top;spacingTop=10;fontSize=12;fontColor=#000000;" vertex="1" parent="1">
-          <mxGeometry x="30" y="210" width="1220" height="720" as="geometry" />
-        </mxCell>
-
-        <mxCell id="rg" value="Groupe de ressources" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontStyle=2;fontSize=10;verticalAlign=top;spacingTop=4;dashed=1;" vertex="1" parent="1">
-          <mxGeometry x="55" y="245" width="1170" height="665" as="geometry" />
-        </mxCell>
-
-        <mxCell id="vnet" value="Réseau virtuel (10.1.0.0/16)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;verticalAlign=top;spacingTop=8;fontSize=11;fontColor=#000000;" vertex="1" parent="1">
-          <mxGeometry x="75" y="275" width="1130" height="615" as="geometry" />
-        </mxCell>
-
-        <mxCell id="tf-box" value="Provisionnement Terraform&#xa;(VNet · Subnets · NSG · NIC · VMs · IP publique)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#000000;fontSize=9;dashed=1;" vertex="1" parent="1">
-          <mxGeometry x="900" y="295" width="280" height="45" as="geometry" />
-        </mxCell>
-
-        <!-- Cluster K8s - subnet aks -->
-        <mxCell id="snet-aks" value="Sous-réseau applicatif (aks) — 10.1.3.0/24" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;verticalAlign=top;spacingTop=6;fontSize=10;fontColor=#000000;" vertex="1" parent="1">
-          <mxGeometry x="95" y="355" width="780" height="400" as="geometry" />
-        </mxCell>
-        <mxCell id="nsg-aks" value="NSG aks" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=8;" vertex="1" parent="1">
-          <mxGeometry x="105" y="385" width="55" height="22" as="geometry" />
-        </mxCell>
-
-        <mxCell id="k8s-label" value="Cluster Kubernetes (AKS Engine)" style="text;html=1;fontStyle=1;fontSize=11;fontColor=#000000;" vertex="1" parent="1">
-          <mxGeometry x="175" y="385" width="220" height="20" as="geometry" />
-        </mxCell>
-
-        <!-- Master -->
-        <mxCell id="master" value="Nœud Master — plan de contrôle" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;fontStyle=1;verticalAlign=top;spacingTop=5;fontSize=9;" vertex="1" parent="1">
-          <mxGeometry x="115" y="415" width="300" height="95" as="geometry" />
-        </mxCell>
-        <mxCell id="m1" value="API Server" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=8;" vertex="1" parent="1">
-          <mxGeometry x="125" y="445" width="65" height="22" as="geometry" />
-        </mxCell>
-        <mxCell id="m2" value="etcd" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=8;" vertex="1" parent="1">
-          <mxGeometry x="198" y="445" width="45" height="22" as="geometry" />
-        </mxCell>
-        <mxCell id="m3" value="Scheduler" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=8;" vertex="1" parent="1">
-          <mxGeometry x="250" y="445" width="60" height="22" as="geometry" />
-        </mxCell>
-        <mxCell id="m4" value="Controller Mgr" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=8;" vertex="1" parent="1">
-          <mxGeometry x="318" y="445" width="75" height="22" as="geometry" />
-        </mxCell>
-        <mxCell id="m5" value="kubectl / kubeconfig" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=8;" vertex="1" parent="1">
-          <mxGeometry x="125" y="475" width="100" height="22" as="geometry" />
-        </mxCell>
-
-        <!-- Worker + pods applicatifs -->
-        <mxCell id="worker" value="Nœud(s) Worker — charges applicatives (namespace ticketmanager)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;fontStyle=1;verticalAlign=top;spacingTop=5;fontSize=9;" vertex="1" parent="1">
-          <mxGeometry x="115" y="525" width="750" height="115" as="geometry" />
-        </mxCell>
-        <mxCell id="pod-fe" value="Conteneur&#xa;Interface web" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#000000;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-          <mxGeometry x="130" y="560" width="85" height="50" as="geometry" />
-        </mxCell>
-        <mxCell id="pod-be" value="Conteneur&#xa;Service applicatif (API)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-          <mxGeometry x="230" y="560" width="110" height="50" as="geometry" />
-        </mxCell>
-        <mxCell id="pod-db" value="Conteneur&#xa;Base de données&#xa;(production)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontColor=#000000;fontStyle=1;fontSize=9;" vertex="1" parent="1">
-          <mxGeometry x="355" y="555" width="95" height="60" as="geometry" />
-        </mxCell>
-        <mxCell id="pod-sonar" value="Conteneur&#xa;Analyse qualité" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=8;" vertex="1" parent="1">
-          <mxGeometry x="470" y="560" width="75" height="50" as="geometry" />
-        </mxCell>
-        <mxCell id="pod-nexus" value="Conteneur&#xa;Registre images" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=8;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="560" y="560" width="80" height="50" as="geometry" />
-        </mxCell>
-        <mxCell id="pod-graf" value="Conteneur&#xa;Supervision (viz.)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=8;" vertex="1" parent="1">
-          <mxGeometry x="655" y="560" width="85" height="50" as="geometry" />
-        </mxCell>
-        <mxCell id="pod-prom" value="Conteneur&#xa;Supervision (métriques)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=8;" vertex="1" parent="1">
-          <mxGeometry x="750" y="560" width="95" height="50" as="geometry" />
-        </mxCell>
-
-        <!-- Worker devops row 2 -->
-        <mxCell id="worker2" value="Jobs / scans sécurité conteneurs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;fontStyle=1;verticalAlign=top;spacingTop=4;fontSize=9;" vertex="1" parent="1">
-          <mxGeometry x="115" y="655" width="750" height="55" as="geometry" />
-        </mxCell>
-        <mxCell id="pod-trivy" value="Scan sécurité&#xa;des images" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=8;" vertex="1" parent="1">
-          <mxGeometry x="130" y="675" width="90" height="28" as="geometry" />
-        </mxCell>
-        <mxCell id="pvc-note" value="Volume persistant (PVC) — données base de données in-cluster" style="text;html=1;fontSize=9;fontStyle=2;fontColor=#666666;" vertex="1" parent="1">
-          <mxGeometry x="240" y="678" width="320" height="20" as="geometry" />
-        </mxCell>
-
-        <!-- Subnet mgmt -->
-        <mxCell id="snet-mgmt" value="Sous-réseau administration (mgmt) — 10.1.1.0/24" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;verticalAlign=top;spacingTop=6;fontSize=10;fontColor=#000000;" vertex="1" parent="1">
-          <mxGeometry x="95" y="770" width="370" height="105" as="geometry" />
-        </mxCell>
-        <mxCell id="nsg-mgmt" value="NSG mgmt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=8;" vertex="1" parent="1">
-          <mxGeometry x="105" y="795" width="60" height="20" as="geometry" />
-        </mxCell>
-        <mxCell id="vm-mgmt" value="VM-gestion (10.1.1.4)&#xa;IP publique + privée" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;verticalAlign=top;spacingTop=4;fontSize=10;" vertex="1" parent="1">
-          <mxGeometry x="115" y="820" width="340" height="45" as="geometry" />
-        </mxCell>
-        <mxCell id="vmg1" value="Ansible" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;fontSize=8;" vertex="1" parent="1">
-          <mxGeometry x="125" y="838" width="50" height="20" as="geometry" />
-        </mxCell>
-        <mxCell id="vmg2" value="Docker" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;fontSize=8;" vertex="1" parent="1">
-          <mxGeometry x="182" y="838" width="48" height="20" as="geometry" />
-        </mxCell>
-        <mxCell id="vmg3" value="AKS Engine" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;fontSize=8;" vertex="1" parent="1">
-          <mxGeometry x="238" y="838" width="65" height="20" as="geometry" />
-        </mxCell>
-        <mxCell id="vmg4" value="Agent Azure DevOps" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;fontSize=8;" vertex="1" parent="1">
-          <mxGeometry x="310" y="838" width="90" height="20" as="geometry" />
-        </mxCell>
-
-        <!-- Subnet db -->
-        <mxCell id="snet-db" value="Sous-réseau base de données (db) — 10.1.2.0/24 — privé" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;verticalAlign=top;spacingTop=6;fontSize=10;fontColor=#000000;" vertex="1" parent="1">
-          <mxGeometry x="490" y="770" width="385" height="105" as="geometry" />
-        </mxCell>
-        <mxCell id="nsg-db" value="NSG db" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=8;" vertex="1" parent="1">
-          <mxGeometry x="500" y="795" width="50" height="20" as="geometry" />
-        </mxCell>
-        <mxCell id="vm-db" value="VM-db (10.1.2.4)&#xa;IP privée uniquement" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;verticalAlign=top;spacingTop=4;fontSize=10;" vertex="1" parent="1">
-          <mxGeometry x="505" y="820" width="360" height="45" as="geometry" />
-        </mxCell>
-        <mxCell id="mongo-vm" value="Base de données (legacy / sauvegarde / migration)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d79b00;fontSize=9;fontStyle=2;" vertex="1" parent="1">
-          <mxGeometry x="580" y="835" width="250" height="25" as="geometry" />
-        </mxCell>
-
-        <!-- Légende -->
-        <mxCell id="leg" value="Légende&#xa;Jaune : interface / admin · Vert : API / gestion&#xa;Violet : cluster K8s · Orange : données / CI&#xa;Bleu : réseau · Pointillé : flux optionnel ou externe" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontSize=9;align=left;spacingLeft=8;fontColor=#000000;" vertex="1" parent="1">
-          <mxGeometry x="900" y="360" width="280" height="75" as="geometry" />
-        </mxCell>
-
-        <mxCell id="cicd-detail" value="Chaîne CI/CD&#xa;Build → Tests → Qualité → Images → Scan → Registre → Déploiement K8s" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=9;" vertex="1" parent="1">
-          <mxGeometry x="900" y="455" width="280" height="50" as="geometry" />
-        </mxCell>
-
-        <mxCell id="note-db" value="Note : la base de données de production&#xa;est hébergée in-cluster (StatefulSet).&#xa;VM-db : migration, sauvegarde ou secours." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;align=left;spacingLeft=6;fontColor=#000000;dashed=1;" vertex="1" parent="1">
-          <mxGeometry x="900" y="525" width="280" height="55" as="geometry" />
-        </mxCell>
-
-        <!-- Arêtes -->
-        <mxCell id="e-user-net" style="endArrow=block;html=1;strokeColor=#000000;" edge="1" parent="1" source="user" target="internet">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e-net-pub" style="endArrow=block;html=1;strokeColor=#000000;" edge="1" parent="1" source="internet" target="pubip">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e-pub-fe" style="endArrow=block;html=1;strokeColor=#000000;" edge="1" parent="1" source="pubip" target="pod-fe">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="275" y="330" />
-              <mxPoint x="172" y="330" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="e-fe-be" style="endArrow=open;html=1;strokeColor=#666666;" edge="1" parent="1" source="pod-fe" target="pod-be">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e-be-db" style="endArrow=block;html=1;strokeColor=#d79b00;strokeWidth=2;" edge="1" parent="1" source="pod-be" target="pod-db">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e-be-vm-db" value="migration / secours" style="endArrow=open;dashed=1;html=1;strokeColor=#d79b00;fontSize=8;fontColor=#666666;" edge="1" parent="1" source="pod-be" target="mongo-vm">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="285" y="750" />
-              <mxPoint x="705" y="750" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="e-be-storage" style="endArrow=block;dashed=1;html=1;strokeColor=#666666;" edge="1" parent="1" source="pod-be" target="storage-ext">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="285" y="250" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="e-dev-ide" style="endArrow=block;html=1;strokeColor=#000000;" edge="1" parent="1" source="dev" target="ide">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e-ide-repo" style="endArrow=block;html=1;strokeColor=#000000;" edge="1" parent="1" source="ide" target="repo">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e-repo-pipe" style="endArrow=block;html=1;strokeColor=#d79b00;" edge="1" parent="1" source="repo" target="pipeline">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e-pipe-nexus" style="endArrow=block;dashed=1;html=1;strokeColor=#d79b00;" edge="1" parent="1" source="pipeline" target="pod-nexus">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="1082" y="280" />
-              <mxPoint x="600" y="280" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="e-pipe-sonar" style="endArrow=block;dashed=1;html=1;strokeColor=#9673a6;" edge="1" parent="1" source="pipeline" target="pod-sonar">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="1100" y="300" />
-              <mxPoint x="507" y="300" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="e-pipe-k8s" style="endArrow=block;dashed=1;html=1;strokeColor=#9673a6;" edge="1" parent="1" source="pipeline" target="worker">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="1120" y="320" />
-              <mxPoint x="1120" y="580" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="e-agent-pipe" style="endArrow=open;dashed=1;html=1;strokeColor=#d79b00;" edge="1" parent="1" source="vmg4" target="pipeline">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="500" y="900" />
-              <mxPoint x="500" y="195" />
-              <mxPoint x="1040" y="195" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="e-mgmt-aks" style="endArrow=open;dashed=1;html=1;strokeColor=#82b366;fontSize=8;" edge="1" parent="1" source="vmg3" target="master">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="270" y="770" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="e-prom-graf" style="endArrow=open;dashed=1;html=1;strokeColor=#9673a6;" edge="1" parent="1" source="pod-prom" target="pod-graf">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e-be-prom" style="endArrow=open;dashed=1;html=1;strokeColor=#9673a6;" edge="1" parent="1" source="pod-be" target="pod-prom">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e-tf-vnet" style="endArrow=open;dashed=1;html=1;strokeColor=#666666;" edge="1" parent="1" source="tf-box" target="vnet">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <mxCell id="footer" value="Figure — Architecture physique TicketManager (Azure Stack Hub)" style="text;html=1;align=center;fontSize=10;fontStyle=2;fontColor=#666666;" vertex="1" parent="1">
-          <mxGeometry x="400" y="935" width="480" height="20" as="geometry" />
-        </mxCell>
-      </root>
-    </mxGraphModel>
-  </diagram>
+<mxfile host="65bd71144e">
+    <diagram id="archi-physique" name="Architecture physique">
+        <mxGraphModel dx="2580" dy="2003" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1280" pageHeight="960" background="#ffffff" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="2" value="" style="rounded=0;whiteSpace=wrap;html=1;fontColor=#000000;fillColor=#FFFFFF;" vertex="1" parent="1">
+                    <mxGeometry x="-100" y="-40" width="1420" height="1030" as="geometry"/>
+                </mxCell>
+                <mxCell id="title" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;Architecture physique de TicketManager&amp;nbsp;&lt;/font&gt;" style="text;html=1;align=center;fontSize=14;fontStyle=1;fontColor=#000000;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="240" y="10" width="800" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="user" value="" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="50" width="30" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="user-lbl" value="Utilisateur&#10;(Client / Technicien / Admin)" style="text;html=1;align=center;fontSize=10;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="5" y="108" width="100" height="32" as="geometry"/>
+                </mxCell>
+                <mxCell id="internet" value="&lt;font color=&quot;#003300&quot;&gt;Internet&lt;/font&gt;" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="120" y="55" width="100" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="pubip" value="&lt;font color=&quot;#000000&quot;&gt;Adresse IP&lt;br&gt;publique&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9;" vertex="1" parent="1">
+                    <mxGeometry x="235" y="65" width="80" height="35" as="geometry"/>
+                </mxCell>
+                <mxCell id="storage-ext" value="&lt;font color=&quot;#003300&quot;&gt;Service externe&lt;br&gt;de stockage fichiers&lt;/font&gt;" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="115" y="145" width="130" height="48" as="geometry"/>
+                </mxCell>
+                <mxCell id="dev" value="" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+                    <mxGeometry x="1140" y="50" width="30" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="dev-lbl" value="Équipe projet" style="text;html=1;align=center;fontSize=10;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="1110" y="108" width="90" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="ide" value="&lt;font color=&quot;#000000&quot;&gt;Poste de&lt;br&gt;développement&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;" vertex="1" parent="1">
+                    <mxGeometry x="1040" y="55" width="85" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="repo" value="&lt;font color=&quot;#000000&quot;&gt;Dépôt de code&lt;br&gt;( Azure Repos)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=9;" parent="1" vertex="1">
+                    <mxGeometry x="1040" y="110" width="85" height="45" as="geometry"/>
+                </mxCell>
+                <mxCell id="pipeline" value="&lt;font color=&quot;#000000&quot;&gt;Pipeline CI/CD&lt;br&gt;(Azure DevOps)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=9;fontStyle=1;" vertex="1" parent="1">
+                    <mxGeometry x="1040" y="170" width="85" height="45" as="geometry"/>
+                </mxCell>
+                <mxCell id="azure" value="Azure Stack Hub — Environnement on-premises (RFC Tunisie)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;verticalAlign=top;spacingTop=10;fontSize=12;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="-20" y="210" width="1310" height="750" as="geometry"/>
+                </mxCell>
+                <mxCell id="rg" value="Groupe de ressources" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontStyle=2;fontSize=10;verticalAlign=top;spacingTop=4;dashed=1;" vertex="1" parent="1">
+                    <mxGeometry x="20" y="245" width="1230" height="685" as="geometry"/>
+                </mxCell>
+                <mxCell id="vnet" value="Réseau virtuel (10.1.0.0/16)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;verticalAlign=top;spacingTop=8;fontSize=11;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="50" y="275" width="1170" height="635" as="geometry"/>
+                </mxCell>
+                <mxCell id="tf-box" value="Provisionnement Terraform&#10;(VNet · Subnets · NSG · NIC · VMs · IP publique)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#000000;fontSize=9;dashed=1;" vertex="1" parent="1">
+                    <mxGeometry x="900" y="295" width="280" height="45" as="geometry"/>
+                </mxCell>
+                <mxCell id="snet-aks" value="Sous-réseau applicatif (aks) — 10.1.3.0/24" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;verticalAlign=top;spacingTop=6;fontSize=10;fontColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="95" y="355" width="780" height="400" as="geometry"/>
+                </mxCell>
+                <mxCell id="nsg-aks" value="&lt;font color=&quot;#000000&quot;&gt;NSG aks&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=8;" vertex="1" parent="1">
+                    <mxGeometry x="105" y="385" width="55" height="22" as="geometry"/>
+                </mxCell>
+                <mxCell id="k8s-label" value="Cluster Kubernetes (AKS Engine)" style="text;html=1;fontStyle=1;fontSize=11;fontColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="175" y="385" width="220" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="master" value="&lt;font color=&quot;#000000&quot;&gt;Nœud Master — plan de contrôle&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;fontStyle=1;verticalAlign=top;spacingTop=5;fontSize=9;" vertex="1" parent="1">
+                    <mxGeometry x="115" y="415" width="300" height="95" as="geometry"/>
+                </mxCell>
+                <mxCell id="m1" value="&lt;font color=&quot;#000000&quot;&gt;API Server&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=8;" vertex="1" parent="1">
+                    <mxGeometry x="125" y="445" width="65" height="22" as="geometry"/>
+                </mxCell>
+                <mxCell id="m2" value="&lt;font color=&quot;#000000&quot;&gt;etcd&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=8;" vertex="1" parent="1">
+                    <mxGeometry x="198" y="445" width="45" height="22" as="geometry"/>
+                </mxCell>
+                <mxCell id="m3" value="&lt;font color=&quot;#000000&quot;&gt;Scheduler&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=8;" vertex="1" parent="1">
+                    <mxGeometry x="250" y="445" width="60" height="22" as="geometry"/>
+                </mxCell>
+                <mxCell id="m4" value="&lt;font color=&quot;#000000&quot;&gt;Controller Mgr&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=8;" vertex="1" parent="1">
+                    <mxGeometry x="318" y="445" width="75" height="22" as="geometry"/>
+                </mxCell>
+                <mxCell id="m5" value="&lt;font color=&quot;#000000&quot;&gt;kubectl / kubeconfig&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=8;" vertex="1" parent="1">
+                    <mxGeometry x="125" y="475" width="100" height="22" as="geometry"/>
+                </mxCell>
+                <mxCell id="worker" value="&lt;font color=&quot;#000000&quot;&gt;Nœud(s) Worker — charges applicatives (namespace ticketmanager)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;fontStyle=1;verticalAlign=top;spacingTop=5;fontSize=9;" vertex="1" parent="1">
+                    <mxGeometry x="115" y="525" width="750" height="115" as="geometry"/>
+                </mxCell>
+                <mxCell id="pod-fe" value="Conteneur&#10;Interface web" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#000000;fontStyle=1;fontSize=9;" parent="1" vertex="1">
+                    <mxGeometry x="130" y="560" width="85" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="pod-be" value="Conteneur&#10;Service applicatif (API)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontStyle=1;fontSize=9;" parent="1" vertex="1">
+                    <mxGeometry x="230" y="560" width="110" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="pod-db" value="Conteneur&#10;Base de données&#10;(production)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontColor=#000000;fontStyle=1;fontSize=9;" parent="1" vertex="1">
+                    <mxGeometry x="355" y="555" width="95" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="pod-sonar" value="&lt;font color=&quot;#000000&quot;&gt;Conteneur&lt;br&gt;Analyse qualité&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=8;" vertex="1" parent="1">
+                    <mxGeometry x="470" y="560" width="75" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="pod-nexus" value="&lt;font color=&quot;#000000&quot;&gt;Conteneur&lt;br&gt;Registre images&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=8;fontStyle=1;" vertex="1" parent="1">
+                    <mxGeometry x="560" y="560" width="80" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="pod-graf" value="&lt;font color=&quot;#000000&quot;&gt;Conteneur&lt;br&gt;Supervision (viz.)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=8;" vertex="1" parent="1">
+                    <mxGeometry x="655" y="560" width="85" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="pod-prom" value="&lt;font color=&quot;#000000&quot;&gt;Conteneur&lt;br&gt;Supervision (métriques)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=8;" vertex="1" parent="1">
+                    <mxGeometry x="750" y="560" width="95" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="worker2" value="&lt;font color=&quot;#000000&quot;&gt;Jobs / scans sécurité conteneurs&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;fontStyle=1;verticalAlign=top;spacingTop=4;fontSize=9;" vertex="1" parent="1">
+                    <mxGeometry x="115" y="655" width="750" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="pod-trivy" value="&lt;font color=&quot;#000000&quot;&gt;Scan sécurité&lt;br&gt;des images&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=8;" vertex="1" parent="1">
+                    <mxGeometry x="130" y="675" width="90" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="pvc-note" value="&lt;font color=&quot;#3333ff&quot;&gt;Volume persistant (PVC) — données base de données in-cluster&lt;/font&gt;" style="text;html=1;fontSize=9;fontStyle=2;fontColor=#666666;" vertex="1" parent="1">
+                    <mxGeometry x="240" y="678" width="320" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="snet-mgmt" value="Sous-réseau administration (mgmt)&amp;nbsp;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;verticalAlign=top;spacingTop=6;fontSize=10;fontColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="95" y="770" width="370" height="105" as="geometry"/>
+                </mxCell>
+                <mxCell id="nsg-mgmt" value="&lt;font color=&quot;#000000&quot;&gt;NSG mgmt&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=8;" vertex="1" parent="1">
+                    <mxGeometry x="102.5" y="775" width="60" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="vm-mgmt" value="&lt;font color=&quot;#000000&quot;&gt;VM-gestion&lt;br&gt;IP publique + privée&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;verticalAlign=top;spacingTop=4;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="110" y="800" width="340" height="65" as="geometry"/>
+                </mxCell>
+                <mxCell id="vmg1" value="&lt;font color=&quot;#000000&quot;&gt;Ansible&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;fontSize=8;" vertex="1" parent="1">
+                    <mxGeometry x="125" y="838" width="50" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="vmg2" value="&lt;font color=&quot;#000000&quot;&gt;Docker&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;fontSize=8;" vertex="1" parent="1">
+                    <mxGeometry x="182" y="838" width="48" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="vmg3" value="&lt;font color=&quot;#000000&quot;&gt;AKS Engine&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;fontSize=8;" vertex="1" parent="1">
+                    <mxGeometry x="238" y="838" width="65" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="vmg4" value="&lt;font color=&quot;#000000&quot;&gt;Agent Azure DevOps&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;fontSize=8;" vertex="1" parent="1">
+                    <mxGeometry x="310" y="838" width="90" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="snet-db" value="Sous-réseau base de données (db) — privé" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;verticalAlign=top;spacingTop=6;fontSize=10;fontColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="490" y="770" width="385" height="105" as="geometry"/>
+                </mxCell>
+                <mxCell id="nsg-db" value="&lt;font color=&quot;#000000&quot;&gt;NSG db&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=8;" vertex="1" parent="1">
+                    <mxGeometry x="505" y="780" width="50" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="vm-db" value="&lt;font color=&quot;#000000&quot;&gt;VM-db (10.1.2.4)&lt;br&gt;IP privée uniquement&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;verticalAlign=top;spacingTop=4;fontSize=10;" vertex="1" parent="1">
+                    <mxGeometry x="502.5" y="800" width="360" height="65" as="geometry"/>
+                </mxCell>
+                <mxCell id="mongo-vm" value="&lt;font color=&quot;#000000&quot;&gt;Base de données (legacy / sauvegarde / migration)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d79b00;fontSize=9;fontStyle=2;" vertex="1" parent="1">
+                    <mxGeometry x="595" y="838" width="250" height="25" as="geometry"/>
+                </mxCell>
+                <mxCell id="leg" value="Légende&#10;Jaune : interface / admin · Vert : API / gestion&#10;Violet : cluster K8s · Orange : données / CI&#10;Bleu : réseau · Pointillé : flux optionnel ou externe" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontSize=9;align=left;spacingLeft=8;fontColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="900" y="780" width="280" height="75" as="geometry"/>
+                </mxCell>
+                <mxCell id="cicd-detail" value="&lt;font color=&quot;#000000&quot;&gt;Chaîne CI/CD&lt;br&gt;Build → Tests → Qualité → Images → Scan → Registre → Déploiement K8s&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=9;" vertex="1" parent="1">
+                    <mxGeometry x="925" y="460" width="280" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="e-user-net" style="endArrow=block;html=1;strokeColor=#000000;" parent="1" source="user" target="internet" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e-net-pub" style="endArrow=block;html=1;strokeColor=#000000;" edge="1" parent="1" source="internet" target="pubip">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e-pub-fe" style="endArrow=block;html=1;strokeColor=#000000;" edge="1" parent="1" source="pubip" target="pod-fe">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="275" y="330"/>
+                            <mxPoint x="172" y="330"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e-fe-be" style="endArrow=open;html=1;strokeColor=#666666;" parent="1" source="pod-fe" target="pod-be" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e-be-db" style="endArrow=block;html=1;strokeColor=#d79b00;strokeWidth=2;" parent="1" source="pod-be" target="pod-db" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e-be-vm-db" value="&lt;span style=&quot;background-color: rgb(255, 204, 230);&quot;&gt;migration / secours&lt;/span&gt;" style="endArrow=open;dashed=1;html=1;strokeColor=#d79b00;fontSize=8;fontColor=#666666;" edge="1" parent="1" source="pod-be" target="mongo-vm">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="285" y="750"/>
+                            <mxPoint x="705" y="750"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e-be-storage" style="endArrow=block;dashed=1;html=1;strokeColor=#666666;" parent="1" source="pod-be" target="storage-ext" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="285" y="250"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e-dev-ide" style="endArrow=block;html=1;strokeColor=#000000;" edge="1" parent="1" source="dev" target="ide">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e-ide-repo" style="endArrow=block;html=1;strokeColor=#000000;" edge="1" parent="1" source="ide" target="repo">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e-repo-pipe" style="endArrow=block;html=1;strokeColor=#d79b00;" edge="1" parent="1" source="repo" target="pipeline">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e-pipe-nexus" style="endArrow=block;dashed=1;html=1;strokeColor=#d79b00;" edge="1" parent="1" source="pipeline" target="pod-nexus">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1082" y="280"/>
+                            <mxPoint x="600" y="280"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e-pipe-sonar" style="endArrow=block;dashed=1;html=1;strokeColor=#9673a6;" edge="1" parent="1" source="pipeline" target="pod-sonar">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1100" y="300"/>
+                            <mxPoint x="507" y="300"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e-pipe-k8s" style="endArrow=block;dashed=1;html=1;strokeColor=#9673a6;" edge="1" parent="1" source="pipeline" target="worker">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1120" y="320"/>
+                            <mxPoint x="1120" y="580"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e-agent-pipe" style="endArrow=open;dashed=1;html=1;strokeColor=#d79b00;" edge="1" parent="1" source="vmg4" target="pipeline">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="500" y="900"/>
+                            <mxPoint x="500" y="195"/>
+                            <mxPoint x="1040" y="195"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e-mgmt-aks" style="endArrow=open;dashed=1;html=1;strokeColor=#82b366;fontSize=8;" edge="1" parent="1" source="vmg3" target="master">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="270" y="770"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e-prom-graf" style="endArrow=open;dashed=1;html=1;strokeColor=#9673a6;" edge="1" parent="1" source="pod-prom" target="pod-graf">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e-be-prom" style="endArrow=open;dashed=1;html=1;strokeColor=#9673a6;" edge="1" parent="1" source="pod-be" target="pod-prom">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e-tf-vnet" style="endArrow=open;dashed=1;html=1;strokeColor=#666666;" edge="1" parent="1" source="tf-box" target="vnet">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
 </mxfile>
