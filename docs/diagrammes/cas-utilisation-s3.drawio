@@ -13,13 +13,13 @@
                 <mxCell id="system" value="Système TicketManager" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fontStyle=1;fontSize=13;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=2;fontColor=#000000;dashed=1;dashPattern=8 8;" parent="1" vertex="1">
                     <mxGeometry x="160" y="55" width="720" height="560" as="geometry"/>
                 </mxCell>
-                <mxCell id="actor-client" value="Client" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontColor=#000000;" parent="1" vertex="1">
+                <mxCell id="actor-client" value="Client" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#00d8ff;strokeColor=#00a5c4;fontStyle=1;fontColor=#000000;" parent="1" vertex="1">
                     <mxGeometry x="50" y="110" width="40" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="actor-tech" value="Technicien" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontColor=#000000;" parent="1" vertex="1">
+                <mxCell id="actor-tech" value="Technicien" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#cdbeff;strokeColor=#8b6fd4;fontStyle=1;fontColor=#000000;" parent="1" vertex="1">
                     <mxGeometry x="50" y="280" width="40" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="actor-admin" value="Admin" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontColor=#000000;" parent="1" vertex="1">
+                <mxCell id="actor-admin" value="Admin" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#4372c2;strokeColor=#2d5299;fontStyle=1;fontColor=#000000;" parent="1" vertex="1">
                     <mxGeometry x="50" y="450" width="40" height="80" as="geometry"/>
                 </mxCell>
                 <mxCell id="gen-admin-tech" value="" style="endArrow=block;endFill=0;endSize=12;html=1;rounded=0;strokeColor=#333333;" parent="1" source="actor-admin" edge="1">
@@ -27,37 +27,37 @@
                         <mxPoint x="70" y="390" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="uc-dash-client" value="Consulter dashboard Client" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=11;fontColor=#000000;" parent="1" vertex="1">
+                <mxCell id="uc-dash-client" value="Consulter dashboard Client" style="ellipse;whiteSpace=wrap;html=1;fillColor=#00d8ff;strokeColor=#00a5c4;fontStyle=1;fontSize=11;fontColor=#000000;" parent="1" vertex="1">
                     <mxGeometry x="260" y="100" width="200" height="50" as="geometry"/>
                 </mxCell>
                 <mxCell id="uc-notif" value="Consulter Notifications" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=11;fontColor=#000000;" parent="1" vertex="1">
                     <mxGeometry x="275" y="325" width="185" height="50" as="geometry"/>
                 </mxCell>
-                <mxCell id="uc-dash-tech" value="Consulter dashboard Technicien" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=11;fontColor=#000000;" parent="1" vertex="1">
+                <mxCell id="uc-dash-tech" value="Consulter dashboard Technicien" style="ellipse;whiteSpace=wrap;html=1;fillColor=#cdbeff;strokeColor=#8b6fd4;fontStyle=1;fontSize=11;fontColor=#000000;" parent="1" vertex="1">
                     <mxGeometry x="265" y="200" width="215" height="50" as="geometry"/>
                 </mxCell>
-                <mxCell id="uc-dash-admin" value="Consulter dashboard Admin" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=11;fontColor=#000000;" parent="1" vertex="1">
+                <mxCell id="uc-dash-admin" value="Consulter dashboard Admin" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4372c2;strokeColor=#2d5299;fontStyle=1;fontSize=11;fontColor=#000000;" parent="1" vertex="1">
                     <mxGeometry x="265" y="460" width="195" height="50" as="geometry"/>
                 </mxCell>
-                <mxCell id="uc-stats" value="Consulter les statistiques&lt;br&gt;globales" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontColor=#000000;" parent="1" vertex="1">
+                <mxCell id="uc-stats" value="Consulter les statistiques&lt;br&gt;globales" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4372c2;strokeColor=#2d5299;fontSize=11;fontColor=#000000;" parent="1" vertex="1">
                     <mxGeometry x="265" y="540" width="195" height="50" as="geometry"/>
                 </mxCell>
                 <mxCell id="uc-auth" value="S'authentifier" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=12;fontColor=#000000;" parent="1" vertex="1">
                     <mxGeometry x="700" y="300" width="130" height="50" as="geometry"/>
                 </mxCell>
-                <mxCell id="l-c-dash" style="endArrow=none;html=1;strokeColor=#6c8ebf;strokeWidth=2;" parent="1" source="actor-client" target="uc-dash-client" edge="1">
+                <mxCell id="l-c-dash" style="endArrow=none;html=1;strokeColor=#00a5c4;strokeWidth=2;" parent="1" source="actor-client" target="uc-dash-client" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="l-c-notif" style="endArrow=none;html=1;strokeColor=#6c8ebf;strokeWidth=2;" parent="1" source="actor-client" target="uc-notif" edge="1">
+                <mxCell id="l-c-notif" style="endArrow=none;html=1;strokeColor=#00a5c4;strokeWidth=2;" parent="1" source="actor-client" target="uc-notif" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="l-t-notif" style="endArrow=none;html=1;strokeColor=#d6b656;strokeWidth=2;" parent="1" source="actor-tech" target="uc-notif" edge="1">
+                <mxCell id="l-t-notif" style="endArrow=none;html=1;strokeColor=#8b6fd4;strokeWidth=2;" parent="1" source="actor-tech" target="uc-notif" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="l-t-dash" style="endArrow=none;html=1;strokeColor=#d6b656;strokeWidth=2;" parent="1" source="actor-tech" target="uc-dash-tech" edge="1">
+                <mxCell id="l-t-dash" style="endArrow=none;html=1;strokeColor=#8b6fd4;strokeWidth=2;" parent="1" source="actor-tech" target="uc-dash-tech" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="l-a-dash" style="endArrow=none;html=1;strokeColor=#82b366;strokeWidth=2;" parent="1" source="actor-admin" target="uc-dash-admin" edge="1">
+                <mxCell id="l-a-dash" style="endArrow=none;html=1;strokeColor=#2d5299;strokeWidth=2;" parent="1" source="actor-admin" target="uc-dash-admin" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="inc-dash-c" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;strokeColor=#000000;fontSize=10;fontColor=#000000;labelBackgroundColor=#ffffff;" parent="1" source="uc-dash-client" target="uc-auth" edge="1">

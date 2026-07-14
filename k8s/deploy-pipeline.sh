@@ -62,15 +62,7 @@ if ! kubectl wait --for=condition=ready pod -l app=mongodb -n ticketmanager --ti
   exit 1
 fi
 
-echo "==> Ingress NGINX + TLS HTTPS"
-chmod +x "$K8S_DIR/scripts/"*.sh
-export K8S_NODE_HOSTNAME="${K8S_NODE_HOSTNAME:-k8s-agentpool-34739636-1}"
-export K8S_APP_HOST="${K8S_APP_HOST:-app.ticketmanager.local}"
-export K8S_API_HOST="${K8S_API_HOST:-api.ticketmanager.local}"
-export K8S_WORKER_PUBLIC_IP="${K8S_WORKER_PUBLIC_IP:-}"
-"$K8S_DIR/scripts/setup-ingress-nginx.sh"
-"$K8S_DIR/scripts/ensure-tls-secret.sh"
-kubectl apply -f "$K8S_DIR/ingress.yaml"
+# Ingress HTTPS désactivé — accès HTTP via NodePort 30080/30081 uniquement
 
 echo "==> Manifests (services + deployments)"
 kubectl apply -f "$K8S_DIR/backend-service.yaml"
@@ -116,21 +108,16 @@ if [[ "$PUBLIC_IP" == "PUT_WORKER_PIP_HERE" ]]; then
   PUBLIC_IP=""
 fi
 
-HTTPS_PORT="${K8S_INGRESS_HTTPS_PORT:-30443}"
-APP_HOST="${K8S_APP_HOST:-app.ticketmanager.local}"
-API_HOST="${K8S_API_HOST:-api.ticketmanager.local}"
-APP_URL="${K8S_APP_URL:-https://${APP_HOST}:${HTTPS_PORT}}"
-API_URL="${K8S_API_URL:-https://${API_HOST}:${HTTPS_PORT}}"
+APP_URL="${K8S_APP_URL:-http://${NODE_IP}:30080}"
+API_URL="${K8S_API_URL:-http://${NODE_IP}:30081}"
 
 echo ""
-echo "Frontend HTTPS (public):     ${APP_URL}"
-echo "Backend  HTTPS (public):     ${API_URL}"
-echo "Frontend NodePort (interne): http://${NODE_IP}:30080"
-echo "Backend NodePort  (interne): http://${NODE_IP}:30081"
+echo "Frontend HTTP (interne):     ${APP_URL}"
+echo "Backend  HTTP (interne):     ${API_URL}"
 if [[ -n "$PUBLIC_IP" ]]; then
-  echo "Hosts file (poste client): ${APP_HOST} ${PUBLIC_IP}"
-  echo "                           ${API_HOST} ${PUBLIC_IP}"
-  echo "NSG entrant requis: TCP ${HTTPS_PORT} (HTTPS Ingress)"
+  echo "Frontend HTTP (public PIP):  http://${PUBLIC_IP}:30080"
+  echo "Backend  HTTP (public PIP):  http://${PUBLIC_IP}:30081"
+  echo "NSG entrant requis: TCP 30080, 30081"
 else
   echo "Accès public: définir K8S_WORKER_PUBLIC_IP dans azure-pipelines.yml (PIP worker + NSG)"
 fi
@@ -139,9 +126,6 @@ if [[ -f "$K8S_DIR/post-deploy.sh" ]]; then
   chmod +x "$K8S_DIR/post-deploy.sh"
   export K8S_NODE_IP="$NODE_IP"
   export K8S_WORKER_PUBLIC_IP="${PUBLIC_IP}"
-  export K8S_APP_HOST="$APP_HOST"
-  export K8S_API_HOST="$API_HOST"
-  export K8S_INGRESS_HTTPS_PORT="$HTTPS_PORT"
   export K8S_APP_URL="$APP_URL"
   export K8S_API_URL="$API_URL"
   "$K8S_DIR/post-deploy.sh"

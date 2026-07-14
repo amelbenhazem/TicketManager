@@ -19,9 +19,8 @@ const defaultApiUrl =
     : 'http://localhost:3001';
 
 /**
- * En production K8s :
- * - HTTPS Ingress : NEXT_PUBLIC_API_URL (https://api.*) figée au build Docker
- * - Legacy NodePort HTTP : frontend :30080, backend :30081 sur la même IP
+ * En production K8s (HTTP NodePort) :
+ * frontend :30080, backend :30081 sur la même IP (hostname du navigateur).
  */
 export function getApiUrl(): string {
   const envApiUrl = getEnv('NEXT_PUBLIC_API_URL', '');
@@ -32,9 +31,6 @@ export function getApiUrl(): string {
       hostname === 'localhost' || hostname === '127.0.0.1';
 
     if (!isLocal) {
-      if (envApiUrl.startsWith('https://')) {
-        return envApiUrl.replace(/\/$/, '');
-      }
       return `${protocol}//${hostname}:30081`;
     }
     if (port === '30080') {
