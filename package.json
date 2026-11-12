@@ -1,6 +1,17 @@
 {
-  "dependencies": {
-    "@nestjs/mongoose": "^11.0.4",
-    "mongoose": "^9.2.3"
+  "name": "ticketmanager",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Plateforme de gestion d'incidents IT — NestJS, Next.js, MongoDB, Kubernetes, Azure Stack Hub",
+  "license": "MIT",
+  "scripts": {
+    "mongo:up": "docker compose up -d mongodb",
+    "mongo:down": "docker compose stop mongodb",
+    "up": "docker compose up -d --build",
+    "down": "docker compose down",
+    "test:backend": "npm --prefix backend test -- --forceExit",
+    "test:frontend": "npm --prefix frontend run test:run",
+    "lint:backend": "npm --prefix backend run lint",
+    "lint:frontend": "npm --prefix frontend run lint"
   }
 }

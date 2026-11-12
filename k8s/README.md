@@ -64,7 +64,7 @@ L'accès public utilise **HTTPS** via NGINX Ingress :
 ```bash
 export KUBECONFIG=~/kubernetes/ticketmanager-k8s/kubeconfig/kubeconfig.dc2.json
 chmod +x k8s/scripts/*.sh
-export K8S_WORKER_PUBLIC_IP=102.141.206.164   # PIP worker
+export K8S_WORKER_PUBLIC_IP=YOUR_PUBLIC_IP   # PIP worker
 ./k8s/scripts/setup-ingress-nginx.sh          # installe ingress-nginx + NodePort 30443
 ./k8s/scripts/ensure-tls-secret.sh            # certificat auto-signé → secret ticketmanager-tls
 kubectl apply -f k8s/ingress.yaml
@@ -75,8 +75,8 @@ kubectl apply -f k8s/ingress.yaml
 Ajouter sur votre PC (remplacer par la PIP worker) :
 
 ```
-102.141.206.164  app.ticketmanager.local
-102.141.206.164  api.ticketmanager.local
+YOUR_PUBLIC_IP  app.ticketmanager.local
+YOUR_PUBLIC_IP  api.ticketmanager.local
 ```
 
 ### NSG Azure Stack Hub
@@ -165,7 +165,7 @@ kubectl get svc -n ticketmanager
 
 1. Créer une **Adresse IP publique** dans `ticketmanager-k8s-rg` et l'associer à la NIC du worker `10.1.3.4`.
 2. Ouvrir **NSG** `k8s-master-34739636-nsg` : TCP **30443** (HTTPS Ingress). Optionnel : 30080/30081 (legacy HTTP).
-3. Mettre l'IP dans `azure-pipelines.yml` → variable **`K8S_WORKER_PUBLIC_IP`**.
+3. Mettre l'IP dans Azure DevOps **Library** → variable **`K8S_WORKER_PUBLIC_IP`** (ne pas la committer).
 4. Fichier **hosts** sur le poste client : `app.ticketmanager.local` et `api.ticketmanager.local` → PIP worker.
 5. Push sur `main` → pipeline rebuild frontend (`FRONTEND_API_URL=https://api...`) + deploy Ingress/TLS + CORS.
 6. Navigateur : `https://app.ticketmanager.local:30443` (accepter le certificat auto-signé).
@@ -244,7 +244,7 @@ Chaque **Deploy K8s** :
 ```bash
 export KUBECONFIG=~/kubernetes/ticketmanager-k8s/kubeconfig/kubeconfig.dc2.json
 chmod +x k8s/reload-prod.sh
-K8S_WORKER_PUBLIC_IP=102.141.206.164 IMAGE_TAG=latest ./k8s/reload-prod.sh
+K8S_WORKER_PUBLIC_IP=YOUR_PUBLIC_IP IMAGE_TAG=latest ./k8s/reload-prod.sh
 ```
 
 Remplacer `IMAGE_TAG` par le numéro de build Azure DevOps si besoin.

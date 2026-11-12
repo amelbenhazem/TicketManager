@@ -28,10 +28,21 @@ type TicketEventPayload = {
   previousAssignedTo?: string | null;
 };
 
+function websocketCorsOrigins(): string[] {
+  const raw = process.env.CORS_ORIGIN;
+  if (!raw?.trim()) {
+    return ['http://localhost:3000', 'http://127.0.0.1:3000'];
+  }
+  return raw
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+}
+
 @Injectable()
 @WebSocketGateway({
   namespace: '/notifications',
-  cors: { origin: true, credentials: true },
+  cors: { origin: websocketCorsOrigins(), credentials: true },
 })
 export class TicketsNotificationsGateway
   implements OnGatewayConnection, OnGatewayDisconnect

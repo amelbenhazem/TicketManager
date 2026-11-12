@@ -2,11 +2,11 @@
 # Met à jour CORS_ORIGIN du backend pour accès HTTP NodePort (interne + PIP).
 # Usage sur vm-gestion :
 #   export KUBECONFIG=~/kubernetes/ticketmanager-k8s/kubeconfig/kubeconfig.dc2.json
-#   K8S_WORKER_PUBLIC_IP=102.141.206.164 ./k8s/fix-cors-public.sh
+#   K8S_WORKER_PUBLIC_IP=YOUR_PUBLIC_IP ./k8s/fix-cors-public.sh
 set -euo pipefail
 
 : "${KUBECONFIG:?KUBECONFIG requis}"
-PUBLIC_IP="${K8S_WORKER_PUBLIC_IP:?K8S_WORKER_PUBLIC_IP requis (ex. 102.141.206.164)}"
+PUBLIC_IP="${K8S_WORKER_PUBLIC_IP:?K8S_WORKER_PUBLIC_IP requis (ex. YOUR_PUBLIC_IP)}"
 
 CORS="http://${PUBLIC_IP}:30080,http://10.1.3.4:30080,http://10.1.3.5:30080,http://localhost:30080"
 

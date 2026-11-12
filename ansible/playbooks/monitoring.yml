@@ -12,7 +12,7 @@
 #   Grafana    : http://10.1.1.4:3030  (admin / admin — changer en prod)
 #
 # Pour démo depuis Internet : ouvrir NSG vm-gestion sur 9090/3030 ou
-#   ssh -L 9090:localhost:9090 -L 3030:localhost:3030 azureuser@102.141.206.166
+#   ssh -L 9090:localhost:9090 -L 3030:localhost:3030 azureuser@YOUR_MGMT_PUBLIC_IP
 
 - name: Deploy monitoring stack on VM-gestion
   hosts: mgmt

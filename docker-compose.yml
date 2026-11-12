@@ -27,7 +27,7 @@ services:
     ports:
       - "3001:3001"
     env_file:
-      - ./backend/.env
+      - ./backend/.env.example
     environment:
       PORT: 3001
       HOST: 0.0.0.0
@@ -39,7 +39,8 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: http://backend:3001
+        # URL vue par le navigateur (localhost), pas le hostname Docker interne
+        NEXT_PUBLIC_API_URL: http://localhost:3001
     container_name: ticketmanager-frontend
     restart: unless-stopped
     depends_on:
@@ -52,7 +53,7 @@ services:
       NODE_ENV: production
       PORT: 3000
       HOSTNAME: 0.0.0.0
-      NEXT_PUBLIC_API_URL: http://backend:3001
+      NEXT_PUBLIC_API_URL: http://localhost:3001
 
 volumes:
   mongodb_data:

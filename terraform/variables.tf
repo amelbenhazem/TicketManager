@@ -36,9 +36,9 @@ variable "stack_arm_environment_name" {
 }
 
 variable "resource_group_name" {
-  description = "Groupe de ressources existant où déployer l'infrastructure (ex. AmalBH-RG)."
+  description = "Groupe de ressources existant où déployer l'infrastructure."
   type        = string
-  default     = "AmalBH-RG"
+  default     = "TicketManager-RG"
 }
 
 variable "location" {

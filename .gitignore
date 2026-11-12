@@ -14,16 +14,27 @@ out/
 .env.*
 !.env.example
 
-# Terraform
+# Terraform — jamais de state ni de secrets (IDs d'abonnement, IPs, etc.)
 terraform/*.tfvars
 terraform/.terraform/
-terraform/terraform.tfstate
-terraform/terraform.tfstate.backup
 terraform/.terraform.lock.hcl
 terraform/_provider_schema.json
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/*.backup
+*.tfstate
+*.tfstate.*
 kubernetes/apimodel.json
 k8s/backend-secret.yaml
 k8s/nexus-pull-secret.yaml
+**/kubeconfig*.json
+**/*.pem
+**/*.key
+
+# Playwright / rapports locaux
+test-results/
+playwright-report/
+blob-report/
 
 # Logs & debug
 *.log

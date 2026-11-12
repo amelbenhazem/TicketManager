@@ -16,15 +16,17 @@ variables:
   # Réduit pour Stack Hub Dev/Test (FabricVmPlacementError si quota insuffisant)
   VM_SIZE_GESTION: Standard_D2s_v3
   VM_SIZE_DB: Standard_D2s_v3
-  # IP publique (PIP) du worker 10.1.3.4 — NSG : 30080 (frontend), 30081 (backend)
-  K8S_WORKER_PUBLIC_IP: 102.141.206.164
-  # Accès HTTP NodePort uniquement (pas d'Ingress HTTPS)
+  # IP publique du worker — à surcharger dans Azure DevOps Library (ne jamais committer une PIP réelle)
+  K8S_WORKER_PUBLIC_IP: ""
+  # Accès HTTP NodePort interne (plan d'adressage lab 10.1.0.0/16)
   K8S_APP_URL: http://10.1.3.4:30080
   K8S_API_URL: http://10.1.3.4:30081
   # URL API vue par le navigateur (figée au build Docker frontend)
   FRONTEND_API_URL: http://10.1.3.4:30081
-  # CORS : origines HTTP (VNet interne + PIP publique + tunnel local)
-  K8S_CORS_ORIGIN: http://10.1.3.4:30080,http://10.1.3.5:30080,http://102.141.206.164:30080,http://localhost:30080
+  # CORS : origines HTTP (VNet interne + tunnel local). Ajouter la PIP via Library.
+  K8S_CORS_ORIGIN: http://10.1.3.4:30080,http://10.1.3.5:30080,http://localhost:30080
+  # Groupe de ressources Terraform — surcharger en Library si le RG lab diffère
+  TF_RESOURCE_GROUP: TicketManager-RG
   # Kubernetes CD — registre vu depuis les nœuds (pas localhost)
   K8S_REGISTRY: 10.1.1.4:8082
   K8S_KUBECONFIG: /home/azureuser/kubernetes/ticketmanager-k8s/kubeconfig/kubeconfig.dc2.json
@@ -391,7 +393,7 @@ stages:
 
           - script: |
               cd terraform
-              RG="AmalBH-RG"
+              RG="$(TF_RESOURCE_GROUP)"
               SUB="$(ARM_SUBSCRIPTION_ID)"
 
               # --- network.tf ---

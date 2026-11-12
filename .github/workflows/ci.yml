@@ -39,7 +39,7 @@ jobs:
         run: npm run build
 
       - name: Test
-        run: npm run test -- --passWithNoTests
+        run: npm run test -- --forceExit
 
   frontend:
     name: Frontend (Next.js)
@@ -65,8 +65,11 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Unit tests
+        run: npm run test:run
+
       - name: Build
         run: npm run build
         env:
-          # Variables pour le build Next.js (optionnel)
-          NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL || 'https://localhost:3000' }}
+          NEXT_PUBLIC_API_URL: http://localhost:3001
+          NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL || 'http://localhost:3000' }}

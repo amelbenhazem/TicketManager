@@ -119,7 +119,7 @@ if [[ -n "$PUBLIC_IP" ]]; then
   echo "Backend  HTTP (public PIP):  http://${PUBLIC_IP}:30081"
   echo "NSG entrant requis: TCP 30080, 30081"
 else
-  echo "Accès public: définir K8S_WORKER_PUBLIC_IP dans azure-pipelines.yml (PIP worker + NSG)"
+  echo "Accès public: définir K8S_WORKER_PUBLIC_IP dans Azure DevOps Library (PIP worker + NSG)"
 fi
 
 if [[ -f "$K8S_DIR/post-deploy.sh" ]]; then

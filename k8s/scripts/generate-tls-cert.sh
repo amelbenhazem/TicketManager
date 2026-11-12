@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Génère un certificat TLS auto-signé pour app.* et api.* (+ IP publique optionnelle).
 # Usage : K8S_APP_HOST=app.ticketmanager.local K8S_API_HOST=api.ticketmanager.local \
-#         K8S_WORKER_PUBLIC_IP=102.141.206.164 ./k8s/scripts/generate-tls-cert.sh [out_dir]
+#         K8S_WORKER_PUBLIC_IP=YOUR_PUBLIC_IP ./k8s/scripts/generate-tls-cert.sh [out_dir]
 set -euo pipefail
 
 APP_HOST="${K8S_APP_HOST:-app.ticketmanager.local}"
